@@ -43,6 +43,8 @@ export const useModelPricingData = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [currency, setCurrency] = useState('USD');
   const [showWithRecharge, setShowWithRecharge] = useState(false);
+  const [showRatio, setShowRatio] = useState(false);
+  const [viewMode, setViewMode] = useState('card');
   const [tokenUnit, setTokenUnit] = useState('M');
   const [models, setModels] = useState([]);
   const [vendorsMap, setVendorsMap] = useState({});
@@ -366,6 +368,10 @@ export const useModelPricingData = () => {
     siteDisplayType,
     showWithRecharge,
     setShowWithRecharge,
+    showRatio,
+    setShowRatio,
+    viewMode,
+    setViewMode,
     tokenUnit,
     setTokenUnit,
     models,

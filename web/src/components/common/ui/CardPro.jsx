@@ -164,8 +164,13 @@ const CardPro = ({
       title={headerContent}
       footer={footerContent}
       shadows={shadows}
-      bordered={bordered}
-      style={style}
+      bordered={false}
+      style={{
+        background: 'rgba(18, 19, 25, 0.3)',
+        backdropFilter: 'blur(20px)',
+        border: '1px solid rgba(143, 245, 255, 0.05)',
+        ...style,
+      }}
       {...props}
     >
       {children}

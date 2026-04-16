@@ -55,26 +55,34 @@ const TokensFilters = ({
       stopValidateWithError={false}
       className='w-full md:w-auto order-1 md:order-2'
     >
-      <div className='flex flex-col md:flex-row items-center gap-2 w-full md:w-auto'>
-        <div className='relative w-full md:w-56'>
+      <div className='flex flex-col md:flex-row items-center gap-3 w-full md:w-auto'>
+        <div className='relative w-full md:w-64'>
           <Form.Input
             field='searchKeyword'
-            prefix={<IconSearch />}
-            placeholder={t('搜索关键字')}
+            prefix={<IconSearch className='text-primary' />}
+            placeholder={t('搜索关键字...')}
             showClear
-            pure
             size='small'
+            hideLabel
+            style={{
+              fontFamily: 'Manrope, sans-serif',
+              background: 'transparent',
+            }}
           />
         </div>
 
-        <div className='relative w-full md:w-56'>
+        <div className='relative w-full md:w-64'>
           <Form.Input
             field='searchToken'
-            prefix={<IconSearch />}
-            placeholder={t('密钥')}
+            prefix={<IconSearch className='text-primary' />}
+            placeholder={t('密钥...')}
             showClear
-            pure
             size='small'
+            hideLabel
+            style={{
+              fontFamily: 'Manrope, sans-serif',
+              background: 'transparent',
+            }}
           />
         </div>
 
@@ -83,8 +91,11 @@ const TokensFilters = ({
             type='tertiary'
             htmlType='submit'
             loading={loading || searching}
-            className='flex-1 md:flex-initial md:w-auto'
+            className='flex-1 md:flex-initial md:w-auto !text-xs !uppercase !tracking-wider'
             size='small'
+            style={{
+              fontFamily: 'Space Grotesk, sans-serif',
+            }}
           >
             {t('查询')}
           </Button>
@@ -92,8 +103,11 @@ const TokensFilters = ({
           <Button
             type='tertiary'
             onClick={handleReset}
-            className='flex-1 md:flex-initial md:w-auto'
+            className='flex-1 md:flex-initial md:w-auto !text-xs !uppercase !tracking-wider'
             size='small'
+            style={{
+              fontFamily: 'Space Grotesk, sans-serif',
+            }}
           >
             {t('重置')}
           </Button>

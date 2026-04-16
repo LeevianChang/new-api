@@ -29,29 +29,26 @@ const DashboardHeader = ({
   loading,
   t,
 }) => {
-  const ICON_BUTTON_CLASS = 'text-white hover:bg-opacity-80 !rounded-full';
-
   return (
-    <div className='flex items-center justify-between mb-4'>
-      <h2
-        className='text-2xl font-semibold text-gray-800 transition-opacity duration-1000 ease-in-out'
-        style={{ opacity: greetingVisible ? 1 : 0 }}
-      >
-        {getGreeting}
-      </h2>
-      <div className='flex gap-3'>
+    <div className='flex flex-col lg:flex-row lg:items-end justify-between mb-8 gap-4'>
+      <div className='transition-opacity duration-1000 ease-in-out' style={{ opacity: greetingVisible ? 1 : 0 }}>
+        <h1 className='font-aether-headline text-3xl font-bold tracking-tight text-aether-on-surface'>
+          <span className='text-aether-primary aether-neon-glow'>{getGreeting}</span>
+        </h1>
+      </div>
+      <div className='flex items-center gap-4 font-aether-label text-xs'>
         <Button
           type='tertiary'
           icon={<Search size={16} />}
           onClick={showSearchModal}
-          className={`bg-green-500 hover:bg-green-600 ${ICON_BUTTON_CLASS}`}
+          className='!bg-aether-secondary/20 hover:!bg-aether-secondary/30 !text-aether-secondary !border-aether-secondary/30 !rounded-lg transition-all'
         />
         <Button
           type='tertiary'
           icon={<RefreshCw size={16} />}
           onClick={refresh}
           loading={loading}
-          className={`bg-blue-500 hover:bg-blue-600 ${ICON_BUTTON_CLASS}`}
+          className='!bg-aether-primary/20 hover:!bg-aether-primary/30 !text-aether-primary !border-aether-primary/30 !rounded-lg transition-all'
         />
       </div>
     </div>

@@ -20,8 +20,10 @@ For commercial licensing, please contact support@quantumnous.com
 import React from 'react';
 import { Layout, ImagePreview } from '@douyinfe/semi-ui';
 import PricingSidebar from './PricingSidebar';
+import PricingSidebarCyber from './PricingSidebarCyber';
 import PricingContent from './content/PricingContent';
 import ModelDetailSideSheet from '../modal/ModelDetailSideSheet';
+import ModelDetailSideSheetCyber from '../modal/ModelDetailSideSheetCyber';
 import { useModelPricingData } from '../../../../hooks/model-pricing/useModelPricingData';
 import { useIsMobile } from '../../../../hooks/common/useIsMobile';
 
@@ -29,26 +31,26 @@ const PricingPage = () => {
   const pricingData = useModelPricingData();
   const { Sider, Content } = Layout;
   const isMobile = useIsMobile();
-  const [showRatio, setShowRatio] = React.useState(false);
-  const [viewMode, setViewMode] = React.useState('card');
+  const [useCyberTheme, setUseCyberTheme] = React.useState(true);
   const allProps = {
     ...pricingData,
-    showRatio,
-    setShowRatio,
-    viewMode,
-    setViewMode,
+    useCyberTheme,
   };
 
   return (
-    <div className='bg-white'>
-      <Layout className='pricing-layout'>
+    <div className={useCyberTheme ? 'cyberpunk-marketplace' : 'bg-white'}>
+      <Layout className='pricing-layout' style={useCyberTheme ? { background: '#0d0e13' } : {}}>
         {!isMobile && (
-          <Sider className='pricing-scroll-hide pricing-sidebar'>
-            <PricingSidebar {...allProps} />
+          <Sider className='pricing-scroll-hide pricing-sidebar' style={useCyberTheme ? { background: 'rgba(13, 14, 19, 0.4)', backdropFilter: 'blur(24px)' } : {}}>
+            {useCyberTheme ? (
+              <PricingSidebarCyber {...allProps} />
+            ) : (
+              <PricingSidebar {...allProps} />
+            )}
           </Sider>
         )}
 
-        <Content className='pricing-scroll-hide pricing-content'>
+        <Content className='pricing-scroll-hide pricing-content' style={useCyberTheme ? { background: '#0d0e13' } : {}}>
           <PricingContent
             {...allProps}
             isMobile={isMobile}
@@ -63,22 +65,41 @@ const PricingPage = () => {
         onVisibleChange={(visible) => pricingData.setIsModalOpenurl(visible)}
       />
 
-      <ModelDetailSideSheet
-        visible={pricingData.showModelDetail}
-        onClose={pricingData.closeModelDetail}
-        modelData={pricingData.selectedModel}
-        groupRatio={pricingData.groupRatio}
-        usableGroup={pricingData.usableGroup}
-        currency={pricingData.currency}
-        siteDisplayType={pricingData.siteDisplayType}
-        tokenUnit={pricingData.tokenUnit}
-        displayPrice={pricingData.displayPrice}
-        showRatio={allProps.showRatio}
-        vendorsMap={pricingData.vendorsMap}
-        endpointMap={pricingData.endpointMap}
-        autoGroups={pricingData.autoGroups}
-        t={pricingData.t}
-      />
+      {useCyberTheme ? (
+        <ModelDetailSideSheetCyber
+          visible={pricingData.showModelDetail}
+          onClose={pricingData.closeModelDetail}
+          modelData={pricingData.selectedModel}
+          groupRatio={pricingData.groupRatio}
+          usableGroup={pricingData.usableGroup}
+          currency={pricingData.currency}
+          siteDisplayType={pricingData.siteDisplayType}
+          tokenUnit={pricingData.tokenUnit}
+          displayPrice={pricingData.displayPrice}
+          showRatio={allProps.showRatio}
+          vendorsMap={pricingData.vendorsMap}
+          endpointMap={pricingData.endpointMap}
+          autoGroups={pricingData.autoGroups}
+          t={pricingData.t}
+        />
+      ) : (
+        <ModelDetailSideSheet
+          visible={pricingData.showModelDetail}
+          onClose={pricingData.closeModelDetail}
+          modelData={pricingData.selectedModel}
+          groupRatio={pricingData.groupRatio}
+          usableGroup={pricingData.usableGroup}
+          currency={pricingData.currency}
+          siteDisplayType={pricingData.siteDisplayType}
+          tokenUnit={pricingData.tokenUnit}
+          displayPrice={pricingData.displayPrice}
+          showRatio={allProps.showRatio}
+          vendorsMap={pricingData.vendorsMap}
+          endpointMap={pricingData.endpointMap}
+          autoGroups={pricingData.autoGroups}
+          t={pricingData.t}
+        />
+      )}
     </div>
   );
 };

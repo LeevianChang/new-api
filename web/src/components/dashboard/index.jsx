@@ -139,42 +139,50 @@ const Dashboard = () => {
   }, []);
 
   return (
-    <div className='h-full'>
-      <DashboardHeader
-        getGreeting={dashboardData.getGreeting}
-        greetingVisible={dashboardData.greetingVisible}
-        showSearchModal={dashboardData.showSearchModal}
-        refresh={handleRefresh}
-        loading={dashboardData.loading}
-        t={dashboardData.t}
-      />
+    <div className='h-full relative'>
+      {/* Cinematic Background Elements */}
+      <div className='aether-cinematic-bg'>
+        <div className='aether-bg-orb-1'></div>
+        <div className='aether-bg-orb-2'></div>
+        <div className='aether-bg-orb-3'></div>
+      </div>
+      
+      <div className='relative z-10'>
+        <DashboardHeader
+          getGreeting={dashboardData.getGreeting}
+          greetingVisible={dashboardData.greetingVisible}
+          showSearchModal={dashboardData.showSearchModal}
+          refresh={handleRefresh}
+          loading={dashboardData.loading}
+          t={dashboardData.t}
+        />
 
-      <SearchModal
-        searchModalVisible={dashboardData.searchModalVisible}
-        handleSearchConfirm={handleSearchConfirm}
-        handleCloseModal={dashboardData.handleCloseModal}
-        isMobile={dashboardData.isMobile}
-        isAdminUser={dashboardData.isAdminUser}
-        inputs={dashboardData.inputs}
-        dataExportDefaultTime={dashboardData.dataExportDefaultTime}
-        timeOptions={dashboardData.timeOptions}
-        handleInputChange={dashboardData.handleInputChange}
-        t={dashboardData.t}
-      />
+        <SearchModal
+          searchModalVisible={dashboardData.searchModalVisible}
+          handleSearchConfirm={handleSearchConfirm}
+          handleCloseModal={dashboardData.handleCloseModal}
+          isMobile={dashboardData.isMobile}
+          isAdminUser={dashboardData.isAdminUser}
+          inputs={dashboardData.inputs}
+          dataExportDefaultTime={dashboardData.dataExportDefaultTime}
+          timeOptions={dashboardData.timeOptions}
+          handleInputChange={dashboardData.handleInputChange}
+          t={dashboardData.t}
+        />
 
-      <StatsCards
-        groupedStatsData={groupedStatsData}
-        loading={dashboardData.loading}
-        getTrendSpec={getTrendSpec}
-        CARD_PROPS={CARD_PROPS}
-        CHART_CONFIG={CHART_CONFIG}
-      />
+        <StatsCards
+          groupedStatsData={groupedStatsData}
+          loading={dashboardData.loading}
+          getTrendSpec={getTrendSpec}
+          CARD_PROPS={CARD_PROPS}
+          CHART_CONFIG={CHART_CONFIG}
+        />
 
-      {/* API信息和图表面板 */}
-      <div className='mb-4'>
-        <div
-          className={`grid grid-cols-1 gap-4 ${dashboardData.hasApiInfoPanel ? 'lg:grid-cols-4' : ''}`}
-        >
+        {/* API信息和图表面板 */}
+        <div className='mb-4'>
+          <div
+            className={`grid grid-cols-1 gap-4 ${dashboardData.hasApiInfoPanel ? 'lg:grid-cols-4' : ''}`}
+          >
           <ChartsPanel
             activeChartTab={dashboardData.activeChartTab}
             setActiveChartTab={dashboardData.setActiveChartTab}
@@ -264,6 +272,7 @@ const Dashboard = () => {
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 };

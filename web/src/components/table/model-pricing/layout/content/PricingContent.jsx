@@ -19,6 +19,7 @@ For commercial licensing, please contact support@quantumnous.com
 
 import React from 'react';
 import PricingTopSection from '../header/PricingTopSection';
+import SearchActions from '../header/SearchActions';
 import PricingView from './PricingView';
 
 const PricingContent = ({ isMobile, sidebarProps, ...props }) => {
@@ -26,7 +27,7 @@ const PricingContent = ({ isMobile, sidebarProps, ...props }) => {
     <div
       className={isMobile ? 'pricing-content-mobile' : 'pricing-scroll-hide'}
     >
-      {/* 固定的顶部区域（分类介绍 + 搜索和操作） */}
+      {/* 固定的顶部区域（标题介绍） */}
       <div className='pricing-search-header'>
         <PricingTopSection
           {...props}
@@ -43,6 +44,34 @@ const PricingContent = ({ isMobile, sidebarProps, ...props }) => {
           tokenUnit={sidebarProps.tokenUnit}
           setTokenUnit={sidebarProps.setTokenUnit}
         />
+        
+        {/* 搜索和操作栏 - 独立模块 */}
+        {!isMobile && (
+          <div className='px-12 py-6 bg-[#0d0e13]/50 border-t border-b border-[#47474e]/10 backdrop-blur-sm'>
+            <SearchActions
+              selectedRowKeys={props.selectedRowKeys}
+              copyText={props.copyText}
+              handleChange={props.handleChange}
+              handleCompositionStart={props.handleCompositionStart}
+              handleCompositionEnd={props.handleCompositionEnd}
+              isMobile={isMobile}
+              searchValue={props.searchValue}
+              setShowFilterModal={props.setShowFilterModal}
+              showWithRecharge={sidebarProps.showWithRecharge}
+              setShowWithRecharge={sidebarProps.setShowWithRecharge}
+              currency={sidebarProps.currency}
+              setCurrency={sidebarProps.setCurrency}
+              siteDisplayType={props.siteDisplayType}
+              showRatio={sidebarProps.showRatio}
+              setShowRatio={sidebarProps.setShowRatio}
+              viewMode={sidebarProps.viewMode}
+              setViewMode={sidebarProps.setViewMode}
+              tokenUnit={sidebarProps.tokenUnit}
+              setTokenUnit={sidebarProps.setTokenUnit}
+              t={props.t}
+            />
+          </div>
+        )}
       </div>
 
       {/* 可滚动的内容区域 */}

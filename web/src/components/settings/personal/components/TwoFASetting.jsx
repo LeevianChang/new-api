@@ -366,43 +366,62 @@ const TwoFASetting = ({ t }) => {
 
   return (
     <>
-      <Card className='!rounded-xl w-full'>
+      <div className='p-4 rounded-lg' style={{
+        background: 'rgba(24, 25, 32, 0.6)',
+        border: '1px solid rgba(143, 245, 255, 0.1)',
+      }}>
         <div className='flex flex-col sm:flex-row items-start sm:justify-between gap-4'>
           <div className='flex items-start w-full sm:w-auto'>
-            <div className='w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center mr-4 flex-shrink-0'>
-              <IconShield
-                size='large'
-                className='text-slate-600 dark:text-slate-300'
-              />
+            <div className='w-12 h-12 rounded-full flex items-center justify-center mr-4 flex-shrink-0' style={{
+              background: 'rgba(143, 245, 255, 0.1)',
+            }}>
+              <IconShield size='large' style={{ color: '#8ff5ff' }} />
             </div>
             <div className='flex-1'>
               <div className='flex items-center gap-2 mb-1'>
-                <Typography.Title heading={6} className='mb-0'>
+                <Typography.Title heading={6} className='mb-0' style={{
+                  color: '#f7f5fd',
+                  fontFamily: 'Space Grotesk, sans-serif',
+                }}>
                   {t('两步验证设置')}
                 </Typography.Title>
                 {status.enabled ? (
-                  <Tag color='green' shape='circle' size='small'>
+                  <Tag shape='circle' size='small' style={{
+                    background: 'rgba(143, 245, 255, 0.1)',
+                    border: '1px solid rgba(143, 245, 255, 0.3)',
+                    color: '#8ff5ff',
+                  }}>
                     {t('已启用')}
                   </Tag>
                 ) : (
-                  <Tag color='red' shape='circle' size='small'>
+                  <Tag shape='circle' size='small' style={{
+                    background: 'rgba(255, 113, 108, 0.1)',
+                    border: '1px solid rgba(255, 113, 108, 0.3)',
+                    color: '#ff716c',
+                  }}>
                     {t('未启用')}
                   </Tag>
                 )}
                 {status.locked && (
-                  <Tag color='orange' shape='circle' size='small'>
+                  <Tag shape='circle' size='small' style={{
+                    background: 'rgba(255, 89, 227, 0.1)',
+                    border: '1px solid rgba(255, 89, 227, 0.3)',
+                    color: '#ff59e3',
+                  }}>
                     {t('账户已锁定')}
                   </Tag>
                 )}
               </div>
-              <Typography.Text type='tertiary' className='text-sm'>
+              <Typography.Text type='tertiary' className='text-sm' style={{
+                color: '#abaab1',
+              }}>
                 {t(
                   '两步验证（2FA）为您的账户提供额外的安全保护。启用后，登录时需要输入密码和验证器应用生成的验证码。',
                 )}
               </Typography.Text>
               {status.enabled && (
                 <div className='mt-2'>
-                  <Text size='small' type='secondary'>
+                  <Text size='small' style={{ color: '#75757b' }}>
                     {t('剩余备用码：')}
                     {status.backup_codes_remaining || 0}
                     {t('个')}
@@ -414,35 +433,56 @@ const TwoFASetting = ({ t }) => {
           <div className='flex flex-col space-y-2 w-full sm:w-auto'>
             {!status.enabled ? (
               <Button
-                type='primary'
-                theme='solid'
                 size='default'
                 onClick={handleSetup2FA}
                 loading={loading}
-                className='!rounded-lg !bg-slate-600 hover:!bg-slate-700'
                 icon={<IconShield />}
+                style={{
+                  background: 'rgba(143, 245, 255, 0.1)',
+                  border: '1px solid rgba(143, 245, 255, 0.3)',
+                  color: '#8ff5ff',
+                  fontFamily: 'Space Grotesk, sans-serif',
+                  textTransform: 'uppercase',
+                  fontSize: '10px',
+                  letterSpacing: '0.1em',
+                  minWidth: '120px',
+                }}
               >
                 {t('启用验证')}
               </Button>
             ) : (
               <div className='flex flex-col space-y-2'>
                 <Button
-                  type='danger'
-                  theme='solid'
                   size='default'
                   onClick={() => setDisableModalVisible(true)}
-                  className='!rounded-lg !bg-slate-500 hover:!bg-slate-600'
                   icon={<IconAlertTriangle />}
+                  style={{
+                    background: 'rgba(255, 113, 108, 0.1)',
+                    border: '1px solid rgba(255, 113, 108, 0.3)',
+                    color: '#ff716c',
+                    fontFamily: 'Space Grotesk, sans-serif',
+                    textTransform: 'uppercase',
+                    fontSize: '10px',
+                    letterSpacing: '0.1em',
+                    minWidth: '120px',
+                  }}
                 >
                   {t('禁用两步验证')}
                 </Button>
                 <Button
-                  type='primary'
-                  theme='solid'
                   size='default'
                   onClick={() => setBackupModalVisible(true)}
-                  className='!rounded-lg'
                   icon={<IconRefresh />}
+                  style={{
+                    background: 'rgba(170, 138, 255, 0.1)',
+                    border: '1px solid rgba(170, 138, 255, 0.3)',
+                    color: '#aa8aff',
+                    fontFamily: 'Space Grotesk, sans-serif',
+                    textTransform: 'uppercase',
+                    fontSize: '10px',
+                    letterSpacing: '0.1em',
+                    minWidth: '120px',
+                  }}
                 >
                   {t('重新生成备用码')}
                 </Button>
@@ -450,7 +490,7 @@ const TwoFASetting = ({ t }) => {
             )}
           </div>
         </div>
-      </Card>
+      </div>
 
       {/* 2FA设置模态框 */}
       <Modal

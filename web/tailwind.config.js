@@ -19,8 +19,28 @@ For commercial licensing, please contact support@quantumnous.com
 
 export default {
   content: ['./index.html', './src/**/*.{js,jsx,ts,tsx}'],
+  darkMode: 'class',
   theme: {
-    colors: {
+    extend: {
+      colors: {
+        // AETHER RELAY color scheme
+        'aether-primary': '#8ff5ff',
+      'aether-primary-dim': '#00deec',
+      'aether-primary-container': '#00eefc',
+      'aether-secondary': '#aa8aff',
+      'aether-secondary-dim': '#844eff',
+      'aether-tertiary': '#ff59e3',
+      'aether-tertiary-dim': '#ff59e3',
+      'aether-background': '#0d0e13',
+      'aether-surface': '#0d0e13',
+      'aether-surface-container': '#181920',
+      'aether-surface-container-low': '#121319',
+      'aether-surface-container-high': '#1e1f26',
+      'aether-surface-bright': '#2a2c34',
+      'aether-on-surface': '#f7f5fd',
+      'aether-on-background': '#f7f5fd',
+      
+      // Semi Design colors (preserved for compatibility)
       'semi-color-white': 'var(--semi-color-white)',
       'semi-color-black': 'var(--semi-color-black)',
       'semi-color-primary': 'var(--semi-color-primary)',
@@ -132,8 +152,12 @@ export default {
       'semi-color-data-17': 'var(--semi-color-data-17)',
       'semi-color-data-18': 'var(--semi-color-data-18)',
       'semi-color-data-19': 'var(--semi-color-data-19)',
-    },
-    extend: {
+      },
+      fontFamily: {
+        'aether-headline': ['Space Grotesk', 'sans-serif'],
+        'aether-body': ['Manrope', 'sans-serif'],
+        'aether-label': ['Space Grotesk', 'sans-serif'],
+      },
       borderRadius: {
         'semi-border-radius-extra-small':
           'var(--semi-border-radius-extra-small)',
@@ -142,6 +166,18 @@ export default {
         'semi-border-radius-large': 'var(--semi-border-radius-large)',
         'semi-border-radius-circle': 'var(--semi-border-radius-circle)',
         'semi-border-radius-full': 'var(--semi-border-radius-full)',
+      },
+      backdropBlur: {
+        'aether': '20px',
+      },
+      animation: {
+        'aether-pulse': 'aether-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+      },
+      keyframes: {
+        'aether-pulse': {
+          '0%, 100%': { opacity: '1' },
+          '50%': { opacity: '0.4' },
+        },
       },
     },
   },

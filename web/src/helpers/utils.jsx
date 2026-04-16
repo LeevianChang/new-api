@@ -54,7 +54,7 @@ export function getSystemName() {
 
 export function getLogo() {
   let logo = localStorage.getItem('logo');
-  if (!logo) return '/logo.png';
+  if (!logo) return '/logo.svg';
   return logo;
 }
 
@@ -880,10 +880,11 @@ export const formatPriceInfo = (priceData, t, quotaDisplayType = 'USD') => {
   return (
     <>
       {items.map((item) => (
-        <span key={item.key} style={{ color: 'var(--semi-color-text-1)' }}>
-          {item.label} {item.value}
-          {item.suffix}
-        </span>
+        <div key={item.key} className="mb-1">
+          <span className="text-[#aa8aff] font-semibold">{item.label}</span>{' '}
+          <span className="text-[#f7f5fd]">{item.value}</span>
+          <span className="text-[#abaab1] text-xs ml-1">{item.suffix}</span>
+        </div>
       ))}
     </>
   );

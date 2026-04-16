@@ -20,13 +20,17 @@ For commercial licensing, please contact support@quantumnous.com
 import React from 'react';
 import PricingTable from '../../view/table/PricingTable';
 import PricingCardView from '../../view/card/PricingCardView';
+import PricingCardViewCyber from '../../view/card/PricingCardViewCyber';
 
-const PricingView = ({ viewMode = 'table', ...props }) => {
-  return viewMode === 'card' ? (
-    <PricingCardView {...props} />
-  ) : (
-    <PricingTable {...props} />
-  );
+const PricingView = ({ viewMode = 'table', useCyberTheme = true, ...props }) => {
+  if (viewMode === 'card') {
+    return useCyberTheme ? (
+      <PricingCardViewCyber {...props} />
+    ) : (
+      <PricingCardView {...props} />
+    );
+  }
+  return <PricingTable {...props} />;
 };
 
 export default PricingView;

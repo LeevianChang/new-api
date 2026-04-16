@@ -37,15 +37,15 @@ function renderQuotaType(type, t) {
   switch (type) {
     case 1:
       return (
-        <Tag color='teal' shape='circle'>
+        <div className='px-3 py-1 text-[10px] font-bold rounded-full tracking-widest uppercase font-headline bg-teal/10 text-teal border border-teal/30'>
           {t('按次计费')}
-        </Tag>
+        </div>
       );
     case 0:
       return (
-        <Tag color='violet' shape='circle'>
+        <div className='px-3 py-1 text-[10px] font-bold rounded-full tracking-widest uppercase font-headline bg-[#aa8aff]/10 text-[#aa8aff] border border-[#aa8aff]/30'>
           {t('按量计费')}
-        </Tag>
+        </div>
       );
     default:
       return t('未知');
@@ -56,13 +56,16 @@ function renderQuotaType(type, t) {
 const renderVendor = (vendorName, vendorIcon, t) => {
   if (!vendorName) return '-';
   return (
-    <Tag
-      color='white'
-      shape='circle'
-      prefixIcon={getLobeHubIcon(vendorIcon || 'Layers', 14)}
-    >
-      {vendorName}
-    </Tag>
+    <div className='flex items-center gap-2'>
+      {/* Icon with background */}
+      <div className='w-8 h-8 rounded-lg bg-gradient-to-br from-[#8ff5ff]/20 to-[#aa8aff]/20 flex items-center justify-center border border-[#8ff5ff]/30 flex-shrink-0'>
+        {getLobeHubIcon(vendorIcon || 'Layers', 18)}
+      </div>
+      {/* Vendor name */}
+      <span className='text-[#abaab1] font-medium'>
+        {vendorName}
+      </span>
+    </div>
   );
 };
 
@@ -70,18 +73,31 @@ const renderVendor = (vendorName, vendorIcon, t) => {
 const renderTags = (text) => {
   if (!text) return '-';
   const tagsArr = text.split(',').filter((tag) => tag.trim());
+  // 使用粉色、紫色和橙红色系
+  const colors = [
+    { bg: '#ff59e3', text: '#ff59e3' },  // 粉色
+    { bg: '#aa8aff', text: '#aa8aff' },  // 紫色
+    { bg: '#FF716C', text: '#FF716C' },  // 橙红色
+  ];
   return renderLimitedItems({
     items: tagsArr,
-    renderItem: (tag, idx) => (
-      <Tag
-        key={idx}
-        color={stringToColor(tag.trim())}
-        shape='circle'
-        size='small'
-      >
-        {tag.trim()}
-      </Tag>
-    ),
+    renderItem: (tag, idx) => {
+      const colorScheme = colors[idx % colors.length];
+      return (
+        <Tag
+          key={idx}
+          shape='circle'
+          size='small'
+          style={{
+            backgroundColor: `${colorScheme.bg}20`,
+            color: colorScheme.text,
+            border: `1px solid ${colorScheme.bg}50`,
+          }}
+        >
+          {tag.trim()}
+        </Tag>
+      );
+    },
     maxDisplay: 3,
   });
 };
@@ -93,7 +109,15 @@ function renderSupportedEndpoints(endpoints) {
   return (
     <Space wrap>
       {endpoints.map((endpoint, idx) => (
-        <Tag key={endpoint} color={stringToColor(endpoint)} shape='circle'>
+        <Tag 
+          key={endpoint} 
+          shape='circle'
+          style={{
+            backgroundColor: 'rgba(143, 245, 255, 0.1)',
+            color: '#8ff5ff',
+            border: '1px solid rgba(143, 245, 255, 0.3)',
+          }}
+        >
           {endpoint}
         </Tag>
       ))}
@@ -168,7 +192,11 @@ export const getPricingTableColumns = ({
   const descriptionColumn = {
     title: t('描述'),
     dataIndex: 'description',
-    render: (text) => renderDescription(text, 200),
+    render: (text) => (
+      <span className='text-[#abaab1]'>
+        {renderDescription(text, 200)}
+      </span>
+    ),
   };
 
   const tagsColumn = {
@@ -213,15 +241,15 @@ export const getPricingTableColumns = ({
 
       return (
         <div className='space-y-1'>
-          <div className='text-gray-700'>
-            {t('模型倍率')}：{record.quota_type === 0 ? text : t('无')}
+          <div className='text-[#abaab1]'>
+            <span className='text-[#8ff5ff] font-semibold'>{t('模型倍率')}</span>：<span className='text-[#f7f5fd]'>{record.quota_type === 0 ? text : t('无')}</span>
           </div>
-          <div className='text-gray-700'>
-            {t('补全倍率')}：
-            {record.quota_type === 0 ? completionRatio : t('无')}
+          <div className='text-[#abaab1]'>
+            <span className='text-[#8ff5ff] font-semibold'>{t('补全倍率')}</span>：
+            <span className='text-[#f7f5fd]'>{record.quota_type === 0 ? completionRatio : t('无')}</span>
           </div>
-          <div className='text-gray-700'>
-            {t('分组倍率')}：{priceData?.usedGroupRatio ?? '-'}
+          <div className='text-[#abaab1]'>
+            <span className='text-[#8ff5ff] font-semibold'>{t('分组倍率')}</span>：<span className='text-[#f7f5fd]'>{priceData?.usedGroupRatio ?? '-'}</span>
           </div>
         </div>
       );
@@ -239,9 +267,10 @@ export const getPricingTableColumns = ({
       return (
         <div className='space-y-1'>
           {priceItems.map((item) => (
-            <div key={item.key} className='text-gray-700'>
-              {item.label} {item.value}
-              {item.suffix}
+            <div key={item.key}>
+              <span className='text-[#aa8aff] font-semibold'>{item.label}</span>{' '}
+              <span className='text-[#f7f5fd]'>{item.value}</span>
+              <span className='text-[#abaab1] text-xs ml-1'>{item.suffix}</span>
             </div>
           ))}
         </div>

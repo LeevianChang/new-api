@@ -153,6 +153,14 @@ const PricingCardView = ({
 
   // 渲染标签
   const renderTags = (record) => {
+    // 调试输出
+    console.log('renderTags called:', {
+      model_name: record.model_name,
+      has_tags: !!record.tags,
+      tags_value: record.tags,
+      tags_type: typeof record.tags,
+    });
+
     // 计费类型标签（左边）
     let billingTag = (
       <Tag key='billing' shape='circle' color='white' size='small'>
@@ -174,36 +182,41 @@ const PricingCardView = ({
     }
 
     // 自定义标签（右边）
-    const customTags = [];
+    let customTagsElement = null;
     if (record.tags) {
-      const tagArr = record.tags.split(',').filter(Boolean);
-      tagArr.forEach((tg, idx) => {
-        customTags.push(
-          <Tag
-            key={`custom-${idx}`}
-            shape='circle'
-            color={stringToColor(tg)}
-            size='small'
-          >
-            {tg}
-          </Tag>,
+      const tagArr = record.tags.split(',').filter((tag) => tag.trim());
+      console.log('tagArr:', tagArr, 'length:', tagArr.length);
+      if (tagArr.length > 0) {
+        customTagsElement = (
+          <Space spacing={1} wrap>
+            {tagArr.slice(0, 3).map((tg, idx) => (
+              <Tag
+                key={idx}
+                shape='circle'
+                color={stringToColor(tg.trim())}
+                size='small'
+              >
+                {tg.trim()}
+              </Tag>
+            ))}
+            {tagArr.length > 3 && (
+              <Tag size='small' shape='circle' color='grey'>
+                +{tagArr.length - 3}
+              </Tag>
+            )}
+          </Space>
         );
-      });
+        console.log('customTagsElement created');
+      }
+    } else {
+      console.log('No tags found for model:', record.model_name);
     }
 
     return (
       <div className='flex items-center justify-between'>
         <div className='flex items-center gap-2'>{billingTag}</div>
         <div className='flex items-center gap-1'>
-          {customTags.length > 0 &&
-            renderLimitedItems({
-              items: customTags.map((tag, idx) => ({
-                key: `custom-${idx}`,
-                element: tag,
-              })),
-              renderItem: (item, idx) => item.element,
-              maxDisplay: 3,
-            })}
+          {customTagsElement}
         </div>
       </div>
     );

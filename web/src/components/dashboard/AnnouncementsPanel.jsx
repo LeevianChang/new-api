@@ -18,8 +18,8 @@ For commercial licensing, please contact support@quantumnous.com
 */
 
 import React from 'react';
-import { Card, Tag, Timeline, Empty } from '@douyinfe/semi-ui';
-import { Bell } from 'lucide-react';
+import { Tag, Empty } from '@douyinfe/semi-ui';
+import { Bell, Clock } from 'lucide-react';
 import { marked } from 'marked';
 import {
   IllustrationConstruction,
@@ -34,78 +34,62 @@ const AnnouncementsPanel = ({
   ILLUSTRATION_SIZE,
   t,
 }) => {
+  const getTypeColor = (type) => {
+    switch (type) {
+      case 'success': return 'text-aether-primary';
+      case 'warning': return 'text-amber-400';
+      case 'danger': return 'text-red-400';
+      case 'info': return 'text-aether-secondary';
+      default: return 'text-slate-400';
+    }
+  };
+
   return (
-    <Card
-      {...CARD_PROPS}
-      className='shadow-sm !rounded-2xl lg:col-span-2'
-      title={
-        <div className='flex flex-col lg:flex-row lg:items-center lg:justify-between gap-2 w-full'>
-          <div className='flex items-center gap-2'>
-            <Bell size={16} />
-            {t('系统公告')}
-            <Tag color='white' shape='circle'>
-              {t('显示最新20条')}
-            </Tag>
-          </div>
-          {/* 图例 */}
-          <div className='flex flex-wrap gap-3 text-xs'>
-            {announcementLegendData.map((legend, index) => (
-              <div key={index} className='flex items-center gap-1'>
-                <div
-                  className='w-2 h-2 rounded-full'
-                  style={{
-                    backgroundColor:
-                      legend.color === 'grey'
-                        ? '#8b9aa7'
-                        : legend.color === 'blue'
-                          ? '#3b82f6'
-                          : legend.color === 'green'
-                            ? '#10b981'
-                            : legend.color === 'orange'
-                              ? '#f59e0b'
-                              : legend.color === 'red'
-                                ? '#ef4444'
-                                : '#8b9aa7',
-                  }}
-                />
-                <span className='text-gray-600'>{legend.label}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      }
-      bodyStyle={{ padding: 0 }}
-    >
+    <div className='aether-glass-panel p-6 rounded-xl lg:col-span-2'>
+      <div className='flex items-center gap-2 mb-6'>
+        <Bell size={18} className='text-aether-primary' />
+        <h3 className='font-aether-headline text-lg font-bold tracking-tight'>
+          {t('系统公告')}
+        </h3>
+        <Tag color='white' shape='circle' size='small'>
+          {t('显示最新20条')}
+        </Tag>
+      </div>
       <ScrollableContainer maxHeight='24rem'>
         {announcementData.length > 0 ? (
-          <Timeline mode='left'>
+          <div className='space-y-4'>
             {announcementData.map((item, idx) => {
+              const htmlContent = item.content ? marked.parse(item.content) : '';
               const htmlExtra = item.extra ? marked.parse(item.extra) : '';
               return (
-                <Timeline.Item
-                  key={idx}
-                  type={item.type || 'default'}
-                  time={`${item.relative ? item.relative + ' ' : ''}${item.time}`}
-                  extra={
-                    item.extra ? (
-                      <div
-                        className='text-xs text-gray-500'
-                        dangerouslySetInnerHTML={{ __html: htmlExtra }}
-                      />
-                    ) : null
-                  }
-                >
-                  <div>
-                    <div
-                      dangerouslySetInnerHTML={{
-                        __html: marked.parse(item.content || ''),
-                      }}
-                    />
+                <div key={idx} className='group cursor-pointer'>
+                  <div className='flex items-center justify-between mb-1'>
+                    <span className={`text-[10px] font-aether-label px-2 py-0.5 rounded-full ${
+                      item.type === 'success' ? 'bg-aether-primary/10 text-aether-primary' :
+                      item.type === 'warning' ? 'bg-amber-400/10 text-amber-400' :
+                      item.type === 'danger' ? 'bg-red-400/10 text-red-400' :
+                      item.type === 'info' ? 'bg-aether-secondary/10 text-aether-secondary' :
+                      'bg-slate-400/10 text-slate-400'
+                    }`}>
+                      {item.type?.toUpperCase() || 'INFO'}
+                    </span>
+                    <span className='text-[10px] font-aether-label text-slate-500 flex items-center gap-1'>
+                      <Clock size={10} />
+                      {item.relative || item.time}
+                    </span>
                   </div>
-                </Timeline.Item>
+                  <h4 className={`font-aether-body text-sm font-semibold text-aether-on-surface group-hover:${getTypeColor(item.type)} transition-all`}>
+                    <div dangerouslySetInnerHTML={{ __html: htmlContent }} />
+                  </h4>
+                  {item.extra && (
+                    <p className='text-xs text-slate-500 mt-1 line-clamp-1'>
+                      <div dangerouslySetInnerHTML={{ __html: htmlExtra }} />
+                    </p>
+                  )}
+                </div>
               );
             })}
-          </Timeline>
+          </div>
         ) : (
           <div className='flex justify-center items-center py-8'>
             <Empty
@@ -119,7 +103,7 @@ const AnnouncementsPanel = ({
           </div>
         )}
       </ScrollableContainer>
-    </Card>
+    </div>
   );
 };
 

@@ -89,6 +89,8 @@ const UserArea = ({
               </Dropdown.Item>
               <Dropdown.Item
                 onClick={() => {
+                  console.log('钱包管理按钮被点击，准备跳转到 /console/topup');
+                  console.log('navigate 函数:', navigate);
                   navigate('/console/topup');
                 }}
                 className='!px-3 !py-1.5 !text-sm !text-semi-color-text-0 hover:!bg-semi-color-fill-1 dark:!text-gray-200 dark:hover:!bg-blue-500 dark:hover:!text-white'

@@ -17,33 +17,32 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 For commercial licensing, please contact support@quantumnous.com
 */
 
-import React, { memo, useCallback } from 'react';
+import React, { useCallback } from 'react';
 import { Input, Button, Switch, Select, Divider } from '@douyinfe/semi-ui';
 import { IconSearch, IconCopy, IconFilter } from '@douyinfe/semi-icons';
 
-const SearchActions = memo(
-  ({
-    selectedRowKeys = [],
-    copyText,
-    handleChange,
-    handleCompositionStart,
-    handleCompositionEnd,
-    isMobile = false,
-    searchValue = '',
-    setShowFilterModal,
-    showWithRecharge,
-    setShowWithRecharge,
-    currency,
-    setCurrency,
-    siteDisplayType,
-    showRatio,
-    setShowRatio,
-    viewMode,
-    setViewMode,
-    tokenUnit,
-    setTokenUnit,
-    t,
-  }) => {
+const SearchActions = ({
+  selectedRowKeys = [],
+  copyText,
+  handleChange,
+  handleCompositionStart,
+  handleCompositionEnd,
+  isMobile = false,
+  searchValue = '',
+  setShowFilterModal,
+  showWithRecharge,
+  setShowWithRecharge,
+  currency,
+  setCurrency,
+  siteDisplayType,
+  showRatio,
+  setShowRatio,
+  viewMode,
+  setViewMode,
+  tokenUnit,
+  setTokenUnit,
+  t,
+}) => {
     const supportsCurrencyDisplay = siteDisplayType !== 'TOKENS';
 
     const handleCopyClick = useCallback(() => {
@@ -64,6 +63,14 @@ const SearchActions = memo(
       setTokenUnit?.(tokenUnit === 'K' ? 'M' : 'K');
     }, [tokenUnit, setTokenUnit]);
 
+    const handleShowWithRechargeChange = useCallback((checked) => {
+      setShowWithRecharge?.(checked);
+    }, [setShowWithRecharge]);
+
+    const handleShowRatioChange = useCallback((checked) => {
+      setShowRatio?.(checked);
+    }, [setShowRatio]);
+
     return (
       <div className='flex items-center gap-2 w-full'>
         <div className='flex-1'>
@@ -75,19 +82,27 @@ const SearchActions = memo(
             onCompositionEnd={handleCompositionEnd}
             onChange={handleChange}
             showClear
+            style={{
+              backgroundColor: 'rgba(36, 37, 45, 0.6)',
+              borderColor: 'rgba(71, 71, 78, 0.3)',
+              color: '#f7f5fd',
+            }}
+            className='[&_input]:!text-[#f7f5fd] [&_input::placeholder]:!text-[#75757b] [&_.semi-input-prefix]:!text-[#8ff5ff]'
           />
         </div>
 
-        <Button
-          theme='outline'
-          type='primary'
-          icon={<IconCopy />}
-          onClick={handleCopyClick}
-          disabled={selectedRowKeys.length === 0}
-          className='!bg-blue-500 hover:!bg-blue-600 !text-white disabled:!bg-gray-300 disabled:!text-gray-500'
-        >
-          {t('复制')}
-        </Button>
+        {viewMode === 'table' && (
+          <Button
+            theme='outline'
+            type='primary'
+            icon={<IconCopy />}
+            onClick={handleCopyClick}
+            disabled={selectedRowKeys.length === 0}
+            className='!bg-blue-500 hover:!bg-blue-600 !text-white disabled:!bg-gray-300 disabled:!text-gray-500'
+          >
+            {t('复制')}
+          </Button>
+        )}
 
         {!isMobile && (
           <>
@@ -95,11 +110,23 @@ const SearchActions = memo(
 
             {/* 充值价格显示开关 */}
             {supportsCurrencyDisplay && (
-              <div className='flex items-center gap-2'>
-                <span className='text-sm text-gray-600'>{t('充值价格显示')}</span>
+              <div 
+                className='flex items-center gap-2 cursor-pointer select-none'
+                onClick={() => handleShowWithRechargeChange(!showWithRecharge)}
+              >
+                <span className='text-sm text-white'>{t('充值价格显示')}</span>
                 <Switch
                   checked={showWithRecharge}
-                  onChange={setShowWithRecharge}
+                  onChange={handleShowWithRechargeChange}
+                  onClick={(e) => e.stopPropagation()}
+                  style={{
+                    '--semi-color-primary': '#aa8aff',
+                    '--semi-color-primary-hover': '#bb9bff',
+                    '--semi-color-primary-active': '#9979ee',
+                    '--semi-color-primary-light-default': 'rgba(170, 138, 255, 0.2)',
+                    '--semi-color-primary-light-hover': 'rgba(170, 138, 255, 0.3)',
+                    '--semi-color-primary-light-active': 'rgba(170, 138, 255, 0.4)',
+                  }}
                 />
               </div>
             )}
@@ -118,25 +145,60 @@ const SearchActions = memo(
             )}
 
             {/* 显示倍率开关 */}
-            <div className='flex items-center gap-2'>
-              <span className='text-sm text-gray-600'>{t('倍率')}</span>
-              <Switch checked={showRatio} onChange={setShowRatio} />
+            <div 
+              className='flex items-center gap-2 cursor-pointer select-none'
+              onClick={() => handleShowRatioChange(!showRatio)}
+            >
+              <span className='text-sm text-white'>{t('倍率')}</span>
+              <Switch 
+                checked={showRatio} 
+                onChange={handleShowRatioChange}
+                onClick={(e) => e.stopPropagation()}
+                style={{
+                  '--semi-color-primary': '#aa8aff',
+                  '--semi-color-primary-hover': '#bb9bff',
+                  '--semi-color-primary-active': '#9979ee',
+                  '--semi-color-primary-light-default': 'rgba(170, 138, 255, 0.2)',
+                  '--semi-color-primary-light-hover': 'rgba(170, 138, 255, 0.3)',
+                  '--semi-color-primary-light-active': 'rgba(170, 138, 255, 0.4)',
+                }}
+              />
             </div>
 
             {/* 视图模式切换按钮 */}
             <Button
-              theme={viewMode === 'table' ? 'solid' : 'outline'}
-              type={viewMode === 'table' ? 'primary' : 'tertiary'}
+              theme='borderless'
               onClick={handleViewModeToggle}
+              style={{
+                backgroundColor: viewMode === 'table' ? '#aa8aff' : 'rgba(170, 138, 255, 0.1)',
+                color: viewMode === 'table' ? '#ffffff' : '#aa8aff',
+                border: `1px solid ${viewMode === 'table' ? '#aa8aff' : 'rgba(170, 138, 255, 0.3)'}`,
+                borderRadius: '9999px',
+                fontWeight: 'bold',
+                fontSize: '12px',
+                padding: '8px 16px',
+                transition: 'all 0.3s',
+              }}
+              className='font-headline tracking-wider uppercase hover:brightness-110'
             >
               {t('表格视图')}
             </Button>
 
             {/* Token单位切换按钮 */}
             <Button
-              theme={tokenUnit === 'K' ? 'solid' : 'outline'}
-              type={tokenUnit === 'K' ? 'primary' : 'tertiary'}
+              theme='borderless'
               onClick={handleTokenUnitToggle}
+              style={{
+                backgroundColor: tokenUnit === 'K' ? '#aa8aff' : 'rgba(170, 138, 255, 0.1)',
+                color: tokenUnit === 'K' ? '#ffffff' : '#aa8aff',
+                border: `1px solid ${tokenUnit === 'K' ? '#aa8aff' : 'rgba(170, 138, 255, 0.3)'}`,
+                borderRadius: '9999px',
+                fontWeight: 'bold',
+                fontSize: '12px',
+                padding: '8px 16px',
+                transition: 'all 0.3s',
+              }}
+              className='font-headline tracking-wider uppercase hover:brightness-110'
             >
               {tokenUnit}
             </Button>
@@ -155,9 +217,6 @@ const SearchActions = memo(
         )}
       </div>
     );
-  },
-);
-
-SearchActions.displayName = 'SearchActions';
+};
 
 export default SearchActions;

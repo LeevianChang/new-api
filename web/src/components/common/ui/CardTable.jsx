@@ -63,13 +63,36 @@ const CardTable = ({
       : tableProps;
 
     return (
-      <Table
-        columns={columns}
-        dataSource={dataSource}
-        loading={loading}
-        rowKey={rowKey}
-        {...finalTableProps}
-      />
+      <div
+        style={{
+          border: '1px solid rgba(143, 245, 255, 0.2)',
+          borderRadius: '12px',
+        }}
+      >
+        <Table
+          columns={columns}
+          dataSource={dataSource}
+          loading={loading}
+          rowKey={rowKey}
+          onRow={(record, index) => ({
+            onMouseEnter: (e) => {
+              const row = e.currentTarget;
+              const cells = row.querySelectorAll('td');
+              cells.forEach(cell => {
+                cell.style.setProperty('background-color', '#18181C', 'important');
+              });
+            },
+            onMouseLeave: (e) => {
+              const row = e.currentTarget;
+              const cells = row.querySelectorAll('td');
+              cells.forEach(cell => {
+                cell.style.setProperty('background-color', '#0E1117', 'important');
+              });
+            },
+          })}
+          {...finalTableProps}
+        />
+      </div>
     );
   }
 

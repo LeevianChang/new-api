@@ -20,6 +20,59 @@
   --sidebar-current-width: var(--sidebar-width);
 }
 
+/* ==================== 全局复选框样式 ==================== */
+/* 未勾选状态 - 明显的蓝色边框，正方形 */
+.semi-checkbox-inner {
+  width: 16px !important;
+  height: 16px !important;
+  border: 2px solid rgba(143, 245, 255, 0.6) !important;
+  background-color: rgba(13, 14, 19, 0.8) !important;
+  border-radius: 4px !important;
+}
+
+/* 悬停状态 */
+.semi-checkbox-inner:hover {
+  border-color: rgba(143, 245, 255, 0.9) !important;
+  background-color: rgba(143, 245, 255, 0.05) !important;
+}
+
+/* 勾选状态 - 中间蓝色圆点 */
+.semi-checkbox-checked .semi-checkbox-inner {
+  background-color: rgba(13, 14, 19, 0.8) !important;
+  border-color: rgb(143, 245, 255) !important;
+  position: relative;
+}
+
+/* 隐藏默认的勾选标记图标 */
+.semi-checkbox-checked .semi-checkbox-inner .semi-icon {
+  display: none !important;
+}
+
+/* 隐藏默认的勾选标记 */
+.semi-checkbox-checked .semi-checkbox-inner::after {
+  display: none !important;
+}
+
+/* 添加蓝色圆点 */
+.semi-checkbox-checked .semi-checkbox-inner::before {
+  content: '' !important;
+  position: absolute !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  width: 8px !important;
+  height: 8px !important;
+  background-color: rgb(143, 245, 255) !important;
+  border-radius: 50% !important;
+  display: block !important;
+  z-index: 10 !important;
+}
+
+/* 确保内部显示容器不影响布局 */
+.semi-checkbox-inner-display {
+  display: none !important;
+}
+
 body.sidebar-collapsed {
   --sidebar-current-width: var(--sidebar-width-collapsed);
 }
@@ -29,6 +82,11 @@ body {
     sans-serif;
   color: var(--semi-color-text-0);
   background-color: var(--semi-color-bg-0);
+}
+
+/* 深色模式下使用 AETHER RELAY 背景色 */
+.dark body {
+  background-color: #0d0e13 !important;
 }
 
 /* 桌面端禁止 body 纵向滚动 - 防止 VChart tooltip 触发页面滚动条 */
@@ -129,6 +187,14 @@ code {
   background: var(--semi-color-bg-0);
 }
 
+/* 深色模式下的侧边栏样式 - AETHER RELAY 风格 */
+.dark .sidebar-container {
+  background: rgba(13, 14, 19, 0.8);
+  backdrop-filter: blur(32px);
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 10px 0 30px rgba(0, 0, 0, 0.5);
+}
+
 .sidebar-nav {
   flex: 1;
   width: 100%;
@@ -143,6 +209,10 @@ code {
   -ms-overflow-style: none;
 }
 
+.dark .sidebar-nav {
+  background: transparent;
+}
+
 .sidebar-nav::-webkit-scrollbar {
   display: none;
 }
@@ -155,15 +225,68 @@ code {
   padding: 8px 12px;
 }
 
+/* 深色模式下的导航项样式 - AETHER RELAY 风格 */
+.dark .sidebar-nav-item,
+.dark .semi-navigation-item {
+  border-radius: 0;
+  margin: 0 0 1px 8px;
+  padding: 12px 16px;
+  color: rgb(148, 163, 184);
+  transition: all 0.2s ease;
+}
+
 .sidebar-nav-item:hover {
   background-color: rgba(var(--semi-blue-0), 0.08);
   color: var(--semi-color-primary);
+}
+
+.dark .sidebar-nav-item:hover,
+.dark .semi-navigation-item:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+  color: #8ff5ff !important;
+  transform: translateX(4px);
 }
 
 .sidebar-nav-item-selected {
   background-color: rgba(var(--semi-blue-0), 0.12);
   color: var(--semi-color-primary);
   font-weight: 500;
+}
+
+.dark .sidebar-nav-item-selected,
+.dark .semi-navigation-item-selected {
+  background-color: rgba(0, 240, 255, 0.1) !important;
+  color: rgb(0, 240, 255) !important;
+  border-right: 2px solid rgb(0, 240, 255) !important;
+  border-radius: 12px 0 0 12px;
+  font-weight: 600;
+  transform: translateX(4px);
+}
+
+/* 深色模式下的导航项文字颜色 */
+.dark .semi-navigation-item .semi-navigation-item-text {
+  color: rgb(148, 163, 184);
+}
+
+.dark .semi-navigation-item:hover .semi-navigation-item-text {
+  color: #8ff5ff !important;
+}
+
+.dark .semi-navigation-item-selected .semi-navigation-item-text {
+  color: rgb(0, 240, 255) !important;
+}
+
+/* 深色模式下的导航项图标颜色 */
+.dark .semi-navigation-item svg {
+  color: rgb(148, 163, 184);
+}
+
+.dark .semi-navigation-item:hover svg {
+  color: #8ff5ff;
+}
+
+.dark .semi-navigation-item-selected svg {
+  color: rgb(0, 240, 255);
 }
 
 /* 图标容器样式 */
@@ -194,6 +317,12 @@ code {
   opacity: 0.15;
 }
 
+.dark .sidebar-divider {
+  margin: 16px 24px;
+  opacity: 1;
+  border-color: rgba(255, 255, 255, 0.05);
+}
+
 /* 分组标签样式 */
 .sidebar-group-label {
   padding: 4px 15px 8px;
@@ -202,6 +331,15 @@ code {
   text-transform: uppercase;
   letter-spacing: 0.5px;
   opacity: 0.8;
+}
+
+.dark .sidebar-group-label {
+  color: rgb(148, 163, 184);
+  font-size: 10px;
+  font-family: 'Space Grotesk', sans-serif;
+  letter-spacing: 2px;
+  font-weight: 700;
+  padding: 16px 24px 8px;
 }
 
 /* 底部折叠按钮 */
@@ -219,6 +357,12 @@ code {
   box-shadow: 0 -10px 10px -5px var(--semi-color-bg-0);
   backdrop-filter: blur(4px);
   border-top: 1px solid rgba(var(--semi-grey-0), 0.08);
+}
+
+.dark .sidebar-collapse-button {
+  background-color: rgba(13, 14, 19, 0.9);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 -10px 10px -5px rgba(13, 14, 19, 0.9);
 }
 
 .sidebar-collapse-button-inner {
@@ -913,11 +1057,7 @@ html.dark .with-pastel-balls::before {
 
 .pricing-search-header {
   padding: 0.5rem;
-  background-color: var(--semi-color-bg-0);
   flex-shrink: 0;
-  position: sticky;
-  top: 0;
-  z-index: 5;
 }
 
 .pricing-view-container {
@@ -935,6 +1075,128 @@ html.dark .with-pastel-balls::before {
 .semi-card-header,
 .semi-card-body {
   padding: 10px !important;
+}
+
+/* 去掉卡片头部边框线 */
+.semi-card-header-bordered {
+  border-bottom: none !important;
+}
+
+/* 隐藏搜索框的 label */
+.semi-form-field[x-field-id="searchKeyword"] .semi-form-field-label,
+.semi-form-field[x-field-id="searchToken"] .semi-form-field-label,
+.semi-form-field[x-field-id="token_name"] .semi-form-field-label,
+.semi-form-field[x-field-id="model_name"] .semi-form-field-label,
+.semi-form-field[x-field-id="group"] .semi-form-field-label,
+.semi-form-field[x-field-id="request_id"] .semi-form-field-label,
+.semi-form-field[x-field-id="channel"] .semi-form-field-label,
+.semi-form-field[x-field-id="username"] .semi-form-field-label {
+  display: none !important;
+}
+
+/* 表格标题样式 */
+.semi-table-thead .semi-table-row-head {
+  color: rgb(100, 116, 139) !important;
+  background-color: rgb(0 0 0 / 0.3) !important;
+}
+
+/* 表格单元格内容不换行 */
+.semi-table-row-cell {
+  white-space: nowrap !important;
+}
+
+/* 表格单元格背景色 */
+.semi-table-tbody .semi-table-row-cell {
+  background-color: #0E1117 !important;
+}
+
+/* 覆盖 Semi Design 的表格 hover 颜色变量 */
+:root {
+  --semi-color-fill-0: #0E1117;
+  --semi-color-fill-1: #18181C;
+}
+
+.dark {
+  --semi-color-fill-0: #0E1117;
+  --semi-color-fill-1: #18181C;
+}
+
+/* 表格行 hover 颜色 - 使用更高优先级 */
+.semi-table .semi-table-tbody .semi-table-row:hover .semi-table-row-cell,
+.semi-table-tbody .semi-table-row:hover .semi-table-row-cell,
+.semi-table-row:hover > .semi-table-row-cell,
+.semi-table-tbody .semi-table-row:hover td,
+.semi-table .semi-table-row:hover .semi-table-row-cell,
+tr.semi-table-row:hover td.semi-table-row-cell {
+  background-color: #18181C !important;
+}
+
+.semi-table-row:hover {
+  background-color: #18181C !important;
+}
+
+/* 确保 hover 时固定列也有相同背景 */
+.semi-table-row:hover .semi-table-cell-fixed-left,
+.semi-table-row:hover .semi-table-cell-fixed-right,
+.semi-table-row:hover td.semi-table-cell-fixed-left,
+.semi-table-row:hover td.semi-table-cell-fixed-right {
+  background-color: #18181C !important;
+}
+
+/* 直接覆盖 Semi Design 的 td hover 样式 */
+.semi-table td:hover {
+  background-color: #18181C !important;
+}
+
+/* 覆盖 Semi Design 的默认 hover 颜色变量 */
+:root {
+  --semi-color-fill-2: #18181C !important;
+}
+
+/* 搜索图标颜色 */
+.text-primary,
+.text-primary svg {
+  color: rgb(143, 245, 255) !important;
+}
+
+.semi-input-prefix .text-primary svg {
+  color: rgb(143, 245, 255) !important;
+  fill: currentColor;
+}
+
+/* 搜索框聚焦时的边框颜色 */
+.semi-input-wrapper:focus-within,
+.semi-input-wrapper.semi-input-wrapper-focus {
+  border-color: rgb(143, 245, 255) !important;
+  box-shadow: 0 0 0 2px rgba(143, 245, 255, 0.2) !important;
+}
+
+.semi-input:focus {
+  border-color: rgb(143, 245, 255) !important;
+}
+
+/* 日期选择器样式 */
+.semi-datepicker-range-input,
+.semi-datepicker-range-input .semi-input-wrapper {
+  background: transparent !important;
+}
+
+.semi-datepicker-range-input:focus-within,
+.semi-datepicker-range-input .semi-input-wrapper:focus-within {
+  border-color: rgb(143, 245, 255) !important;
+  box-shadow: 0 0 0 2px rgba(143, 245, 255, 0.2) !important;
+}
+
+/* 日期选择器图标颜色 */
+.semi-datepicker-range-input .semi-icon,
+.semi-datepicker .semi-icon {
+  color: rgb(143, 245, 255) !important;
+}
+
+.semi-datepicker-range-input .semi-icon svg,
+.semi-datepicker .semi-icon svg {
+  color: rgb(143, 245, 255) !important;
+  fill: currentColor;
 }
 
 /* ==================== 使用日志: channel affinity tag ==================== */
@@ -982,6 +1244,81 @@ html.dark .with-pastel-balls::before {
   border-radius: 10px !important;
 }
 
+/* 分页组件激活页码样式 */
+.semi-page-item-active {
+  background-color: rgba(143, 245, 255, 0.1) !important;
+  color: rgb(143, 245, 255) !important;
+  border-color: rgba(143, 245, 255, 0.3) !important;
+}
+
+.semi-page-item-active:hover {
+  background-color: rgba(143, 245, 255, 0.15) !important;
+  border-color: rgba(143, 245, 255, 0.5) !important;
+}
+
+/* 单选按钮样式 - 青色圆形 */
+/* 隐藏原生 input radio 的默认样式 */
+.semi-radio input[type="radio"] {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  opacity: 0 !important;
+  position: absolute !important;
+}
+
+/* 隐藏 Semi Design 的默认图标容器 */
+.semi-radio-inner-display {
+  display: none !important;
+}
+
+.semi-radio-inner {
+  width: 16px !important;
+  height: 16px !important;
+  border: 2px solid rgba(143, 245, 255, 0.6) !important;
+  border-radius: 50% !important;
+  background-color: transparent !important;
+  background-image: none !important;
+}
+
+.semi-radio-inner:hover {
+  border-color: rgba(143, 245, 255, 0.9) !important;
+  background-color: transparent !important;
+}
+
+.semi-radio-checked .semi-radio-inner {
+  border-color: rgb(143, 245, 255) !important;
+  background-color: rgb(143, 245, 255) !important;
+  background-image: none !important;
+}
+
+/* 隐藏默认的内圆点和所有伪元素 */
+.semi-radio-checked .semi-radio-inner::before,
+.semi-radio-checked .semi-radio-inner::after,
+.semi-radio-inner::before,
+.semi-radio-inner::after {
+  display: none !important;
+  content: none !important;
+  background: none !important;
+}
+
+/* 隐藏 Semi Design 的默认图标 */
+.semi-radio-checked .semi-radio-inner .semi-icon,
+.semi-radio-inner .semi-icon {
+  display: none !important;
+}
+
+/* 覆盖 Semi Design 的默认颜色变量 */
+.semi-radio:hover .semi-radio-inner {
+  border-color: rgba(143, 245, 255, 0.9) !important;
+}
+
+.semi-radio-checked:hover .semi-radio-inner {
+  border-color: rgb(143, 245, 255) !important;
+  background-color: rgb(143, 245, 255) !important;
+}
+
 @keyframes slideInLeft {
   from {
     transform: translateX(-100%);
@@ -1006,3 +1343,381 @@ html.dark .with-pastel-balls::before {
 }
 
 .ec-dbcd0a3c01b55203 { forced-color-adjust: auto; }
+
+/* ==================== AETHER RELAY Futuristic Styles (深色模式专用) ==================== */
+
+/* Relay pulse animation for breathing effect */
+.relay-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(1.2);
+  }
+}
+
+.dark .aether-glass-panel {
+  background: rgba(18, 19, 25, 0.6);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(143, 245, 255, 0.05);
+  transition: all 0.3s ease;
+}
+
+.dark .aether-glass-panel:hover {
+  background: rgba(30, 31, 38, 0.7);
+  border-color: rgba(143, 245, 255, 0.1);
+}
+
+.dark .aether-neon-glow {
+  text-shadow: 0 0 10px rgba(143, 245, 255, 0.5);
+}
+
+.dark .aether-status-pulse {
+  animation: aether-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes aether-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.dark .aether-cinematic-bg {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 0;
+}
+
+.dark .aether-bg-orb-1 {
+  position: absolute;
+  top: -10%;
+  left: -10%;
+  width: 40%;
+  height: 40%;
+  background: rgba(143, 245, 255, 0.05);
+  border-radius: 50%;
+  filter: blur(120px);
+}
+
+.dark .aether-bg-orb-2 {
+  position: absolute;
+  top: 20%;
+  right: -10%;
+  width: 30%;
+  height: 50%;
+  background: rgba(170, 138, 255, 0.05);
+  border-radius: 50%;
+  filter: blur(100px);
+}
+
+.dark .aether-bg-orb-3 {
+  position: absolute;
+  bottom: -10%;
+  left: 20%;
+  width: 50%;
+  height: 30%;
+  background: rgba(255, 89, 227, 0.05);
+  border-radius: 50%;
+  filter: blur(120px);
+}
+
+.dark .aether-border-glow {
+  position: relative;
+}
+
+.dark .aether-border-glow::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, rgba(143, 245, 255, 0.3), rgba(170, 138, 255, 0.3));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+.dark .aether-sparkline {
+  width: 100%;
+  height: 100%;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* ==================== Cyberpunk Marketplace Styles ==================== */
+.cyberpunk-marketplace {
+  font-family: 'Manrope', sans-serif;
+  background-color: #0d0e13;
+  color: #f7f5fd;
+  min-height: 100vh;
+}
+
+.cyberpunk-marketplace .font-headline {
+  font-family: 'Space Grotesk', sans-serif;
+}
+
+.cyberpunk-marketplace .glass-panel {
+  background: rgba(24, 25, 32, 0.4);
+  backdrop-filter: blur(24px);
+}
+
+.cyberpunk-marketplace .glow-primary {
+  box-shadow: 0 0 20px rgba(143, 245, 255, 0.15);
+}
+
+.cyberpunk-marketplace .material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+.cyberpunk-marketplace .custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.cyberpunk-marketplace .custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.cyberpunk-marketplace .custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #47474e;
+  border-radius: 10px;
+}
+
+/* Cyberpunk color palette */
+.cyberpunk-marketplace {
+  --cyber-surface: #0d0e13;
+  --cyber-surface-container: #181920;
+  --cyber-surface-container-low: #121319;
+  --cyber-surface-container-high: #1e1f26;
+  --cyber-surface-container-highest: #24252d;
+  --cyber-primary: #8ff5ff;
+  --cyber-primary-dim: #00deec;
+  --cyber-secondary: #aa8aff;
+  --cyber-tertiary: #ff59e3;
+  --cyber-on-surface: #f7f5fd;
+  --cyber-on-surface-variant: #abaab1;
+  --cyber-outline: #75757b;
+  --cyber-outline-variant: #47474e;
+}
+
+/* Cyberpunk Checkbox Styles */
+.cyberpunk-marketplace .semi-checkbox-inner {
+  border-color: rgba(143, 245, 255, 0.3) !important;
+  background-color: transparent !important;
+}
+
+.cyberpunk-marketplace .semi-checkbox-checked .semi-checkbox-inner {
+  background-color: rgb(143, 245, 255) !important;
+  border-color: rgb(143, 245, 255) !important;
+}
+
+.cyberpunk-marketplace .semi-checkbox-inner:hover {
+  border-color: rgba(143, 245, 255, 0.6) !important;
+}
+
+.cyberpunk-marketplace .semi-checkbox-checked .semi-checkbox-inner::after {
+  border-color: rgb(0, 93, 99) !important;
+}
+
+/* Cyberpunk Native Checkbox Styles (for non-Semi UI checkboxes) */
+.cyberpunk-marketplace input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(143, 245, 255, 0.3);
+  border-radius: 2px;
+  background-color: transparent;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.cyberpunk-marketplace input[type="checkbox"]:hover {
+  border-color: rgba(143, 245, 255, 0.6);
+}
+
+.cyberpunk-marketplace input[type="checkbox"]:checked {
+  background-color: rgb(143, 245, 255);
+  border-color: rgb(143, 245, 255);
+}
+
+.cyberpunk-marketplace input[type="checkbox"]:checked::after {
+  content: '';
+  position: absolute;
+  left: 4px;
+  top: 1px;
+  width: 4px;
+  height: 8px;
+  border: solid rgb(0, 93, 99);
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.cyberpunk-marketplace input[type="checkbox"]:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(143, 245, 255, 0.2);
+}
+
+/* Cyberpunk Switch Styles */
+.cyberpunk-marketplace .semi-switch {
+  background-color: rgba(71, 71, 78, 0.5) !important;
+}
+
+.cyberpunk-marketplace .semi-switch-checked {
+  background-color: rgb(170, 138, 255) !important;
+}
+
+.cyberpunk-marketplace .semi-switch:hover {
+  background-color: rgba(71, 71, 78, 0.7) !important;
+}
+
+.cyberpunk-marketplace .semi-switch-checked:hover {
+  background-color: rgba(170, 138, 255, 0.9) !important;
+}
+
+.cyberpunk-marketplace .semi-switch-knob {
+  background-color: #ffffff !important;
+}
+
+/* Cyberpunk SideSheet Styles */
+.cyberpunk-sidesheet .semi-sidesheet {
+  background-color: #0d0e13 !important;
+}
+
+.cyberpunk-sidesheet .semi-sidesheet-header {
+  background-color: rgba(24, 25, 32, 0.6) !important;
+  backdrop-filter: blur(24px);
+  border-bottom: 1px solid rgba(71, 71, 78, 0.2) !important;
+}
+
+.cyberpunk-sidesheet .semi-sidesheet-body {
+  background-color: #0d0e13 !important;
+  color: #f7f5fd !important;
+}
+
+.cyberpunk-sidesheet .semi-sidesheet-title {
+  color: #f7f5fd !important;
+  font-family: 'Space Grotesk', sans-serif !important;
+}
+
+/* Cyberpunk Table Styles */
+.cyber-table .semi-table {
+  background-color: transparent !important;
+  color: #f7f5fd !important;
+}
+
+.cyber-table .semi-table-thead > tr > th {
+  background-color: rgba(24, 25, 32, 0.6) !important;
+  color: #a855f7 !important;
+  border-bottom: 1px solid rgba(71, 71, 78, 0.3) !important;
+  font-family: 'Space Grotesk', sans-serif !important;
+  font-weight: 600 !important;
+}
+
+.cyber-table .semi-table-tbody > tr {
+  background-color: transparent !important;
+  border-bottom: 1px solid rgba(71, 71, 78, 0.1) !important;
+}
+
+.cyber-table .semi-table-tbody > tr:hover {
+  background-color: rgba(143, 245, 255, 0.05) !important;
+}
+
+.cyber-table .semi-table-tbody > tr > td {
+  color: #f7f5fd !important;
+  border-bottom: 1px solid rgba(71, 71, 78, 0.1) !important;
+}
+
+/* Cyberpunk Hero Section Animations */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes gradient-flow {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.5s ease-out forwards;
+}
+
+.animate-slide-up {
+  animation: slide-up 0.6s ease-out forwards;
+  opacity: 0;
+}
+
+.animate-gradient {
+  background-size: 200% 200%;
+  animation: gradient-flow 3s ease infinite;
+}
+
+/* ==================== 赛博朋克风格样式 ==================== */
+.glass-panel {
+  background: rgba(18, 19, 25, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.hero-gradient {
+  background: radial-gradient(circle at center, rgba(143, 245, 255, 0.1) 0%, transparent 70%);
+}
+
+.cyber-glow {
+  text-shadow: 0 0 20px rgba(143, 245, 255, 0.5);
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 8px rgba(143, 245, 255, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 16px rgba(143, 245, 255, 0.8);
+  }
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}

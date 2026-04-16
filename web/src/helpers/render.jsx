@@ -107,7 +107,9 @@ export function getLucideIcon(key, selected = false) {
   const size = 16;
   const strokeWidth = 2;
   const SELECTED_COLOR = 'var(--semi-color-primary)';
-  const iconColor = selected ? SELECTED_COLOR : 'currentColor';
+  const DARK_SELECTED_COLOR = 'rgb(0, 240, 255)';
+  const isDarkMode = document.documentElement.classList.contains('dark');
+  const iconColor = selected ? (isDarkMode ? DARK_SELECTED_COLOR : SELECTED_COLOR) : 'currentColor';
   const commonProps = {
     size,
     strokeWidth,
@@ -735,7 +737,7 @@ export function stringToColor(str) {
 export function renderModelTag(modelName, options = {}) {
   const {
     color,
-    size = 'default',
+    size = 'large',
     shape = 'circle',
     onClick,
     suffixIcon,
@@ -752,16 +754,35 @@ export function renderModelTag(modelName, options = {}) {
   }
 
   return (
-    <Tag
-      color={color || stringToColor(modelName)}
-      prefixIcon={icon}
-      suffixIcon={suffixIcon}
-      size={size}
-      shape={shape}
+    <div 
+      className='flex items-center gap-2 cursor-pointer max-w-md'
       onClick={onClick}
     >
-      {modelName}
-    </Tag>
+      {/* Icon with background */}
+      <div className='w-10 h-10 rounded-xl bg-gradient-to-br from-[#8ff5ff]/20 to-[#aa8aff]/20 flex items-center justify-center border border-[#8ff5ff]/30 flex-shrink-0'>
+        {icon ? (
+          <span style={{ fontSize: '24px' }}>{icon}</span>
+        ) : (
+          <span className='material-symbols-outlined text-[#8ff5ff]' style={{ fontSize: '24px' }}>psychology</span>
+        )}
+      </div>
+      
+      {/* Model name */}
+      <span 
+        className='font-headline font-bold tracking-tight text-[#f7f5fd] truncate'
+        style={{
+          fontSize: '16px',
+          fontWeight: 700,
+          letterSpacing: '-0.025em',
+          fontFamily: 'Space Grotesk',
+        }}
+        title={modelName}
+      >
+        {modelName}
+      </span>
+      
+      {suffixIcon && <span className='flex-shrink-0'>{suffixIcon}</span>}
+    </div>
   );
 }
 

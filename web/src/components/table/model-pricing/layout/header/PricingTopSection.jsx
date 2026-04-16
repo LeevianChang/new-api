@@ -17,38 +17,40 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 For commercial licensing, please contact support@quantumnous.com
 */
 
-import React, { useState, memo } from 'react';
+import React, { useState } from 'react';
 import PricingFilterModal from '../../modal/PricingFilterModal';
 import PricingVendorIntroWithSkeleton from './PricingVendorIntroWithSkeleton';
+import CyberHeroSection from './CyberHeroSection';
 import SearchActions from './SearchActions';
 
-const PricingTopSection = memo(
-  ({
-    selectedRowKeys,
-    copyText,
-    handleChange,
-    handleCompositionStart,
-    handleCompositionEnd,
-    isMobile,
-    sidebarProps,
-    filterVendor,
-    models,
-    filteredModels,
-    loading,
-    searchValue,
-    showWithRecharge,
-    setShowWithRecharge,
-    currency,
-    setCurrency,
-    siteDisplayType,
-    showRatio,
-    setShowRatio,
-    viewMode,
-    setViewMode,
-    tokenUnit,
-    setTokenUnit,
-    t,
-  }) => {
+const PricingTopSection = ({
+  selectedRowKeys,
+  copyText,
+  handleChange,
+  handleCompositionStart,
+  handleCompositionEnd,
+  isMobile,
+  sidebarProps,
+  filterVendor,
+  models,
+  filteredModels,
+  loading,
+  searchValue,
+  showWithRecharge,
+  setShowWithRecharge,
+  currency,
+  setCurrency,
+  siteDisplayType,
+  showRatio,
+  setShowRatio,
+  viewMode,
+  setViewMode,
+  tokenUnit,
+  setTokenUnit,
+  useCyberTheme = true,
+  vendorsMap,
+  t,
+}) => {
     const [showFilterModal, setShowFilterModal] = useState(false);
 
     return (
@@ -86,6 +88,14 @@ const PricingTopSection = memo(
               t={t}
             />
           </>
+        ) : useCyberTheme ? (
+          <CyberHeroSection
+            filterVendor={filterVendor}
+            models={filteredModels}
+            allModels={models}
+            vendorsMap={vendorsMap}
+            t={t}
+          />
         ) : (
           <PricingVendorIntroWithSkeleton
             loading={loading}
@@ -116,9 +126,6 @@ const PricingTopSection = memo(
         )}
       </>
     );
-  },
-);
-
-PricingTopSection.displayName = 'PricingTopSection';
+};
 
 export default PricingTopSection;

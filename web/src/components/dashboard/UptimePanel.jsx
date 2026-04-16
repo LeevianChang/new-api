@@ -19,7 +19,6 @@ For commercial licensing, please contact support@quantumnous.com
 
 import React from 'react';
 import {
-  Card,
   Button,
   Spin,
   Tabs,
@@ -47,29 +46,24 @@ const UptimePanel = ({
   t,
 }) => {
   return (
-    <Card
-      {...CARD_PROPS}
-      className='shadow-sm !rounded-2xl lg:col-span-1'
-      title={
-        <div className='flex items-center justify-between w-full gap-2'>
-          <div className='flex items-center gap-2'>
-            <Gauge size={16} />
+    <div className='aether-glass-panel p-6 rounded-xl lg:col-span-1'>
+      <div className='flex items-center justify-between mb-6'>
+        <div className='flex items-center gap-2'>
+          <Gauge size={18} color='#ec4899' />
+          <h3 className='font-aether-headline text-lg font-bold tracking-tight'>
             {t('服务可用性')}
-          </div>
-          <Button
-            icon={<RefreshCw size={14} />}
-            onClick={loadUptimeData}
-            loading={uptimeLoading}
-            size='small'
-            theme='borderless'
-            type='tertiary'
-            className='text-gray-500 hover:text-blue-500 hover:bg-blue-50 !rounded-full'
-          />
+          </h3>
         </div>
-      }
-      bodyStyle={{ padding: 0 }}
-    >
-      {/* 内容区域 */}
+        <Button
+          icon={<RefreshCw size={14} />}
+          onClick={loadUptimeData}
+          loading={uptimeLoading}
+          size='small'
+          theme='borderless'
+          type='tertiary'
+          className='text-gray-500 hover:text-pink-500 hover:bg-pink-50 !rounded-full'
+        />
+      </div>
       <div className='relative'>
         <Spin spinning={uptimeLoading}>
           {uptimeData.length > 0 ? (
@@ -78,41 +72,35 @@ const UptimePanel = ({
                 {renderMonitorList(uptimeData[0].monitors)}
               </ScrollableContainer>
             ) : (
-              <Tabs
-                type='card'
-                collapsible
-                activeKey={activeUptimeTab}
-                onChange={setActiveUptimeTab}
-                size='small'
-              >
-                {uptimeData.map((group, groupIdx) => (
-                  <TabPane
-                    tab={
-                      <span className='flex items-center gap-2'>
-                        <Gauge size={14} />
-                        {group.categoryName}
-                        <Tag
-                          color={
-                            activeUptimeTab === group.categoryName
-                              ? 'red'
-                              : 'grey'
-                          }
-                          size='small'
-                          shape='circle'
-                        >
-                          {group.monitors ? group.monitors.length : 0}
-                        </Tag>
-                      </span>
-                    }
-                    itemKey={group.categoryName}
-                    key={groupIdx}
-                  >
-                    <ScrollableContainer maxHeight='21.5rem'>
-                      {renderMonitorList(group.monitors)}
-                    </ScrollableContainer>
-                  </TabPane>
-                ))}
-              </Tabs>
+              <div className='space-y-2'>
+                <Tabs
+                  type='line'
+                  activeKey={activeUptimeTab}
+                  onChange={setActiveUptimeTab}
+                  size='small'
+                  className='aether-tabs'
+                >
+                  {uptimeData.map((group, groupIdx) => (
+                    <TabPane
+                      tab={
+                        <span className='flex items-center gap-2'>
+                          <Gauge size={14} color='#ec4899' />
+                          <span className='font-aether-body'>{group.categoryName}</span>
+                          <span className='text-[10px] font-aether-label px-1.5 py-0.5 rounded-full bg-pink-500/10 text-pink-500'>
+                            {group.monitors ? group.monitors.length : 0}
+                          </span>
+                        </span>
+                      }
+                      itemKey={group.categoryName}
+                      key={groupIdx}
+                    >
+                      <ScrollableContainer maxHeight='21.5rem'>
+                        {renderMonitorList(group.monitors)}
+                      </ScrollableContainer>
+                    </TabPane>
+                  ))}
+                </Tabs>
+              </div>
             )
           ) : (
             <div className='flex justify-center items-center py-8'>
@@ -129,23 +117,22 @@ const UptimePanel = ({
         </Spin>
       </div>
 
-      {/* 图例 */}
       {uptimeData.length > 0 && (
-        <div className='p-3 bg-gray-50 rounded-b-2xl'>
+        <div className='mt-4 pt-4 border-t border-white/5'>
           <div className='flex flex-wrap gap-3 text-xs justify-center'>
             {uptimeLegendData.map((legend, index) => (
-              <div key={index} className='flex items-center gap-1'>
+              <div key={index} className='flex items-center gap-1.5'>
                 <div
                   className='w-2 h-2 rounded-full'
                   style={{ backgroundColor: legend.color }}
                 />
-                <span className='text-gray-600'>{legend.label}</span>
+                <span className='text-slate-500 font-aether-label'>{legend.label}</span>
               </div>
             ))}
           </div>
         </div>
       )}
-    </Card>
+    </div>
   );
 };
 

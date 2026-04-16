@@ -305,6 +305,7 @@ const SiderBar = ({ onNavigate = () => {} }) => {
 
   // 选中高亮颜色（统一）
   const SELECTED_COLOR = 'var(--semi-color-primary)';
+  const DARK_SELECTED_COLOR = 'rgb(0, 240, 255)';
 
   // 渲染自定义菜单项
   const renderNavItem = (item) => {
@@ -312,7 +313,8 @@ const SiderBar = ({ onNavigate = () => {} }) => {
     if (item.className === 'tableHiddle') return null;
 
     const isSelected = selectedKeys.includes(item.itemKey);
-    const textColor = isSelected ? SELECTED_COLOR : 'inherit';
+    const isDarkMode = document.documentElement.classList.contains('dark');
+    const textColor = isSelected ? (isDarkMode ? DARK_SELECTED_COLOR : SELECTED_COLOR) : 'inherit';
 
     return (
       <Nav.Item
@@ -340,7 +342,8 @@ const SiderBar = ({ onNavigate = () => {} }) => {
   const renderSubItem = (item) => {
     if (item.items && item.items.length > 0) {
       const isSelected = selectedKeys.includes(item.itemKey);
-      const textColor = isSelected ? SELECTED_COLOR : 'inherit';
+      const isDarkMode = document.documentElement.classList.contains('dark');
+      const textColor = isSelected ? (isDarkMode ? DARK_SELECTED_COLOR : SELECTED_COLOR) : 'inherit';
 
       return (
         <Nav.Sub
@@ -362,7 +365,7 @@ const SiderBar = ({ onNavigate = () => {} }) => {
         >
           {item.items.map((subItem) => {
             const isSubSelected = selectedKeys.includes(subItem.itemKey);
-            const subTextColor = isSubSelected ? SELECTED_COLOR : 'inherit';
+            const subTextColor = isSubSelected ? (isDarkMode ? DARK_SELECTED_COLOR : SELECTED_COLOR) : 'inherit';
 
             return (
               <Nav.Item

@@ -95,7 +95,11 @@ const PricingTable = ({
 
   const ModelTable = useMemo(
     () => (
-      <Card className='!rounded-xl overflow-hidden' bordered={false}>
+      <div className='relative glass-panel rounded-3xl border border-[#8ff5ff]/20 overflow-hidden'>
+        {/* 背景发光效果 */}
+        <div className='absolute -right-20 -top-20 w-64 h-64 bg-[#8ff5ff]/5 rounded-full blur-3xl pointer-events-none' />
+        <div className='absolute -left-20 -bottom-20 w-64 h-64 bg-[#aa8aff]/5 rounded-full blur-3xl pointer-events-none' />
+        
         <Table
           columns={processedColumns}
           dataSource={filteredModels}
@@ -126,7 +130,7 @@ const PricingTable = ({
             onPageSizeChange: (size) => setPageSize(size),
           }}
         />
-      </Card>
+      </div>
     ),
     [
       filteredModels,

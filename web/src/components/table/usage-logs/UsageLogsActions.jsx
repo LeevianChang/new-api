@@ -47,36 +47,47 @@ const LogsActions = ({
       <Skeleton loading={needSkeleton} active placeholder={placeholder}>
         <Space>
           <Tag
-            color='blue'
             style={{
-              fontWeight: 500,
-              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-              padding: 13,
+              background: 'rgba(143, 245, 255, 0.1)',
+              border: '1px solid rgba(143, 245, 255, 0.2)',
+              color: 'rgb(143, 245, 255)',
+              fontFamily: 'Space Grotesk, sans-serif',
+              fontSize: '10px',
+              fontWeight: 'bold',
+              textTransform: 'uppercase',
+              padding: '8px 12px',
+              borderRadius: '9999px',
             }}
-            className='!rounded-lg'
           >
             {t('消耗额度')}: {renderQuota(stat.quota)}
           </Tag>
           <Tag
-            color='pink'
             style={{
-              fontWeight: 500,
-              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-              padding: 13,
+              background: 'rgba(255, 89, 227, 0.1)',
+              border: '1px solid rgba(255, 89, 227, 0.2)',
+              color: 'rgb(255, 89, 227)',
+              fontFamily: 'Space Grotesk, sans-serif',
+              fontSize: '10px',
+              fontWeight: 'bold',
+              textTransform: 'uppercase',
+              padding: '8px 12px',
+              borderRadius: '9999px',
             }}
-            className='!rounded-lg'
           >
             RPM: {stat.rpm}
           </Tag>
           <Tag
-            color='white'
             style={{
-              border: 'none',
-              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-              fontWeight: 500,
-              padding: 13,
+              background: 'rgba(170, 138, 255, 0.1)',
+              border: '1px solid rgba(170, 138, 255, 0.2)',
+              color: 'rgb(170, 138, 255)',
+              fontFamily: 'Space Grotesk, sans-serif',
+              fontSize: '10px',
+              fontWeight: 'bold',
+              textTransform: 'uppercase',
+              padding: '8px 12px',
+              borderRadius: '9999px',
             }}
-            className='!rounded-lg'
           >
             TPM: {stat.tpm}
           </Tag>

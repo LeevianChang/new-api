@@ -169,27 +169,49 @@ const AccountManagement = ({
     : t('尚未使用');
 
   return (
-    <Card className='!rounded-2xl'>
+    <div className='overflow-hidden' style={{
+      background: 'rgba(18, 19, 25, 0.6)',
+      backdropFilter: 'blur(20px)',
+      border: '1px solid rgba(143, 245, 255, 0.05)',
+      borderRadius: '24px',
+    }}>
       {/* 卡片头部 */}
-      <div className='flex items-center mb-4'>
-        <Avatar size='small' color='teal' className='mr-3 shadow-md'>
-          <UserPlus size={16} />
-        </Avatar>
+      <div className='flex items-center p-6 border-b' style={{
+        borderColor: 'rgba(143, 245, 255, 0.05)',
+      }}>
+        <div className='w-1 h-4 rounded-full mr-3' style={{ background: '#8ff5ff' }}></div>
         <div>
-          <Typography.Text className='text-lg font-medium'>
-            {t('账户管理')}
+          <Typography.Text className='text-lg font-medium' style={{
+            color: '#f7f5fd',
+            fontFamily: 'Space Grotesk, sans-serif',
+          }}>
+            {t('账户绑定')}
           </Typography.Text>
-          <div className='text-xs text-gray-600'>
+          <div className='text-xs' style={{
+            color: '#abaab1',
+            fontFamily: 'Space Grotesk, sans-serif',
+          }}>
             {t('账户绑定、安全设置和身份验证')}
           </div>
         </div>
       </div>
 
-      <Tabs type='card' defaultActiveKey='binding'>
+      <Tabs type='card' defaultActiveKey='binding' style={{
+        '--semi-color-bg-0': 'transparent',
+        '--semi-color-bg-1': 'rgba(24, 25, 32, 0.6)',
+        '--semi-color-border': 'rgba(143, 245, 255, 0.1)',
+        '--semi-color-text-0': '#f7f5fd',
+        '--semi-color-text-1': '#abaab1',
+      }}>
         {/* 账户绑定 Tab */}
         <TabPane
           tab={
-            <div className='flex items-center'>
+            <div className='flex items-center' style={{
+              fontFamily: 'Space Grotesk, sans-serif',
+              textTransform: 'uppercase',
+              letterSpacing: '0.1em',
+              fontSize: '12px',
+            }}>
               <UserPlus size={16} className='mr-2' />
               {t('账户绑定')}
             </div>
@@ -199,57 +221,69 @@ const AccountManagement = ({
           <div className='py-4'>
             <div className='grid grid-cols-1 lg:grid-cols-2 gap-4'>
               {/* 邮箱绑定 */}
-              <Card className='!rounded-xl'>
+              <div className='p-3 rounded-lg transition-all hover:translate-x-1' style={{
+                background: 'rgba(24, 25, 32, 0.6)',
+                border: '1px solid rgba(143, 245, 255, 0.1)',
+              }}>
                 <div className='flex items-center justify-between gap-3'>
                   <div className='flex items-center flex-1 min-w-0'>
-                    <div className='w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center mr-3 flex-shrink-0'>
-                      <IconMail
-                        size='default'
-                        className='text-slate-600 dark:text-slate-300'
-                      />
+                    <div className='w-10 h-10 rounded-full flex items-center justify-center mr-3 flex-shrink-0' style={{
+                      background: 'rgba(143, 245, 255, 0.1)',
+                    }}>
+                      <IconMail size='default' style={{ color: '#8ff5ff' }} />
                     </div>
                     <div className='flex-1 min-w-0'>
-                      <div className='font-medium text-gray-900'>
-                        {t('邮箱')}
+                      <div className='font-medium' style={{
+                        color: '#f7f5fd',
+                        fontFamily: 'Space Grotesk, sans-serif',
+                      }}>
+                        {t('邮箱中继')}
                       </div>
-                      <div className='text-sm text-gray-500 truncate'>
-                        {renderAccountInfo(
-                          userState.user?.email,
-                          t('邮箱地址'),
-                        )}
+                      <div className='text-sm truncate' style={{ color: '#abaab1' }}>
+                        {renderAccountInfo(userState.user?.email, t('邮箱地址'))}
                       </div>
                     </div>
                   </div>
                   <div className='flex-shrink-0'>
                     <Button
-                      type='primary'
-                      theme='outline'
                       size='small'
                       onClick={() => setShowEmailBindModal(true)}
+                      style={{
+                        background: isBound(userState.user?.email) ? 'rgba(143, 245, 255, 0.1)' : 'transparent',
+                        border: '1px solid rgba(143, 245, 255, 0.3)',
+                        color: '#8ff5ff',
+                        fontFamily: 'Space Grotesk, sans-serif',
+                        textTransform: 'uppercase',
+                        fontSize: '10px',
+                        letterSpacing: '0.1em',
+                      }}
                     >
-                      {isBound(userState.user?.email)
-                        ? t('修改绑定')
-                        : t('绑定')}
+                      {isBound(userState.user?.email) ? t('已绑定') : t('建立')}
                     </Button>
                   </div>
                 </div>
-              </Card>
+              </div>
 
               {/* 微信绑定 */}
-              <Card className='!rounded-xl'>
+              <div className='p-3 rounded-lg transition-all hover:translate-x-1' style={{
+                background: 'rgba(24, 25, 32, 0.6)',
+                border: '1px solid rgba(143, 245, 255, 0.1)',
+              }}>
                 <div className='flex items-center justify-between gap-3'>
                   <div className='flex items-center flex-1 min-w-0'>
-                    <div className='w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center mr-3 flex-shrink-0'>
-                      <SiWechat
-                        size={20}
-                        className='text-slate-600 dark:text-slate-300'
-                      />
+                    <div className='w-10 h-10 rounded-full flex items-center justify-center mr-3 flex-shrink-0' style={{
+                      background: 'rgba(143, 245, 255, 0.1)',
+                    }}>
+                      <SiWechat size={20} style={{ color: '#8ff5ff' }} />
                     </div>
                     <div className='flex-1 min-w-0'>
-                      <div className='font-medium text-gray-900'>
-                        {t('微信')}
+                      <div className='font-medium' style={{
+                        color: '#f7f5fd',
+                        fontFamily: 'Space Grotesk, sans-serif',
+                      }}>
+                        {t('微信链接')}
                       </div>
-                      <div className='text-sm text-gray-500 truncate'>
+                      <div className='text-sm truncate' style={{ color: '#abaab1' }}>
                         {!status.wechat_login
                           ? t('未启用')
                           : isBound(userState.user?.wechat_id)
@@ -260,203 +294,213 @@ const AccountManagement = ({
                   </div>
                   <div className='flex-shrink-0'>
                     <Button
-                      type='primary'
-                      theme='outline'
                       size='small'
                       disabled={!status.wechat_login}
                       onClick={() => setShowWeChatBindModal(true)}
+                      style={{
+                        background: isBound(userState.user?.wechat_id) ? 'rgba(143, 245, 255, 0.1)' : 'transparent',
+                        border: '1px solid rgba(143, 245, 255, 0.3)',
+                        color: '#8ff5ff',
+                        fontFamily: 'Space Grotesk, sans-serif',
+                        textTransform: 'uppercase',
+                        fontSize: '10px',
+                        letterSpacing: '0.1em',
+                        opacity: !status.wechat_login ? 0.5 : 1,
+                      }}
                     >
                       {isBound(userState.user?.wechat_id)
-                        ? t('修改绑定')
+                        ? t('已绑定')
                         : status.wechat_login
-                          ? t('绑定')
+                          ? t('建立')
                           : t('未启用')}
                     </Button>
                   </div>
                 </div>
-              </Card>
+              </div>
 
               {/* GitHub绑定 */}
-              <Card className='!rounded-xl'>
+              <div className='p-3 rounded-lg transition-all hover:translate-x-1' style={{
+                background: 'rgba(24, 25, 32, 0.6)',
+                border: '1px solid rgba(143, 245, 255, 0.1)',
+              }}>
                 <div className='flex items-center justify-between gap-3'>
                   <div className='flex items-center flex-1 min-w-0'>
-                    <div className='w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center mr-3 flex-shrink-0'>
-                      <IconGithubLogo
-                        size='default'
-                        className='text-slate-600 dark:text-slate-300'
-                      />
+                    <div className='w-10 h-10 rounded-full flex items-center justify-center mr-3 flex-shrink-0' style={{
+                      background: 'rgba(143, 245, 255, 0.1)',
+                    }}>
+                      <IconGithubLogo size='default' style={{ color: '#8ff5ff' }} />
                     </div>
                     <div className='flex-1 min-w-0'>
-                      <div className='font-medium text-gray-900'>
-                        {t('GitHub')}
+                      <div className='font-medium' style={{
+                        color: '#f7f5fd',
+                        fontFamily: 'Space Grotesk, sans-serif',
+                      }}>
+                        {t('GitHub门户')}
                       </div>
-                      <div className='text-sm text-gray-500 truncate'>
-                        {renderAccountInfo(
-                          userState.user?.github_id,
-                          t('GitHub ID'),
-                        )}
+                      <div className='text-sm truncate' style={{ color: '#abaab1' }}>
+                        {renderAccountInfo(userState.user?.github_id, t('GitHub ID'))}
                       </div>
                     </div>
                   </div>
                   <div className='flex-shrink-0'>
                     <Button
-                      type='primary'
-                      theme='outline'
                       size='small'
-                      onClick={() =>
-                        onGitHubOAuthClicked(status.github_client_id)
-                      }
-                      disabled={
-                        isBound(userState.user?.github_id) ||
-                        !status.github_oauth
-                      }
+                      onClick={() => onGitHubOAuthClicked(status.github_client_id)}
+                      disabled={isBound(userState.user?.github_id) || !status.github_oauth}
+                      style={{
+                        background: isBound(userState.user?.github_id) ? 'rgba(143, 245, 255, 0.1)' : 'transparent',
+                        border: '1px solid rgba(143, 245, 255, 0.3)',
+                        color: '#8ff5ff',
+                        fontFamily: 'Space Grotesk, sans-serif',
+                        textTransform: 'uppercase',
+                        fontSize: '10px',
+                        letterSpacing: '0.1em',
+                        opacity: (isBound(userState.user?.github_id) || !status.github_oauth) ? 0.5 : 1,
+                      }}
                     >
-                      {status.github_oauth ? t('绑定') : t('未启用')}
+                      {isBound(userState.user?.github_id) ? t('已绑定') : (status.github_oauth ? t('建立') : t('未启用'))}
                     </Button>
                   </div>
                 </div>
-              </Card>
+              </div>
 
               {/* Discord绑定 */}
-              <Card className='!rounded-xl'>
+              <div className='p-3 rounded-lg transition-all hover:translate-x-1' style={{
+                background: 'rgba(24, 25, 32, 0.6)',
+                border: '1px solid rgba(143, 245, 255, 0.1)',
+              }}>
                 <div className='flex items-center justify-between gap-3'>
                   <div className='flex items-center flex-1 min-w-0'>
-                    <div className='w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center mr-3 flex-shrink-0'>
-                      <SiDiscord
-                        size={20}
-                        className='text-slate-600 dark:text-slate-300'
-                      />
+                    <div className='w-10 h-10 rounded-full flex items-center justify-center mr-3 flex-shrink-0' style={{
+                      background: 'rgba(143, 245, 255, 0.1)',
+                    }}>
+                      <SiDiscord size={20} style={{ color: '#8ff5ff' }} />
                     </div>
                     <div className='flex-1 min-w-0'>
-                      <div className='font-medium text-gray-900'>
-                        {t('Discord')}
+                      <div className='font-medium' style={{
+                        color: '#f7f5fd',
+                        fontFamily: 'Space Grotesk, sans-serif',
+                      }}>
+                        {t('Discord中继')}
                       </div>
-                      <div className='text-sm text-gray-500 truncate'>
-                        {renderAccountInfo(
-                          userState.user?.discord_id,
-                          t('Discord ID'),
-                        )}
+                      <div className='text-sm truncate' style={{ color: '#abaab1' }}>
+                        {renderAccountInfo(userState.user?.discord_id, t('Discord ID'))}
                       </div>
                     </div>
                   </div>
                   <div className='flex-shrink-0'>
                     <Button
-                      type='primary'
-                      theme='outline'
                       size='small'
-                      onClick={() =>
-                        onDiscordOAuthClicked(status.discord_client_id)
-                      }
-                      disabled={
-                        isBound(userState.user?.discord_id) ||
-                        !status.discord_oauth
-                      }
+                      onClick={() => onDiscordOAuthClicked(status.discord_client_id)}
+                      disabled={isBound(userState.user?.discord_id) || !status.discord_oauth}
+                      style={{
+                        background: isBound(userState.user?.discord_id) ? 'rgba(143, 245, 255, 0.1)' : 'transparent',
+                        border: '1px solid rgba(143, 245, 255, 0.3)',
+                        color: '#8ff5ff',
+                        fontFamily: 'Space Grotesk, sans-serif',
+                        textTransform: 'uppercase',
+                        fontSize: '10px',
+                        letterSpacing: '0.1em',
+                        opacity: (isBound(userState.user?.discord_id) || !status.discord_oauth) ? 0.5 : 1,
+                      }}
                     >
-                      {status.discord_oauth ? t('绑定') : t('未启用')}
+                      {isBound(userState.user?.discord_id) ? t('已绑定') : (status.discord_oauth ? t('建立') : t('未启用'))}
                     </Button>
                   </div>
                 </div>
-              </Card>
+              </div>
 
               {/* OIDC绑定 */}
-              <Card className='!rounded-xl'>
+              <div className='p-3 rounded-lg transition-all hover:translate-x-1' style={{
+                background: 'rgba(24, 25, 32, 0.6)',
+                border: '1px solid rgba(143, 245, 255, 0.1)',
+              }}>
                 <div className='flex items-center justify-between gap-3'>
                   <div className='flex items-center flex-1 min-w-0'>
-                    <div className='w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center mr-3 flex-shrink-0'>
-                      <IconShield
-                        size='default'
-                        className='text-slate-600 dark:text-slate-300'
-                      />
+                    <div className='w-10 h-10 rounded-full flex items-center justify-center mr-3 flex-shrink-0' style={{
+                      background: 'rgba(143, 245, 255, 0.1)',
+                    }}>
+                      <IconShield size='default' style={{ color: '#8ff5ff' }} />
                     </div>
                     <div className='flex-1 min-w-0'>
-                      <div className='font-medium text-gray-900'>
-                        {t('OIDC')}
+                      <div className='font-medium' style={{
+                        color: '#f7f5fd',
+                        fontFamily: 'Space Grotesk, sans-serif',
+                      }}>
+                        {t('OIDC认证')}
                       </div>
-                      <div className='text-sm text-gray-500 truncate'>
-                        {renderAccountInfo(
-                          userState.user?.oidc_id,
-                          t('OIDC ID'),
-                        )}
+                      <div className='text-sm truncate' style={{ color: '#abaab1' }}>
+                        {renderAccountInfo(userState.user?.oidc_id, t('OIDC ID'))}
                       </div>
                     </div>
                   </div>
                   <div className='flex-shrink-0'>
                     <Button
-                      type='primary'
-                      theme='outline'
                       size='small'
-                      onClick={() =>
-                        onOIDCClicked(
-                          status.oidc_authorization_endpoint,
-                          status.oidc_client_id,
-                        )
-                      }
-                      disabled={
-                        isBound(userState.user?.oidc_id) || !status.oidc_enabled
-                      }
+                      onClick={() => onOIDCClicked(status.oidc_authorization_endpoint, status.oidc_client_id)}
+                      disabled={isBound(userState.user?.oidc_id) || !status.oidc_enabled}
+                      style={{
+                        background: isBound(userState.user?.oidc_id) ? 'rgba(143, 245, 255, 0.1)' : 'transparent',
+                        border: '1px solid rgba(143, 245, 255, 0.3)',
+                        color: '#8ff5ff',
+                        fontFamily: 'Space Grotesk, sans-serif',
+                        textTransform: 'uppercase',
+                        fontSize: '10px',
+                        letterSpacing: '0.1em',
+                        opacity: (isBound(userState.user?.oidc_id) || !status.oidc_enabled) ? 0.5 : 1,
+                      }}
                     >
-                      {status.oidc_enabled ? t('绑定') : t('未启用')}
+                      {isBound(userState.user?.oidc_id) ? t('已绑定') : (status.oidc_enabled ? t('建立') : t('未启用'))}
                     </Button>
                   </div>
                 </div>
-              </Card>
+              </div>
 
               {/* Telegram绑定 */}
-              <Card className='!rounded-xl'>
+              <div className='p-3 rounded-lg transition-all hover:translate-x-1' style={{
+                background: 'rgba(24, 25, 32, 0.6)',
+                border: '1px solid rgba(143, 245, 255, 0.1)',
+              }}>
                 <div className='flex items-center justify-between gap-3'>
                   <div className='flex items-center flex-1 min-w-0'>
-                    <div className='w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center mr-3 flex-shrink-0'>
-                      <SiTelegram
-                        size={20}
-                        className='text-slate-600 dark:text-slate-300'
-                      />
+                    <div className='w-10 h-10 rounded-full flex items-center justify-center mr-3 flex-shrink-0' style={{
+                      background: 'rgba(143, 245, 255, 0.1)',
+                    }}>
+                      <SiTelegram size={20} style={{ color: '#8ff5ff' }} />
                     </div>
                     <div className='flex-1 min-w-0'>
-                      <div className='font-medium text-gray-900'>
+                      <div className='font-medium' style={{
+                        color: '#f7f5fd',
+                        fontFamily: 'Space Grotesk, sans-serif',
+                      }}>
                         {t('Telegram')}
                       </div>
-                      <div className='text-sm text-gray-500 truncate'>
-                        {renderAccountInfo(
-                          userState.user?.telegram_id,
-                          t('Telegram ID'),
-                        )}
+                      <div className='text-sm truncate' style={{ color: '#abaab1' }}>
+                        {renderAccountInfo(userState.user?.telegram_id, t('Telegram ID'))}
                       </div>
                     </div>
                   </div>
                   <div className='flex-shrink-0'>
-                    {status.telegram_oauth ? (
-                      isBound(userState.user?.telegram_id) ? (
-                        <Button
-                          disabled
-                          size='small'
-                          type='primary'
-                          theme='outline'
-                        >
-                          {t('已绑定')}
-                        </Button>
-                      ) : (
-                        <Button
-                          type='primary'
-                          theme='outline'
-                          size='small'
-                          onClick={() => setShowTelegramBindModal(true)}
-                        >
-                          {t('绑定')}
-                        </Button>
-                      )
-                    ) : (
-                      <Button
-                        disabled
-                        size='small'
-                        type='primary'
-                        theme='outline'
-                      >
-                        {t('未启用')}
-                      </Button>
-                    )}
+                    <Button
+                      size='small'
+                      disabled={!status.telegram_oauth || isBound(userState.user?.telegram_id)}
+                      onClick={() => setShowTelegramBindModal(true)}
+                      style={{
+                        background: isBound(userState.user?.telegram_id) ? 'rgba(143, 245, 255, 0.1)' : 'transparent',
+                        border: '1px solid rgba(143, 245, 255, 0.3)',
+                        color: '#8ff5ff',
+                        fontFamily: 'Space Grotesk, sans-serif',
+                        textTransform: 'uppercase',
+                        fontSize: '10px',
+                        letterSpacing: '0.1em',
+                        opacity: (!status.telegram_oauth || isBound(userState.user?.telegram_id)) ? 0.5 : 1,
+                      }}
+                    >
+                      {isBound(userState.user?.telegram_id) ? t('已绑定') : (status.telegram_oauth ? t('建立') : t('未启用'))}
+                    </Button>
                   </div>
                 </div>
-              </Card>
+              </div>
               <Modal
                 title={t('绑定 Telegram')}
                 visible={showTelegramBindModal}
@@ -477,45 +521,50 @@ const AccountManagement = ({
               </Modal>
 
               {/* LinuxDO绑定 */}
-              <Card className='!rounded-xl'>
+              <div className='p-3 rounded-lg transition-all hover:translate-x-1' style={{
+                background: 'rgba(24, 25, 32, 0.6)',
+                border: '1px solid rgba(143, 245, 255, 0.1)',
+              }}>
                 <div className='flex items-center justify-between gap-3'>
                   <div className='flex items-center flex-1 min-w-0'>
-                    <div className='w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center mr-3 flex-shrink-0'>
-                      <SiLinux
-                        size={20}
-                        className='text-slate-600 dark:text-slate-300'
-                      />
+                    <div className='w-10 h-10 rounded-full flex items-center justify-center mr-3 flex-shrink-0' style={{
+                      background: 'rgba(143, 245, 255, 0.1)',
+                    }}>
+                      <SiLinux size={20} style={{ color: '#8ff5ff' }} />
                     </div>
                     <div className='flex-1 min-w-0'>
-                      <div className='font-medium text-gray-900'>
+                      <div className='font-medium' style={{
+                        color: '#f7f5fd',
+                        fontFamily: 'Space Grotesk, sans-serif',
+                      }}>
                         {t('LinuxDO')}
                       </div>
-                      <div className='text-sm text-gray-500 truncate'>
-                        {renderAccountInfo(
-                          userState.user?.linux_do_id,
-                          t('LinuxDO ID'),
-                        )}
+                      <div className='text-sm truncate' style={{ color: '#abaab1' }}>
+                        {renderAccountInfo(userState.user?.linux_do_id, t('LinuxDO ID'))}
                       </div>
                     </div>
                   </div>
                   <div className='flex-shrink-0'>
                     <Button
-                      type='primary'
-                      theme='outline'
                       size='small'
-                      onClick={() =>
-                        onLinuxDOOAuthClicked(status.linuxdo_client_id)
-                      }
-                      disabled={
-                        isBound(userState.user?.linux_do_id) ||
-                        !status.linuxdo_oauth
-                      }
+                      onClick={() => onLinuxDOOAuthClicked(status.linuxdo_client_id)}
+                      disabled={isBound(userState.user?.linux_do_id) || !status.linuxdo_oauth}
+                      style={{
+                        background: isBound(userState.user?.linux_do_id) ? 'rgba(143, 245, 255, 0.1)' : 'transparent',
+                        border: '1px solid rgba(143, 245, 255, 0.3)',
+                        color: '#8ff5ff',
+                        fontFamily: 'Space Grotesk, sans-serif',
+                        textTransform: 'uppercase',
+                        fontSize: '10px',
+                        letterSpacing: '0.1em',
+                        opacity: (isBound(userState.user?.linux_do_id) || !status.linuxdo_oauth) ? 0.5 : 1,
+                      }}
                     >
-                      {status.linuxdo_oauth ? t('绑定') : t('未启用')}
+                      {isBound(userState.user?.linux_do_id) ? t('已绑定') : (status.linuxdo_oauth ? t('建立') : t('未启用'))}
                     </Button>
                   </div>
                 </div>
-              </Card>
+              </div>
 
               {/* 自定义 OAuth 提供商绑定 */}
               {status.custom_oauth_providers &&
@@ -523,20 +572,28 @@ const AccountManagement = ({
                   const bound = isCustomOAuthBound(provider.id);
                   const binding = getCustomOAuthBinding(provider.id);
                   return (
-                    <Card key={provider.slug} className='!rounded-xl'>
+                    <div key={provider.slug} className='p-3 rounded-lg transition-all hover:translate-x-1' style={{
+                      background: 'rgba(24, 25, 32, 0.6)',
+                      border: '1px solid rgba(143, 245, 255, 0.1)',
+                    }}>
                       <div className='flex items-center justify-between gap-3'>
                         <div className='flex items-center flex-1 min-w-0'>
-                          <div className='w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center mr-3 flex-shrink-0'>
+                          <div className='w-10 h-10 rounded-full flex items-center justify-center mr-3 flex-shrink-0' style={{
+                            background: 'rgba(143, 245, 255, 0.1)',
+                          }}>
                             {getOAuthProviderIcon(
                               provider.icon || binding?.provider_icon || '',
                               20,
                             )}
                           </div>
                           <div className='flex-1 min-w-0'>
-                            <div className='font-medium text-gray-900'>
+                            <div className='font-medium' style={{
+                              color: '#f7f5fd',
+                              fontFamily: 'Space Grotesk, sans-serif',
+                            }}>
                               {provider.name}
                             </div>
-                            <div className='text-sm text-gray-500 truncate'>
+                            <div className='text-sm truncate' style={{ color: '#abaab1' }}>
                               {bound
                                 ? renderAccountInfo(
                                     binding?.provider_user_id,
@@ -549,29 +606,43 @@ const AccountManagement = ({
                         <div className='flex-shrink-0'>
                           {bound ? (
                             <Button
-                              type='danger'
-                              theme='outline'
                               size='small'
                               loading={customOAuthLoading[provider.id]}
                               onClick={() =>
                                 handleUnbindCustomOAuth(provider.id, provider.name)
                               }
+                              style={{
+                                background: 'rgba(255, 113, 108, 0.1)',
+                                border: '1px solid rgba(255, 113, 108, 0.3)',
+                                color: '#ff716c',
+                                fontFamily: 'Space Grotesk, sans-serif',
+                                textTransform: 'uppercase',
+                                fontSize: '10px',
+                                letterSpacing: '0.1em',
+                              }}
                             >
                               {t('解绑')}
                             </Button>
                           ) : (
                             <Button
-                              type='primary'
-                              theme='outline'
                               size='small'
                               onClick={() => handleBindCustomOAuth(provider)}
+                              style={{
+                                background: 'transparent',
+                                border: '1px solid rgba(143, 245, 255, 0.3)',
+                                color: '#8ff5ff',
+                                fontFamily: 'Space Grotesk, sans-serif',
+                                textTransform: 'uppercase',
+                                fontSize: '10px',
+                                letterSpacing: '0.1em',
+                              }}
                             >
-                              {t('绑定')}
+                              {t('建立')}
                             </Button>
                           )}
                         </div>
                       </div>
-                    </Card>
+                    </div>
                   );
                 })}
             </div>
@@ -581,193 +652,262 @@ const AccountManagement = ({
         {/* 安全设置 Tab */}
         <TabPane
           tab={
-            <div className='flex items-center'>
+            <div className='flex items-center' style={{
+              fontFamily: 'Space Grotesk, sans-serif',
+              textTransform: 'uppercase',
+              letterSpacing: '0.1em',
+              fontSize: '12px',
+            }}>
               <ShieldCheck size={16} className='mr-2' />
               {t('安全设置')}
             </div>
           }
           itemKey='security'
         >
-          <div className='py-4'>
-            <div className='space-y-6'>
-              <Space vertical className='w-full'>
-                {/* 系统访问令牌 */}
-                <Card className='!rounded-xl w-full'>
-                  <div className='flex flex-col sm:flex-row items-start sm:justify-between gap-4'>
-                    <div className='flex items-start w-full sm:w-auto'>
-                      <div className='w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center mr-4 flex-shrink-0'>
-                        <IconKey size='large' className='text-slate-600' />
-                      </div>
-                      <div className='flex-1'>
-                        <Typography.Title heading={6} className='mb-1'>
-                          {t('系统访问令牌')}
-                        </Typography.Title>
-                        <Typography.Text type='tertiary' className='text-sm'>
-                          {t('用于API调用的身份验证令牌，请妥善保管')}
-                        </Typography.Text>
-                        {systemToken && (
-                          <div className='mt-3'>
-                            <Input
-                              readonly
-                              value={systemToken}
-                              onClick={handleSystemTokenClick}
-                              size='large'
-                              prefix={<IconKey />}
-                            />
+          <div className='py-4 px-6'>
+            <div className='space-y-4'>
+              {/* 系统访问令牌 */}
+              <div className='p-4 rounded-lg' style={{
+                background: 'rgba(24, 25, 32, 0.6)',
+                border: '1px solid rgba(143, 245, 255, 0.1)',
+              }}>
+                <div className='flex flex-col sm:flex-row items-start sm:justify-between gap-4'>
+                  <div className='flex items-start w-full sm:w-auto'>
+                    <div className='w-12 h-12 rounded-full flex items-center justify-center mr-4 flex-shrink-0' style={{
+                      background: 'rgba(143, 245, 255, 0.1)',
+                    }}>
+                      <IconKey size='large' style={{ color: '#8ff5ff' }} />
+                    </div>
+                    <div className='flex-1'>
+                      <Typography.Title heading={6} className='mb-1' style={{
+                        color: '#f7f5fd',
+                        fontFamily: 'Space Grotesk, sans-serif',
+                      }}>
+                        {t('系统访问令牌')}
+                      </Typography.Title>
+                      <Typography.Text type='tertiary' className='text-sm' style={{
+                        color: '#abaab1',
+                      }}>
+                        {t('用于API调用的身份验证令牌，请妥善保管')}
+                      </Typography.Text>
+                      {systemToken && (
+                        <div className='mt-3'>
+                          <Input
+                            readonly
+                            value={systemToken}
+                            onClick={handleSystemTokenClick}
+                            size='large'
+                            prefix={<IconKey style={{ color: '#8ff5ff' }} />}
+                            style={{
+                              background: 'rgba(24, 25, 32, 0.8)',
+                              border: '1px solid rgba(143, 245, 255, 0.3)',
+                              color: '#8ff5ff',
+                              fontFamily: 'monospace',
+                            }}
+                          />
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  <Button
+                    onClick={generateAccessToken}
+                    icon={<IconKey />}
+                    style={{
+                      background: 'rgba(143, 245, 255, 0.1)',
+                      border: '1px solid rgba(143, 245, 255, 0.3)',
+                      color: '#8ff5ff',
+                      fontFamily: 'Space Grotesk, sans-serif',
+                      textTransform: 'uppercase',
+                      fontSize: '10px',
+                      letterSpacing: '0.1em',
+                      minWidth: '120px',
+                    }}
+                  >
+                    {systemToken ? t('重新生成') : t('生成令牌')}
+                  </Button>
+                </div>
+              </div>
+
+              {/* 密码管理 */}
+              <div className='p-4 rounded-lg' style={{
+                background: 'rgba(24, 25, 32, 0.6)',
+                border: '1px solid rgba(170, 138, 255, 0.1)',
+              }}>
+                <div className='flex flex-col sm:flex-row items-start sm:justify-between gap-4'>
+                  <div className='flex items-start w-full sm:w-auto'>
+                    <div className='w-12 h-12 rounded-full flex items-center justify-center mr-4 flex-shrink-0' style={{
+                      background: 'rgba(170, 138, 255, 0.1)',
+                    }}>
+                      <IconLock size='large' style={{ color: '#aa8aff' }} />
+                    </div>
+                    <div>
+                      <Typography.Title heading={6} className='mb-1' style={{
+                        color: '#f7f5fd',
+                        fontFamily: 'Space Grotesk, sans-serif',
+                      }}>
+                        {t('密码管理')}
+                      </Typography.Title>
+                      <Typography.Text type='tertiary' className='text-sm' style={{
+                        color: '#abaab1',
+                      }}>
+                        {t('定期更改密码可以提高账户安全性')}
+                      </Typography.Text>
+                    </div>
+                  </div>
+                  <Button
+                    onClick={() => setShowChangePasswordModal(true)}
+                    icon={<IconLock />}
+                    style={{
+                      background: 'rgba(170, 138, 255, 0.1)',
+                      border: '1px solid rgba(170, 138, 255, 0.3)',
+                      color: '#aa8aff',
+                      fontFamily: 'Space Grotesk, sans-serif',
+                      textTransform: 'uppercase',
+                      fontSize: '10px',
+                      letterSpacing: '0.1em',
+                      minWidth: '120px',
+                    }}
+                  >
+                    {t('修改密码')}
+                  </Button>
+                </div>
+              </div>
+
+              {/* Passkey 设置 */}
+              <div className='p-4 rounded-lg' style={{
+                background: 'rgba(24, 25, 32, 0.6)',
+                border: '1px solid rgba(255, 89, 227, 0.1)',
+              }}>
+                <div className='flex flex-col sm:flex-row items-start sm:justify-between gap-4'>
+                  <div className='flex items-start w-full sm:w-auto'>
+                    <div className='w-12 h-12 rounded-full flex items-center justify-center mr-4 flex-shrink-0' style={{
+                      background: 'rgba(255, 89, 227, 0.1)',
+                    }}>
+                      <IconKey size='large' style={{ color: '#ff59e3' }} />
+                    </div>
+                    <div>
+                      <Typography.Title heading={6} className='mb-1' style={{
+                        color: '#f7f5fd',
+                        fontFamily: 'Space Grotesk, sans-serif',
+                      }}>
+                        {t('Passkey 登录')}
+                      </Typography.Title>
+                      <Typography.Text type='tertiary' className='text-sm' style={{
+                        color: '#abaab1',
+                      }}>
+                        {passkeyEnabled
+                          ? t('已启用 Passkey，无需密码即可登录')
+                          : t('使用 Passkey 实现免密且更安全的登录体验')}
+                      </Typography.Text>
+                      <div className='mt-2 text-xs space-y-1' style={{ color: '#75757b' }}>
+                        <div>
+                          {t('最后使用时间')}：{lastUsedLabel}
+                        </div>
+                        {!passkeySupported && (
+                          <div style={{ color: '#ff716c' }}>
+                            {t('当前设备不支持 Passkey')}
                           </div>
                         )}
                       </div>
                     </div>
-                    <Button
-                      type='primary'
-                      theme='solid'
-                      onClick={generateAccessToken}
-                      className='!bg-slate-600 hover:!bg-slate-700 w-full sm:w-auto'
-                      icon={<IconKey />}
-                    >
-                      {systemToken ? t('重新生成') : t('生成令牌')}
-                    </Button>
                   </div>
-                </Card>
+                  <Button
+                    onClick={
+                      passkeyEnabled
+                        ? () => {
+                            Modal.confirm({
+                              title: t('确认解绑 Passkey'),
+                              content: t(
+                                '解绑后将无法使用 Passkey 登录，确定要继续吗？',
+                              ),
+                              okText: t('确认解绑'),
+                              cancelText: t('取消'),
+                              okType: 'danger',
+                              onOk: onPasskeyDelete,
+                            });
+                          }
+                        : onPasskeyRegister
+                    }
+                    icon={<IconKey />}
+                    disabled={!passkeySupported && !passkeyEnabled}
+                    loading={
+                      passkeyEnabled
+                        ? passkeyDeleteLoading
+                        : passkeyRegisterLoading
+                    }
+                    style={{
+                      background: passkeyEnabled ? 'rgba(255, 113, 108, 0.1)' : 'rgba(255, 89, 227, 0.1)',
+                      border: passkeyEnabled ? '1px solid rgba(255, 113, 108, 0.3)' : '1px solid rgba(255, 89, 227, 0.3)',
+                      color: passkeyEnabled ? '#ff716c' : '#ff59e3',
+                      fontFamily: 'Space Grotesk, sans-serif',
+                      textTransform: 'uppercase',
+                      fontSize: '10px',
+                      letterSpacing: '0.1em',
+                      minWidth: '120px',
+                      opacity: (!passkeySupported && !passkeyEnabled) ? 0.5 : 1,
+                    }}
+                  >
+                    {passkeyEnabled ? t('解绑 Passkey') : t('注册 Passkey')}
+                  </Button>
+                </div>
+              </div>
 
-                {/* 密码管理 */}
-                <Card className='!rounded-xl w-full'>
-                  <div className='flex flex-col sm:flex-row items-start sm:justify-between gap-4'>
-                    <div className='flex items-start w-full sm:w-auto'>
-                      <div className='w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center mr-4 flex-shrink-0'>
-                        <IconLock size='large' className='text-slate-600' />
-                      </div>
-                      <div>
-                        <Typography.Title heading={6} className='mb-1'>
-                          {t('密码管理')}
-                        </Typography.Title>
-                        <Typography.Text type='tertiary' className='text-sm'>
-                          {t('定期更改密码可以提高账户安全性')}
-                        </Typography.Text>
-                      </div>
+              {/* 两步验证设置 */}
+              <TwoFASetting t={t} />
+
+              {/* 危险区域 */}
+              <div className='p-4 rounded-lg' style={{
+                background: 'rgba(24, 25, 32, 0.6)',
+                border: '1px solid rgba(255, 113, 108, 0.1)',
+              }}>
+                <div className='flex flex-col sm:flex-row items-start sm:justify-between gap-4'>
+                  <div className='flex items-start w-full sm:w-auto'>
+                    <div className='w-12 h-12 rounded-full flex items-center justify-center mr-4 flex-shrink-0' style={{
+                      background: 'rgba(255, 113, 108, 0.1)',
+                    }}>
+                      <IconDelete size='large' style={{ color: '#ff716c' }} />
                     </div>
-                    <Button
-                      type='primary'
-                      theme='solid'
-                      onClick={() => setShowChangePasswordModal(true)}
-                      className='!bg-slate-600 hover:!bg-slate-700 w-full sm:w-auto'
-                      icon={<IconLock />}
-                    >
-                      {t('修改密码')}
-                    </Button>
-                  </div>
-                </Card>
-
-                {/* Passkey 设置 */}
-                <Card className='!rounded-xl w-full'>
-                  <div className='flex flex-col sm:flex-row items-start sm:justify-between gap-4'>
-                    <div className='flex items-start w-full sm:w-auto'>
-                      <div className='w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center mr-4 flex-shrink-0'>
-                        <IconKey size='large' className='text-slate-600' />
-                      </div>
-                      <div>
-                        <Typography.Title heading={6} className='mb-1'>
-                          {t('Passkey 登录')}
-                        </Typography.Title>
-                        <Typography.Text type='tertiary' className='text-sm'>
-                          {passkeyEnabled
-                            ? t('已启用 Passkey，无需密码即可登录')
-                            : t('使用 Passkey 实现免密且更安全的登录体验')}
-                        </Typography.Text>
-                        <div className='mt-2 text-xs text-gray-500 space-y-1'>
-                          <div>
-                            {t('最后使用时间')}：{lastUsedLabel}
-                          </div>
-                          {/*{passkeyEnabled && (*/}
-                          {/*  <div>*/}
-                          {/*    {t('备份支持')}：*/}
-                          {/*    {passkeyStatus?.backup_eligible*/}
-                          {/*      ? t('支持备份')*/}
-                          {/*      : t('不支持')}*/}
-                          {/*    ，{t('备份状态')}：*/}
-                          {/*    {passkeyStatus?.backup_state ? t('已备份') : t('未备份')}*/}
-                          {/*  </div>*/}
-                          {/*)}*/}
-                          {!passkeySupported && (
-                            <div className='text-amber-600'>
-                              {t('当前设备不支持 Passkey')}
-                            </div>
-                          )}
-                        </div>
-                      </div>
+                    <div>
+                      <Typography.Title
+                        heading={6}
+                        className='mb-1'
+                        style={{
+                          color: '#ff716c',
+                          fontFamily: 'Space Grotesk, sans-serif',
+                        }}
+                      >
+                        {t('删除账户')}
+                      </Typography.Title>
+                      <Typography.Text type='tertiary' className='text-sm' style={{
+                        color: '#abaab1',
+                      }}>
+                        {t('此操作不可逆，所有数据将被永久删除')}
+                      </Typography.Text>
                     </div>
-                    <Button
-                      type={passkeyEnabled ? 'danger' : 'primary'}
-                      theme={passkeyEnabled ? 'solid' : 'solid'}
-                      onClick={
-                        passkeyEnabled
-                          ? () => {
-                              Modal.confirm({
-                                title: t('确认解绑 Passkey'),
-                                content: t(
-                                  '解绑后将无法使用 Passkey 登录，确定要继续吗？',
-                                ),
-                                okText: t('确认解绑'),
-                                cancelText: t('取消'),
-                                okType: 'danger',
-                                onOk: onPasskeyDelete,
-                              });
-                            }
-                          : onPasskeyRegister
-                      }
-                      className={`w-full sm:w-auto ${passkeyEnabled ? '!bg-slate-500 hover:!bg-slate-600' : ''}`}
-                      icon={<IconKey />}
-                      disabled={!passkeySupported && !passkeyEnabled}
-                      loading={
-                        passkeyEnabled
-                          ? passkeyDeleteLoading
-                          : passkeyRegisterLoading
-                      }
-                    >
-                      {passkeyEnabled ? t('解绑 Passkey') : t('注册 Passkey')}
-                    </Button>
                   </div>
-                </Card>
-
-                {/* 两步验证设置 */}
-                <TwoFASetting t={t} />
-
-                {/* 危险区域 */}
-                <Card className='!rounded-xl w-full'>
-                  <div className='flex flex-col sm:flex-row items-start sm:justify-between gap-4'>
-                    <div className='flex items-start w-full sm:w-auto'>
-                      <div className='w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center mr-4 flex-shrink-0'>
-                        <IconDelete size='large' className='text-slate-600' />
-                      </div>
-                      <div>
-                        <Typography.Title
-                          heading={6}
-                          className='mb-1 text-slate-700'
-                        >
-                          {t('删除账户')}
-                        </Typography.Title>
-                        <Typography.Text type='tertiary' className='text-sm'>
-                          {t('此操作不可逆，所有数据将被永久删除')}
-                        </Typography.Text>
-                      </div>
-                    </div>
-                    <Button
-                      type='danger'
-                      theme='solid'
-                      onClick={() => setShowAccountDeleteModal(true)}
-                      className='w-full sm:w-auto !bg-slate-500 hover:!bg-slate-600'
-                      icon={<IconDelete />}
-                    >
-                      {t('删除账户')}
-                    </Button>
-                  </div>
-                </Card>
-              </Space>
+                  <Button
+                    onClick={() => setShowAccountDeleteModal(true)}
+                    icon={<IconDelete />}
+                    style={{
+                      background: 'rgba(255, 113, 108, 0.1)',
+                      border: '1px solid rgba(255, 113, 108, 0.3)',
+                      color: '#ff716c',
+                      fontFamily: 'Space Grotesk, sans-serif',
+                      textTransform: 'uppercase',
+                      fontSize: '10px',
+                      letterSpacing: '0.1em',
+                      minWidth: '120px',
+                    }}
+                  >
+                    {t('删除账户')}
+                  </Button>
+                </div>
+              </div>
             </div>
           </div>
         </TabPane>
       </Tabs>
-    </Card>
+    </div>
   );
 };
 

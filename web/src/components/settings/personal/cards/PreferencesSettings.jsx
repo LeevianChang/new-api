@@ -120,62 +120,87 @@ const PreferencesSettings = ({ t }) => {
 	};
 
 	return (
-		<Card className="!rounded-2xl shadow-sm border-0">
+		<div className="overflow-hidden" style={{
+			background: 'rgba(18, 19, 25, 0.6)',
+			backdropFilter: 'blur(20px)',
+			border: '1px solid rgba(143, 245, 255, 0.05)',
+			borderRadius: '24px',
+		}}>
 			{/* Card Header */}
-			<div className="flex items-center mb-4">
-				<Avatar size="small" color="violet" className="mr-3 shadow-md">
-					<Languages size={16} />
-				</Avatar>
+			<div className="flex items-center p-6 border-b" style={{
+				borderColor: 'rgba(143, 245, 255, 0.05)',
+			}}>
+				<div className="w-1 h-4 rounded-full mr-3" style={{ background: '#aa8aff' }}></div>
 				<div>
-					<Typography.Text className="text-lg font-medium">
+					<Typography.Text className="text-lg font-medium" style={{
+						color: '#f7f5fd',
+						fontFamily: 'Space Grotesk, sans-serif',
+					}}>
 						{t("偏好设置")}
 					</Typography.Text>
-					<div className="text-xs text-gray-600 dark:text-gray-400">
+					<div className="text-xs" style={{
+						color: '#abaab1',
+						fontFamily: 'Space Grotesk, sans-serif',
+					}}>
 						{t("界面语言和其他个人偏好")}
 					</div>
 				</div>
 			</div>
 			{/* Language Setting Card */}
-			<Card className="!rounded-xl border dark:border-gray-700">
-				<div className="flex flex-col sm:flex-row items-start sm:items-center sm:justify-between gap-4">
-					<div className="flex items-start w-full sm:w-auto">
-						<div className="w-12 h-12 rounded-full bg-violet-50 dark:bg-violet-900/30 flex items-center justify-center mr-4 flex-shrink-0">
-							<Languages
-								size={20}
-								className="text-violet-600 dark:text-violet-400"
-							/>
+			<div className="p-6">
+				<div className="p-4 rounded-lg" style={{
+					background: 'rgba(24, 25, 32, 0.6)',
+					border: '1px solid rgba(170, 138, 255, 0.1)',
+				}}>
+					<div className="flex flex-col sm:flex-row items-start sm:items-center sm:justify-between gap-4">
+						<div className="flex items-start w-full sm:w-auto">
+							<div className="w-12 h-12 rounded-full flex items-center justify-center mr-4 flex-shrink-0" style={{
+								background: 'rgba(170, 138, 255, 0.1)',
+							}}>
+								<Languages size={20} style={{ color: '#aa8aff' }} />
+							</div>
+							<div>
+								<Typography.Title heading={6} className="mb-1" style={{
+									color: '#f7f5fd',
+									fontFamily: 'Space Grotesk, sans-serif',
+								}}>
+									{t("语言偏好")}
+								</Typography.Title>
+								<Typography.Text type="tertiary" className="text-sm" style={{
+									color: '#abaab1',
+								}}>
+									{t("选择您的首选界面语言，设置将自动保存并同步到所有设备")}
+								</Typography.Text>
+							</div>
 						</div>
-						<div>
-							<Typography.Title heading={6} className="mb-1">
-								{t("语言偏好")}
-							</Typography.Title>
-							<Typography.Text type="tertiary" className="text-sm">
-								{t("选择您的首选界面语言，设置将自动保存并同步到所有设备")}
-							</Typography.Text>
-						</div>
+						<Select
+							value={currentLanguage}
+							onChange={handleLanguagePreferenceChange}
+							style={{ 
+								width: 180,
+								'--semi-color-bg-2': 'rgba(24, 25, 32, 0.8)',
+								'--semi-color-border': 'rgba(170, 138, 255, 0.3)',
+								'--semi-color-text-0': '#f7f5fd',
+							}}
+							loading={loading}
+							optionList={languageOptions.map((opt) => ({
+								value: opt.value,
+								label: opt.label,
+							}))}
+						/>
 					</div>
-					<Select
-						value={currentLanguage}
-						onChange={handleLanguagePreferenceChange}
-						style={{ width: 180 }}
-						loading={loading}
-						optionList={languageOptions.map((opt) => ({
-							value: opt.value,
-							label: opt.label,
-						}))}
-					/>
 				</div>
-			</Card>
+			</div>
 
 			{/* Additional info */}
-			<div className="mt-4 text-xs text-gray-500 dark:text-gray-400">
-				<Typography.Text type="tertiary">
+			<div className="px-6 pb-6 text-xs" style={{ color: '#75757b' }}>
+				<Typography.Text type="tertiary" style={{ color: '#75757b' }}>
 					{t(
 						"提示：语言偏好会同步到您登录的所有设备，并影响API返回的错误消息语言。",
 					)}
 				</Typography.Text>
 			</div>
-		</Card>
+		</div>
 	);
 };
 

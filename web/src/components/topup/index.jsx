@@ -31,6 +31,7 @@ import {
 } from '../../helpers';
 import { Modal, Toast } from '@douyinfe/semi-ui';
 import { useTranslation } from 'react-i18next';
+import { Wallet, Users } from 'lucide-react';
 import { UserContext } from '../../context/User';
 import { StatusContext } from '../../context/Status';
 
@@ -713,7 +714,25 @@ const TopUp = () => {
   };
 
   return (
-    <div className='w-full max-w-7xl mx-auto relative min-h-screen lg:min-h-0 mt-[60px] px-2'>
+    <div className='mt-[60px] px-2 relative min-h-screen overflow-hidden'>
+      {/* Ambient Decorative Background */}
+      <div 
+        className='fixed -top-[10%] -right-[10%] w-[500px] h-[500px] rounded-full pointer-events-none'
+        style={{
+          background: 'rgba(143, 245, 255, 0.15)',
+          filter: 'blur(120px)',
+          zIndex: 0,
+        }}
+      />
+      <div 
+        className='fixed -bottom-[10%] -left-[10%] w-[500px] h-[500px] rounded-full pointer-events-none'
+        style={{
+          background: 'rgba(255, 89, 227, 0.15)',
+          filter: 'blur(120px)',
+          zIndex: 0,
+        }}
+      />
+
       {/* 划转模态框 */}
       <TransferModal
         t={t}
@@ -727,115 +746,82 @@ const TopUp = () => {
         setTransferAmount={setTransferAmount}
       />
 
-      {/* 充值确认模态框 */}
-      <PaymentConfirmModal
-        t={t}
-        open={open}
-        onlineTopUp={onlineTopUp}
-        handleCancel={handleCancel}
-        confirmLoading={confirmLoading}
-        topUpCount={topUpCount}
-        renderQuotaWithAmount={renderQuotaWithAmount}
-        amountLoading={amountLoading}
-        renderAmount={renderAmount}
-        payWay={payWay}
-        payMethods={payMethods}
-        amountNumber={amount}
-        discountRate={topupInfo?.discount?.[topUpCount] || 1.0}
-      />
-
-      {/* 充值账单模态框 */}
-      <TopupHistoryModal
-        visible={openHistory}
-        onCancel={handleHistoryCancel}
-        t={t}
-      />
-
-      {/* Creem 充值确认模态框 */}
-      <Modal
-        title={t('确定要充值 $')}
-        visible={creemOpen}
-        onOk={onlineCreemTopUp}
-        onCancel={handleCreemCancel}
-        maskClosable={false}
-        size='small'
-        centered
-        confirmLoading={confirmLoading}
-      >
-        {selectedCreemProduct && (
-          <>
-            <p>
-              {t('产品名称')}：{selectedCreemProduct.name}
-            </p>
-            <p>
-              {t('价格')}：{selectedCreemProduct.currency === 'EUR' ? '€' : '$'}
-              {selectedCreemProduct.price}
-            </p>
-            <p>
-              {t('充值额度')}：{selectedCreemProduct.quota}
-            </p>
-            <p>{t('是否确认充值？')}</p>
-          </>
-        )}
-      </Modal>
-
       {/* 主布局区域 */}
-      <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
-        <RechargeCard
-          t={t}
-          enableOnlineTopUp={enableOnlineTopUp}
-          enableStripeTopUp={enableStripeTopUp}
-          enableCreemTopUp={enableCreemTopUp}
-          creemProducts={creemProducts}
-          creemPreTopUp={creemPreTopUp}
-          enableWaffoTopUp={enableWaffoTopUp}
-          waffoTopUp={waffoTopUp}
-          waffoPayMethods={waffoPayMethods}
-          presetAmounts={presetAmounts}
-          selectedPreset={selectedPreset}
-          selectPresetAmount={selectPresetAmount}
-          formatLargeNumber={formatLargeNumber}
-          priceRatio={priceRatio}
-          topUpCount={topUpCount}
-          minTopUp={minTopUp}
-          renderQuotaWithAmount={renderQuotaWithAmount}
-          getAmount={getAmount}
-          setTopUpCount={setTopUpCount}
-          setSelectedPreset={setSelectedPreset}
-          renderAmount={renderAmount}
-          amountLoading={amountLoading}
-          payMethods={payMethods}
-          preTopUp={preTopUp}
-          paymentLoading={paymentLoading}
-          payWay={payWay}
-          redemptionCode={redemptionCode}
-          setRedemptionCode={setRedemptionCode}
-          topUp={topUp}
-          isSubmitting={isSubmitting}
-          topUpLink={topUpLink}
-          openTopUpLink={openTopUpLink}
-          userState={userState}
-          renderQuota={renderQuota}
-          statusLoading={statusLoading}
-          topupInfo={topupInfo}
-          onOpenHistory={handleOpenHistory}
-          subscriptionLoading={subscriptionLoading}
-          subscriptionPlans={subscriptionPlans}
-          billingPreference={billingPreference}
-          onChangeBillingPreference={updateBillingPreference}
-          activeSubscriptions={activeSubscriptions}
-          allSubscriptions={allSubscriptions}
-          reloadSubscriptionSelf={getSubscriptionSelf}
-        />
-        <InvitationCard
-          t={t}
-          userState={userState}
-          renderQuota={renderQuota}
-          setOpenTransfer={setOpenTransfer}
-          affLink={affLink}
-          handleAffLinkClick={handleAffLinkClick}
-        />
-      </div>
+      <main className='min-h-screen px-8 pb-12'>
+        <div className='max-w-7xl mx-auto space-y-8'>
+          {/* Page Header */}
+          <div className='flex items-end gap-3 mb-10'>
+            <h1 className='text-4xl font-space-grotesk font-bold tracking-tight text-on-surface'>
+              {t('钱包')}<span className='text-primary'>{t('管理')}</span>
+            </h1>
+            <div 
+              className='relay-pulse w-2 h-2 rounded-full mb-2'
+              style={{ backgroundColor: 'rgb(255, 89, 227)' }}
+            ></div>
+          </div>
+
+          {/* 主布局区域 */}
+          <div className='grid grid-cols-1 lg:grid-cols-2 gap-10 items-start'>
+            {/* Account Recharge Section (Left) */}
+            <section className='space-y-8'>
+              <div className='flex items-center gap-3'>
+                <Wallet size={24} className='text-primary' />
+                <h2 className='text-xl font-space-grotesk font-bold uppercase tracking-widest'>
+                  {t('账户充值')}
+                </h2>
+              </div>
+              <RechargeCard
+                t={t}
+                userState={userState}
+                renderQuota={renderQuota}
+                redemptionCode={redemptionCode}
+                setRedemptionCode={setRedemptionCode}
+                topUp={topUp}
+                isSubmitting={isSubmitting}
+                topUpLink={topUpLink}
+                openTopUpLink={openTopUpLink}
+              />
+            </section>
+
+            {/* Invitation Rewards Section (Right) */}
+            <section className='space-y-8'>
+              <div className='flex items-center gap-3'>
+                <Users size={24} style={{ color: 'rgb(170, 138, 255)' }} />
+                <h2 className='text-xl font-space-grotesk font-bold uppercase tracking-widest'>
+                  {t('邀请奖励')}
+                </h2>
+              </div>
+              <InvitationCard
+                t={t}
+                userState={userState}
+                renderQuota={renderQuota}
+                setOpenTransfer={setOpenTransfer}
+                affLink={affLink}
+                handleAffLinkClick={handleAffLinkClick}
+              />
+            </section>
+          </div>
+
+          {/* Dashboard Bottom Decorative Grid */}
+          <div className='grid grid-cols-4 gap-6 pt-12'>
+            <div className='h-1 bg-surface-container-high rounded-full overflow-hidden'>
+              <div className='h-full w-2/3 bg-primary/30'></div>
+            </div>
+            <div className='h-1 bg-surface-container-high rounded-full overflow-hidden'>
+              <div className='h-full w-1/4 bg-secondary/30'></div>
+            </div>
+            <div className='h-1 bg-surface-container-high rounded-full overflow-hidden'>
+              <div className='h-full w-3/4 bg-tertiary/30'></div>
+            </div>
+            <div className='h-1 bg-surface-container-high rounded-full overflow-hidden'>
+              <div className='h-full w-1/2 bg-primary-container/30'></div>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      {/* Bottom Data Scrim */}
+      <div className='fixed bottom-0 left-0 w-full h-12 bg-gradient-to-t from-surface-dim to-transparent pointer-events-none z-30'></div>
     </div>
   );
 };

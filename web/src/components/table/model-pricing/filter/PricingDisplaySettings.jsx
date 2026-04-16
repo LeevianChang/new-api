@@ -69,10 +69,10 @@ const PricingDisplaySettings = ({
   const handleChange = (value) => {
     switch (value) {
       case 'recharge':
-        setShowWithRecharge(!showWithRecharge);
+        setShowWithRecharge((prev) => !prev);
         break;
       case 'ratio':
-        setShowRatio(!showRatio);
+        setShowRatio((prev) => !prev);
         break;
       case 'tableView':
         setViewMode(viewMode === 'table' ? 'card' : 'table');

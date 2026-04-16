@@ -352,48 +352,28 @@ const NotificationSettings = ({
   };
 
   return (
-    <Card
-      className='!rounded-2xl shadow-sm border-0'
-      footer={
-        <div className='flex justify-end gap-3'>
-          {activeTabKey === 'sidebar' ? (
-            // 边栏设置标签页的按钮
-            <>
-              <Button
-                type='tertiary'
-                onClick={resetSidebarModules}
-                className='!rounded-lg'
-              >
-                {t('重置为默认')}
-              </Button>
-              <Button
-                type='primary'
-                onClick={saveSidebarSettings}
-                loading={sidebarLoading}
-                className='!rounded-lg'
-              >
-                {t('保存设置')}
-              </Button>
-            </>
-          ) : (
-            // 其他标签页的通用保存按钮
-            <Button type='primary' onClick={handleSubmit}>
-              {t('保存设置')}
-            </Button>
-          )}
-        </div>
-      }
-    >
+    <div className='overflow-hidden' style={{
+      background: 'rgba(18, 19, 25, 0.6)',
+      backdropFilter: 'blur(20px)',
+      border: '1px solid rgba(143, 245, 255, 0.05)',
+      borderRadius: '24px',
+    }}>
       {/* 卡片头部 */}
-      <div className='flex items-center mb-4'>
-        <Avatar size='small' color='blue' className='mr-3 shadow-md'>
-          <Bell size={16} />
-        </Avatar>
+      <div className='flex items-center p-6 border-b' style={{
+        borderColor: 'rgba(143, 245, 255, 0.05)',
+      }}>
+        <div className='w-1 h-4 rounded-full mr-3' style={{ background: '#8ff5ff' }}></div>
         <div>
-          <Typography.Text className='text-lg font-medium'>
+          <Typography.Text className='text-lg font-medium' style={{
+            color: '#f7f5fd',
+            fontFamily: 'Space Grotesk, sans-serif',
+          }}>
             {t('其他设置')}
           </Typography.Text>
-          <div className='text-xs text-gray-600'>
+          <div className='text-xs' style={{
+            color: '#abaab1',
+            fontFamily: 'Space Grotesk, sans-serif',
+          }}>
             {t('通知、价格和隐私相关设置')}
           </div>
         </div>
@@ -409,18 +389,30 @@ const NotificationSettings = ({
             type='card'
             defaultActiveKey='notification'
             onChange={(key) => setActiveTabKey(key)}
+            style={{
+              '--semi-color-bg-0': 'transparent',
+              '--semi-color-bg-1': 'rgba(24, 25, 32, 0.6)',
+              '--semi-color-border': 'rgba(143, 245, 255, 0.1)',
+              '--semi-color-text-0': '#f7f5fd',
+              '--semi-color-text-1': '#abaab1',
+            }}
           >
             {/* 通知配置 Tab */}
             <TabPane
               tab={
-                <div className='flex items-center'>
-                  <Bell size={16} className='mr-2' />
+                <div className='flex items-center' style={{
+                  fontFamily: 'Space Grotesk, sans-serif',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.1em',
+                  fontSize: '12px',
+                }}>
+                  <Bell size={16} className='mr-2' style={{ color: '#8ff5ff' }} />
                   {t('通知配置')}
                 </div>
               }
               itemKey='notification'
             >
-              <div className='py-4'>
+              <div className='py-4 px-6'>
                 <Form.RadioGroup
                   field='warningType'
                   label={t('通知方式')}
@@ -750,14 +742,19 @@ const NotificationSettings = ({
             {/* 价格设置 Tab */}
             <TabPane
               tab={
-                <div className='flex items-center'>
-                  <DollarSign size={16} className='mr-2' />
+                <div className='flex items-center' style={{
+                  fontFamily: 'Space Grotesk, sans-serif',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.1em',
+                  fontSize: '12px',
+                }}>
+                  <DollarSign size={16} className='mr-2' style={{ color: '#aa8aff' }} />
                   {t('价格设置')}
                 </div>
               }
               itemKey='pricing'
             >
-              <div className='py-4'>
+              <div className='py-4 px-6'>
                 <Form.Switch
                   field='acceptUnsetModelRatioModel'
                   label={t('接受未设置价格模型')}
@@ -776,14 +773,19 @@ const NotificationSettings = ({
             {/* 隐私设置 Tab */}
             <TabPane
               tab={
-                <div className='flex items-center'>
-                  <ShieldCheck size={16} className='mr-2' />
+                <div className='flex items-center' style={{
+                  fontFamily: 'Space Grotesk, sans-serif',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.1em',
+                  fontSize: '12px',
+                }}>
+                  <ShieldCheck size={16} className='mr-2' style={{ color: '#ff59e3' }} />
                   {t('隐私设置')}
                 </div>
               }
               itemKey='privacy'
             >
-              <div className='py-4'>
+              <div className='py-4 px-6'>
                 <Form.Switch
                   field='recordIpLog'
                   label={t('记录请求与错误日志IP')}
@@ -801,14 +803,19 @@ const NotificationSettings = ({
             {hasSidebarSettingsPermission() && (
               <TabPane
                 tab={
-                  <div className='flex items-center'>
-                    <Settings size={16} className='mr-2' />
+                  <div className='flex items-center' style={{
+                    fontFamily: 'Space Grotesk, sans-serif',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.1em',
+                    fontSize: '12px',
+                  }}>
+                    <Settings size={16} className='mr-2' style={{ color: '#8ff5ff' }} />
                     {t('边栏设置')}
                   </div>
                 }
                 itemKey='sidebar'
               >
-                <div className='py-4'>
+                <div className='py-4 px-6'>
                   <div className='mb-4'>
                     <Typography.Text
                       type='secondary'
@@ -939,12 +946,66 @@ const NotificationSettings = ({
                   {/* 关闭边栏设置功能区域容器 */}
                 </div>
               </TabPane>
-            )}
-          </Tabs>
-        )}
-      </Form>
-    </Card>
-  );
+          )}
+        </Tabs>
+      )}
+    </Form>
+    
+    {/* Footer with buttons */}
+    <div className='flex justify-end gap-3 p-6 border-t' style={{
+      borderColor: 'rgba(143, 245, 255, 0.05)',
+    }}>
+      {activeTabKey === 'sidebar' ? (
+        <>
+          <Button
+            onClick={resetSidebarModules}
+            style={{
+              background: 'transparent',
+              border: '1px solid rgba(143, 245, 255, 0.3)',
+              color: '#8ff5ff',
+              fontFamily: 'Space Grotesk, sans-serif',
+              textTransform: 'uppercase',
+              fontSize: '10px',
+              letterSpacing: '0.1em',
+            }}
+          >
+            {t('重置为默认')}
+          </Button>
+          <Button
+            onClick={saveSidebarSettings}
+            loading={sidebarLoading}
+            style={{
+              background: 'rgba(143, 245, 255, 0.1)',
+              border: '1px solid rgba(143, 245, 255, 0.3)',
+              color: '#8ff5ff',
+              fontFamily: 'Space Grotesk, sans-serif',
+              textTransform: 'uppercase',
+              fontSize: '10px',
+              letterSpacing: '0.1em',
+            }}
+          >
+            {t('保存设置')}
+          </Button>
+        </>
+      ) : (
+        <Button 
+          onClick={handleSubmit}
+          style={{
+            background: 'rgba(143, 245, 255, 0.1)',
+            border: '1px solid rgba(143, 245, 255, 0.3)',
+            color: '#8ff5ff',
+            fontFamily: 'Space Grotesk, sans-serif',
+            textTransform: 'uppercase',
+            fontSize: '10px',
+            letterSpacing: '0.1em',
+          }}
+        >
+          {t('保存设置')}
+        </Button>
+      )}
+    </div>
+  </div>
+);
 };
 
 export default NotificationSettings;

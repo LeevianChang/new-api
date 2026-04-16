@@ -19,17 +19,33 @@ For commercial licensing, please contact support@quantumnous.com
 
 import React from 'react';
 import { Typography } from '@douyinfe/semi-ui';
-import { Key } from 'lucide-react';
 import CompactModeToggle from '../../common/ui/CompactModeToggle';
 
-const { Text } = Typography;
+const { Text, Title } = Typography;
 
 const TokensDescription = ({ compactMode, setCompactMode, t }) => {
   return (
-    <div className='flex flex-col md:flex-row justify-between items-start md:items-center gap-2 w-full'>
-      <div className='flex items-center text-blue-500'>
-        <Key size={16} className='mr-2' />
-        <Text>{t('令牌管理')}</Text>
+    <div className='flex flex-col md:flex-row justify-between items-start md:items-end gap-4 w-full'>
+      <div>
+        <div className='flex items-end gap-3 mb-2'>
+          <Title 
+            heading={2} 
+            className='!text-4xl !font-bold !tracking-tighter !mb-0'
+            style={{ fontFamily: 'Space Grotesk, sans-serif' }}
+          >
+            {t('令牌')}<span className='text-primary'>{t('管理')}</span>
+          </Title>
+          <div 
+            className='relay-pulse w-2 h-2 rounded-full mb-1'
+            style={{ backgroundColor: 'rgb(255, 89, 227)' }}
+          ></div>
+        </div>
+        <Text 
+          type='tertiary' 
+          className='!text-sm max-w-lg'
+        >
+          {t('管理访问授权和资源配额。所有密钥均已加密存储，具有中继级隔离。')}
+        </Text>
       </div>
 
       <CompactModeToggle

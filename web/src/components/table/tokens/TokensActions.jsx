@@ -61,10 +61,10 @@ const TokensActions = ({
 
   return (
     <>
-      <div className='flex flex-wrap gap-2 w-full md:w-auto order-2 md:order-1'>
+      <div className='flex flex-wrap gap-3 w-full md:w-auto order-2 md:order-1'>
         <Button
           type='primary'
-          className='flex-1 md:flex-initial'
+          className='flex-1 md:flex-initial !text-xs !uppercase !tracking-wider !rounded-xl'
           onClick={() => {
             setEditingToken({
               id: undefined,
@@ -72,24 +72,36 @@ const TokensActions = ({
             setShowEdit(true);
           }}
           size='small'
+          style={{
+            fontFamily: 'Space Grotesk, sans-serif',
+            background: 'rgba(143, 245, 255, 0.1)',
+            border: '1px solid rgba(143, 245, 255, 0.2)',
+            color: 'rgb(143, 245, 255)',
+          }}
         >
           {t('添加令牌')}
         </Button>
 
         <Button
           type='tertiary'
-          className='flex-1 md:flex-initial'
+          className='flex-1 md:flex-initial !text-xs !uppercase !tracking-wider !rounded-xl'
           onClick={handleCopySelectedTokens}
           size='small'
+          style={{
+            fontFamily: 'Space Grotesk, sans-serif',
+          }}
         >
           {t('复制所选令牌')}
         </Button>
 
         <Button
           type='danger'
-          className='w-full md:w-auto'
+          className='w-full md:w-auto !text-xs !uppercase !tracking-wider !rounded-xl'
           onClick={handleDeleteSelectedTokens}
           size='small'
+          style={{
+            fontFamily: 'Space Grotesk, sans-serif',
+          }}
         >
           {t('删除所选令牌')}
         </Button>

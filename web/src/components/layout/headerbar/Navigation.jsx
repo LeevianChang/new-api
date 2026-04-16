@@ -18,7 +18,7 @@ For commercial licensing, please contact support@quantumnous.com
 */
 
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import SkeletonWrapper from '../components/SkeletonWrapper';
 
 const Navigation = ({
@@ -28,15 +28,33 @@ const Navigation = ({
   userState,
   pricingRequireAuth,
 }) => {
+  const location = useLocation();
+
   const renderNavLinks = () => {
     const baseClasses =
-      'flex-shrink-0 flex items-center gap-1 font-semibold rounded-md transition-all duration-200 ease-in-out';
-    const hoverClasses = 'hover:text-semi-color-primary';
+      'flex-shrink-0 flex items-center gap-1 font-semibold transition-all duration-200 ease-in-out';
+    const textClasses = 'text-[rgb(148,163,184)]';
+    const hoverClasses = 'hover:text-[#8ff5ff]';
     const spacingClasses = isMobile ? 'p-1' : 'p-2';
 
-    const commonLinkClasses = `${baseClasses} ${spacingClasses} ${hoverClasses}`;
-
     return mainNavLinks.map((link) => {
+      let targetPath = link.to;
+      if (link.itemKey === 'console' && !userState.user) {
+        targetPath = '/login';
+      }
+      if (link.itemKey === 'pricing' && pricingRequireAuth && !userState.user) {
+        targetPath = '/login';
+      }
+
+      const isActive = location.pathname === targetPath || 
+                       (link.itemKey === 'console' && location.pathname.startsWith('/console'));
+      
+      const activeClasses = isActive 
+        ? 'dark:text-[#00F0FF] dark:border-b-2 dark:border-[#00F0FF] !rounded-none' 
+        : '';
+      
+      const commonLinkClasses = `${baseClasses} ${textClasses} ${spacingClasses} ${hoverClasses} ${activeClasses}`;
+
       const linkContent = <span>{link.text}</span>;
 
       if (link.isExternal) {
@@ -51,14 +69,6 @@ const Navigation = ({
             {linkContent}
           </a>
         );
-      }
-
-      let targetPath = link.to;
-      if (link.itemKey === 'console' && !userState.user) {
-        targetPath = '/login';
-      }
-      if (link.itemKey === 'pricing' && pricingRequireAuth && !userState.user) {
-        targetPath = '/login';
       }
 
       return (

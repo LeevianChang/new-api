@@ -57,6 +57,9 @@ const LogsFilters = ({
               showClear
               pure
               size='small'
+              style={{
+                background: 'transparent',
+              }}
               presets={DATE_RANGE_PRESETS.map((preset) => ({
                 text: t(preset.text),
                 start: preset.start(),
@@ -68,57 +71,81 @@ const LogsFilters = ({
           {/* 其他搜索字段 */}
           <Form.Input
             field='token_name'
-            prefix={<IconSearch />}
+            prefix={<IconSearch className='text-primary' />}
             placeholder={t('令牌名称')}
             showClear
             pure
             size='small'
+            style={{
+              fontFamily: 'Manrope, sans-serif',
+              background: 'transparent',
+            }}
           />
 
           <Form.Input
             field='model_name'
-            prefix={<IconSearch />}
+            prefix={<IconSearch className='text-primary' />}
             placeholder={t('模型名称')}
             showClear
             pure
             size='small'
+            style={{
+              fontFamily: 'Manrope, sans-serif',
+              background: 'transparent',
+            }}
           />
 
           <Form.Input
             field='group'
-            prefix={<IconSearch />}
+            prefix={<IconSearch className='text-primary' />}
             placeholder={t('分组')}
             showClear
             pure
             size='small'
+            style={{
+              fontFamily: 'Manrope, sans-serif',
+              background: 'transparent',
+            }}
           />
 
           <Form.Input
             field='request_id'
-            prefix={<IconSearch />}
+            prefix={<IconSearch className='text-primary' />}
             placeholder={t('Request ID')}
             showClear
             pure
             size='small'
+            style={{
+              fontFamily: 'Manrope, sans-serif',
+              background: 'transparent',
+            }}
           />
 
           {isAdminUser && (
             <>
               <Form.Input
                 field='channel'
-                prefix={<IconSearch />}
+                prefix={<IconSearch className='text-primary' />}
                 placeholder={t('渠道 ID')}
                 showClear
                 pure
                 size='small'
+                style={{
+                  fontFamily: 'Manrope, sans-serif',
+                  background: 'transparent',
+                }}
               />
               <Form.Input
                 field='username'
-                prefix={<IconSearch />}
+                prefix={<IconSearch className='text-primary' />}
                 placeholder={t('用户名称')}
                 showClear
                 pure
                 size='small'
+                style={{
+                  fontFamily: 'Manrope, sans-serif',
+                  background: 'transparent',
+                }}
               />
             </>
           )}
@@ -158,6 +185,10 @@ const LogsFilters = ({
               htmlType='submit'
               loading={loading}
               size='small'
+              className='!text-xs !uppercase !tracking-wider'
+              style={{
+                fontFamily: 'Space Grotesk, sans-serif',
+              }}
             >
               {t('查询')}
             </Button>
@@ -173,6 +204,10 @@ const LogsFilters = ({
                 }
               }}
               size='small'
+              className='!text-xs !uppercase !tracking-wider'
+              style={{
+                fontFamily: 'Space Grotesk, sans-serif',
+              }}
             >
               {t('重置')}
             </Button>
@@ -180,6 +215,10 @@ const LogsFilters = ({
               type='tertiary'
               onClick={() => setShowColumnSelector(true)}
               size='small'
+              className='!text-xs !uppercase !tracking-wider'
+              style={{
+                fontFamily: 'Space Grotesk, sans-serif',
+              }}
             >
               {t('列设置')}
             </Button>

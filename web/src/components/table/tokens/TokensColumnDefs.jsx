@@ -64,26 +64,67 @@ function renderTimestamp(timestamp) {
 const renderStatus = (text, record, t) => {
   const enabled = text === 1;
 
-  let tagColor = 'black';
+  let tagStyle = {};
   let tagText = t('未知状态');
+  
   if (enabled) {
-    tagColor = 'green';
+    tagStyle = {
+      background: 'rgba(143, 245, 255, 0.1)',
+      border: '1px solid rgba(143, 245, 255, 0.2)',
+      color: 'rgb(143, 245, 255)',
+      fontFamily: 'Space Grotesk, sans-serif',
+      fontSize: '10px',
+      fontWeight: 'bold',
+      textTransform: 'uppercase',
+      padding: '2px 10px',
+      borderRadius: '9999px',
+    };
     tagText = t('已启用');
   } else if (text === 2) {
-    tagColor = 'red';
+    tagStyle = {
+      background: 'rgba(255, 113, 108, 0.2)',
+      border: '1px solid rgba(255, 113, 108, 0.2)',
+      color: 'rgb(255, 113, 108)',
+      fontFamily: 'Space Grotesk, sans-serif',
+      fontSize: '10px',
+      fontWeight: 'bold',
+      textTransform: 'uppercase',
+      padding: '2px 10px',
+      borderRadius: '9999px',
+    };
     tagText = t('已禁用');
   } else if (text === 3) {
-    tagColor = 'yellow';
+    tagStyle = {
+      background: 'rgba(255, 193, 7, 0.2)',
+      border: '1px solid rgba(255, 193, 7, 0.2)',
+      color: 'rgb(255, 193, 7)',
+      fontFamily: 'Space Grotesk, sans-serif',
+      fontSize: '10px',
+      fontWeight: 'bold',
+      textTransform: 'uppercase',
+      padding: '2px 10px',
+      borderRadius: '9999px',
+    };
     tagText = t('已过期');
   } else if (text === 4) {
-    tagColor = 'grey';
+    tagStyle = {
+      background: 'rgba(156, 163, 175, 0.2)',
+      border: '1px solid rgba(156, 163, 175, 0.2)',
+      color: 'rgb(156, 163, 175)',
+      fontFamily: 'Space Grotesk, sans-serif',
+      fontSize: '10px',
+      fontWeight: 'bold',
+      textTransform: 'uppercase',
+      padding: '2px 10px',
+      borderRadius: '9999px',
+    };
     tagText = t('已耗尽');
   }
 
   return (
-    <Tag color={tagColor} shape='circle' size='small'>
+    <span style={tagStyle}>
       {tagText}
-    </Tag>
+    </span>
   );
 };
 
@@ -133,6 +174,13 @@ const renderTokenKey = (
         readOnly
         value={displayedKey}
         size='small'
+        style={{
+          fontFamily: 'monospace',
+          fontSize: '12px',
+          background: 'rgba(30, 31, 38, 0.5)',
+          border: '1px solid rgba(117, 117, 123, 0.2)',
+          color: 'rgba(171, 170, 177, 1)',
+        }}
         suffix={
           <div className='flex items-center'>
             <Button
@@ -146,6 +194,7 @@ const renderTokenKey = (
                 e.stopPropagation();
                 await toggleTokenVisibility(record);
               }}
+              style={{ color: 'rgba(143, 245, 255, 0.7)' }}
             />
             <Dropdown
               trigger='click'
@@ -174,6 +223,7 @@ const renderTokenKey = (
                 onClick={async (e) => {
                   e.stopPropagation();
                 }}
+                style={{ color: 'rgba(143, 245, 255, 0.7)' }}
               />
             </Dropdown>
           </div>
@@ -300,9 +350,20 @@ const renderQuotaUsage = (text, record, t) => {
     );
     return (
       <Popover content={popoverContent} position='top'>
-        <Tag color='white' shape='circle'>
+        <span style={{
+          background: 'rgba(143, 245, 255, 0.1)',
+          border: '1px solid rgba(143, 245, 255, 0.2)',
+          color: 'rgb(143, 245, 255)',
+          fontFamily: 'Space Grotesk, sans-serif',
+          fontSize: '10px',
+          fontWeight: 'bold',
+          textTransform: 'uppercase',
+          padding: '2px 10px',
+          borderRadius: '9999px',
+          display: 'inline-block',
+        }}>
           {t('无限额度')}
-        </Tag>
+        </span>
       </Popover>
     );
   }
@@ -322,18 +383,21 @@ const renderQuotaUsage = (text, record, t) => {
   );
   return (
     <Popover content={popoverContent} position='top'>
-      <Tag color='white' shape='circle'>
-        <div className='flex flex-col items-end'>
-          <span className='text-xs leading-none'>{`${renderQuota(remain)} / ${renderQuota(total)}`}</span>
-          <Progress
-            percent={percent}
-            stroke={getProgressColor(percent)}
-            aria-label='quota usage'
-            format={() => `${percent.toFixed(0)}%`}
-            style={{ width: '100%', marginTop: '1px', marginBottom: 0 }}
-          />
+      <div className='w-32'>
+        <div className='flex justify-between text-[10px] mb-1' style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
+          <span style={{ color: 'rgba(171, 170, 177, 1)' }}>{percent.toFixed(0)}%</span>
+          <span style={{ color: 'rgba(117, 117, 123, 1)' }}>{renderQuota(total)}</span>
         </div>
-      </Tag>
+        <div className='h-1 w-full rounded-full overflow-hidden' style={{ background: 'rgba(30, 31, 38, 1)' }}>
+          <div 
+            className='h-full' 
+            style={{ 
+              width: `${percent}%`,
+              background: percent <= 10 ? 'rgb(255, 113, 108)' : 'rgb(143, 245, 255)',
+            }}
+          ></div>
+        </div>
+      </div>
     </Popover>
   );
 };
@@ -388,6 +452,10 @@ const renderOperations = (
               onOpenLink(first.name, first.value, record);
             }
           }}
+          style={{
+            color: 'rgba(143, 245, 255, 0.9)',
+            borderColor: 'rgba(143, 245, 255, 0.2)',
+          }}
         >
           {t('聊天')}
         </Button>
@@ -396,6 +464,10 @@ const renderOperations = (
             type='tertiary'
             icon={<IconTreeTriangleDown />}
             size='small'
+            style={{
+              color: 'rgba(143, 245, 255, 0.9)',
+              borderColor: 'rgba(143, 245, 255, 0.2)',
+            }}
           ></Button>
         </Dropdown>
       </SplitButtonGroup>
@@ -408,6 +480,11 @@ const renderOperations = (
             await manageToken(record.id, 'disable', record);
             await refresh();
           }}
+          style={{
+            background: 'rgba(255, 113, 108, 0.1)',
+            borderColor: 'rgba(255, 113, 108, 0.3)',
+            color: 'rgb(255, 113, 108)',
+          }}
         >
           {t('禁用')}
         </Button>
@@ -417,6 +494,11 @@ const renderOperations = (
           onClick={async () => {
             await manageToken(record.id, 'enable', record);
             await refresh();
+          }}
+          style={{
+            background: 'rgba(143, 245, 255, 0.1)',
+            borderColor: 'rgba(143, 245, 255, 0.3)',
+            color: 'rgb(143, 245, 255)',
           }}
         >
           {t('启用')}
@@ -429,6 +511,10 @@ const renderOperations = (
         onClick={() => {
           setEditingToken(record);
           setShowEdit(true);
+        }}
+        style={{
+          color: 'rgba(143, 245, 255, 0.9)',
+          borderColor: 'rgba(143, 245, 255, 0.2)',
         }}
       >
         {t('编辑')}
@@ -448,6 +534,11 @@ const renderOperations = (
               })();
             },
           });
+        }}
+        style={{
+          background: 'rgba(255, 113, 108, 0.1)',
+          borderColor: 'rgba(255, 113, 108, 0.3)',
+          color: 'rgb(255, 113, 108)',
         }}
       >
         {t('删除')}

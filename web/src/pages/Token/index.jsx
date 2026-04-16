@@ -22,8 +22,28 @@ import TokensTable from '../../components/table/tokens';
 
 const Token = () => {
   return (
-    <div className='mt-[60px] px-2'>
-      <TokensTable />
+    <div className='mt-[60px] px-2 relative min-h-screen overflow-hidden'>
+      {/* Ambient Decorative Background */}
+      <div 
+        className='fixed -top-[10%] -right-[10%] w-[500px] h-[500px] rounded-full pointer-events-none'
+        style={{
+          background: 'rgba(143, 245, 255, 0.15)',
+          filter: 'blur(120px)',
+          zIndex: 0,
+        }}
+      />
+      <div 
+        className='fixed -bottom-[10%] -left-[10%] w-[500px] h-[500px] rounded-full pointer-events-none'
+        style={{
+          background: 'rgba(255, 89, 227, 0.15)',
+          filter: 'blur(120px)',
+          zIndex: 0,
+        }}
+      />
+      
+      <div className='relative z-10'>
+        <TokensTable />
+      </div>
     </div>
   );
 };

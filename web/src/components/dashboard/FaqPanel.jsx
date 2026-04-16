@@ -17,10 +17,9 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 For commercial licensing, please contact support@quantumnous.com
 */
 
-import React from 'react';
-import { Card, Collapse, Empty } from '@douyinfe/semi-ui';
-import { HelpCircle } from 'lucide-react';
-import { IconPlus, IconMinus } from '@douyinfe/semi-icons';
+import React, { useState } from 'react';
+import { Empty } from '@douyinfe/semi-ui';
+import { HelpCircle, ChevronDown } from 'lucide-react';
 import { marked } from 'marked';
 import {
   IllustrationConstruction,
@@ -35,39 +34,49 @@ const FaqPanel = ({
   ILLUSTRATION_SIZE,
   t,
 }) => {
+  const [openIndex, setOpenIndex] = useState(null);
+
   return (
-    <Card
-      {...CARD_PROPS}
-      className='shadow-sm !rounded-2xl lg:col-span-1'
-      title={
-        <div className={FLEX_CENTER_GAP2}>
-          <HelpCircle size={16} />
+    <div className='aether-glass-panel p-6 rounded-xl lg:col-span-1'>
+      <div className='flex items-center gap-2 mb-6'>
+        <HelpCircle size={18} className='text-aether-secondary' />
+        <h3 className='font-aether-headline text-lg font-bold tracking-tight'>
           {t('常见问答')}
-        </div>
-      }
-      bodyStyle={{ padding: 0 }}
-    >
+        </h3>
+      </div>
       <ScrollableContainer maxHeight='24rem'>
         {faqData.length > 0 ? (
-          <Collapse
-            accordion
-            expandIcon={<IconPlus />}
-            collapseIcon={<IconMinus />}
-          >
+          <div className='space-y-3'>
             {faqData.map((item, index) => (
-              <Collapse.Panel
+              <div
                 key={index}
-                header={item.question}
-                itemKey={index.toString()}
+                className='bg-white/5 border border-white/5 rounded-lg overflow-hidden transition-all'
               >
-                <div
-                  dangerouslySetInnerHTML={{
-                    __html: marked.parse(item.answer || ''),
-                  }}
-                />
-              </Collapse.Panel>
+                <button
+                  onClick={() => setOpenIndex(openIndex === index ? null : index)}
+                  className='flex items-center justify-between p-3 cursor-pointer w-full hover:bg-white/5 transition-all'
+                >
+                  <span className={`text-sm font-aether-body font-medium text-left ${openIndex === index ? 'text-aether-secondary' : 'text-slate-300'
+                    }`}>
+                    {item.question}
+                  </span>
+                  <ChevronDown
+                    size={16}
+                    className={`transition-transform ${openIndex === index ? 'rotate-180' : ''}`}
+                  />
+                </button>
+                {openIndex === index && (
+                  <div className='px-3 pb-3 text-xs text-slate-500 font-aether-body border-t border-white/5 pt-2'>
+                    <div
+                      dangerouslySetInnerHTML={{
+                        __html: marked.parse(item.answer || ''),
+                      }}
+                    />
+                  </div>
+                )}
+              </div>
             ))}
-          </Collapse>
+          </div>
         ) : (
           <div className='flex justify-center items-center py-8'>
             <Empty
@@ -81,7 +90,12 @@ const FaqPanel = ({
           </div>
         )}
       </ScrollableContainer>
-    </Card>
+      {faqData.length > 0 && (
+        <button className='w-full mt-4 text-aether-secondary font-aether-label text-[10px] uppercase tracking-widest hover:underline transition-all'>
+          {t('查看所有文档')}
+        </button>
+      )}
+    </div>
   );
 };
 

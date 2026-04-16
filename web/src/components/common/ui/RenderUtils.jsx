@@ -53,7 +53,7 @@ export function renderLimitedItems({ items, renderItem, maxDisplay = 3 }) {
 // 渲染描述字段，长文本支持tooltip
 export const renderDescription = (text, maxWidth = 200) => {
   return (
-    <Text ellipsis={{ showTooltip: true }} style={{ maxWidth }}>
+    <Text ellipsis={{ showTooltip: true }} style={{ maxWidth, color: 'rgb(171 170 177)' }}>
       {text || '-'}
     </Text>
   );
