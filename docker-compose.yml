@@ -2,9 +2,7 @@ version: '3.4'
 
 services:
   new-api:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: ghcr.io/leevianchang/new-api:latest
     container_name: new-api
     restart: always
     command: --log-dir /app/logs
