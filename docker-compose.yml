@@ -178,11 +178,10 @@ volumes:
   pg_data:
   prometheus_data:
   grafana_data:
-  caddy_data:
-  caddy_config:
 
 networks:
   new-api-network:
+    name: new-api-network
     driver: bridge
   safeline-ce:
     external: true # 雷池已经建好的网络
