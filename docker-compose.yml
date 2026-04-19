@@ -158,8 +158,8 @@ services:
     image: caddy:2.8.4
     container_name: caddy
     restart: always
-    ports:
-      - "127.0.0.1:8080:8080"
+    expose:
+      - "8080"
     environment:
       - API_DOMAIN=${API_DOMAIN}
       - GRAFANA_DOMAIN=${GRAFANA_DOMAIN}
