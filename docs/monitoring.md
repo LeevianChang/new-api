@@ -21,42 +21,17 @@ docker compose up -d
 
 默认仪表盘：`New API / New API Overview`
 
-## 1.1 域名入口（Caddy + 雷池）
+## 2. 域名访问配置
 
-已集成 Caddy 作为内网反向代理，监听 `127.0.0.1:8080`（纯 HTTP），将三个域名分别反代到应用和监控组件：
+如需通过域名访问监控服务，建议在雷池（SafeLine）或其他反向代理中配置：
 
-- `API_DOMAIN` -> `new-api:3000`
-- `GRAFANA_DOMAIN` -> `grafana:3000`
-- `PROMETHEUS_DOMAIN` -> `prometheus:9090`
+- Grafana: 直接代理到 `http://grafana:3000`
+- Prometheus: 直接代理到 `http://prometheus:9090`
+- New API: 直接代理到 `http://new-api:3000`
 
-配置项见 `.env.example` 中的 Caddy 部分。
+注意：监控服务默认只监听 `127.0.0.1`，需要通过 Docker 网络访问。
 
-**拓扑架构（雷池在前）：**
-
-```
-公网 HTTPS (443)
-    ↓
-雷池 (SafeLine) — 负责 SSL 证书、WAF 防护
-    ↓ HTTP
-Caddy (127.0.0.1:8080) — 基于 Host 头分发到不同服务
-    ↓
-new-api / grafana / prometheus
-```
-
-**雷池配置要点：**
-
-1. 在雷池中配置三个上游站点，分别指向：
-   - `api.yourdomain.com` -> `http://caddy:8080`（需加入 `safeline-ce` 网络）
-   - `grafana.yourdomain.com` -> `http://caddy:8080`
-   - `prom.yourdomain.com` -> `http://caddy:8080`
-
-2. 雷池负责 HTTPS 证书申请和续期，回源到 Caddy 使用 HTTP 即可。
-
-3. Caddy 根据 `Host` 头将请求分发到对应的后端服务。
-
-注意：Caddy 已配置为纯内网模式，不处理证书，不会与雷池的 `80/443` 端口冲突。
-
-## 2. 应用指标接口
+## 3. 应用指标接口
 
 应用新增 `GET /metrics`（Prometheus 拉取）。
 
@@ -66,7 +41,7 @@ new-api / grafana / prometheus
   - `X-Metrics-Token: <token>`
   - `?token=<token>`
 
-## 3. 关键指标
+## 4. 关键指标
 
 - `newapi_http_requests_total`
 - `newapi_http_request_duration_seconds`
@@ -78,7 +53,7 @@ new-api / grafana / prometheus
 - `newapi_redis_pool_connections`
 - `probe_success`（blackbox 下游探测）
 
-## 4. 下游探测目标
+## 5. 下游探测目标
 
 编辑 `monitoring/prometheus/downstream_targets.yml`，按 `host:port` 增加或删除目标。
 
