@@ -49,8 +49,137 @@ services:
     networks:
       - new-api-network
 
+  prometheus:
+    image: prom/prometheus:v3.5.0
+    container_name: prometheus
+    restart: always
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --storage.tsdb.retention.time=15d
+    ports:
+      - "127.0.0.1:9090:9090"
+    volumes:
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./monitoring/prometheus/rules:/etc/prometheus/rules:ro
+      - ./monitoring/prometheus/downstream_targets.yml:/etc/prometheus/downstream_targets.yml:ro
+      - prometheus_data:/prometheus
+    depends_on:
+      - new-api
+      - redis-exporter
+      - postgres-exporter
+      - node-exporter
+      - cadvisor
+      - blackbox-exporter
+    networks:
+      - new-api-network
+
+  grafana:
+    image: grafana/grafana:11.2.0
+    container_name: grafana
+    restart: always
+    ports:
+      - "127.0.0.1:3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN_USER:-admin}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-admin123}
+      - GF_AUTH_ANONYMOUS_ENABLED=false
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - ./monitoring/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources:ro
+      - ./monitoring/grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - grafana_data:/var/lib/grafana
+    depends_on:
+      - prometheus
+    networks:
+      - new-api-network
+
+  redis-exporter:
+    image: oliver006/redis_exporter:v1.65.0
+    container_name: redis-exporter
+    restart: always
+    command:
+      - --redis.addr=redis://redis:6379
+      - --redis.password=${REDIS_PASSWORD}
+    depends_on:
+      - redis
+    networks:
+      - new-api-network
+
+  postgres-exporter:
+    image: quay.io/prometheuscommunity/postgres-exporter:v0.16.0
+    container_name: postgres-exporter
+    restart: always
+    environment:
+      - DATA_SOURCE_NAME=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?sslmode=disable
+    depends_on:
+      - postgres
+    networks:
+      - new-api-network
+
+  node-exporter:
+    image: prom/node-exporter:v1.8.2
+    container_name: node-exporter
+    restart: always
+    command:
+      - --path.rootfs=/host
+    pid: host
+    volumes:
+      - /:/host:ro,rslave
+    networks:
+      - new-api-network
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:v0.49.1
+    container_name: cadvisor
+    restart: always
+    privileged: true
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    networks:
+      - new-api-network
+
+  blackbox-exporter:
+    image: prom/blackbox-exporter:v0.25.0
+    container_name: blackbox-exporter
+    restart: always
+    command:
+      - --config.file=/etc/blackbox_exporter/blackbox.yml
+    volumes:
+      - ./monitoring/blackbox/blackbox.yml:/etc/blackbox_exporter/blackbox.yml:ro
+    networks:
+      - new-api-network
+
+  caddy:
+    image: caddy:2.8.4
+    container_name: caddy
+    restart: always
+    ports:
+      - "127.0.0.1:8080:8080"
+    environment:
+      - API_DOMAIN=${API_DOMAIN}
+      - GRAFANA_DOMAIN=${GRAFANA_DOMAIN}
+      - PROMETHEUS_DOMAIN=${PROMETHEUS_DOMAIN}
+    volumes:
+      - ./monitoring/caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+    depends_on:
+      - new-api
+      - grafana
+      - prometheus
+    networks:
+      - new-api-network
+      - safeline-ce
+
 volumes:
   pg_data:
+  prometheus_data:
+  grafana_data:
+  caddy_data:
+  caddy_config:
 
 networks:
   new-api-network:

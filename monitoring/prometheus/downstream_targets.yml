@@ -1,0 +1,6 @@
+- targets:
+    - api.openai.com:443
+    - api.anthropic.com:443
+    - generativelanguage.googleapis.com:443
+  labels:
+    group: ai-upstream

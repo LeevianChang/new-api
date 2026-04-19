@@ -1,0 +1,26 @@
+groups:
+  - name: new-api-sli
+    rules:
+      - record: newapi:http_qps:rate1m
+        expr: sum(rate(newapi_http_requests_total[1m]))
+
+      - record: newapi:http_error_rate:ratio5m
+        expr: |
+          sum(rate(newapi_http_requests_total{status_class=~"4xx|5xx"}[5m]))
+          /
+          clamp_min(sum(rate(newapi_http_requests_total[5m])), 1)
+
+      - record: newapi:relay_qps:rate1m
+        expr: sum(rate(newapi_relay_requests_total[1m]))
+
+      - record: newapi:relay_error_rate:ratio5m
+        expr: |
+          sum(rate(newapi_relay_requests_total{status_class=~"4xx|5xx"}[5m]))
+          /
+          clamp_min(sum(rate(newapi_relay_requests_total[5m])), 1)
+
+      - record: newapi:relay_error_rate_by_channel:ratio5m
+        expr: |
+          sum by (channel_id, channel_name, channel_type) (rate(newapi_relay_requests_total{status_class=~"4xx|5xx"}[5m]))
+          /
+          clamp_min(sum by (channel_id, channel_name, channel_type) (rate(newapi_relay_requests_total[5m])), 0.001)
