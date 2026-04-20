@@ -495,12 +495,12 @@
       },
       "targets": [
         {
-          "expr": "sum by (channel_type) (rate(newapi_relay_requests_total[1m])) or vector(0)",
-          "legendFormat": "{{channel_type}}",
+          "expr": "sum by (channel_id, channel_name, channel_type) (rate(newapi_relay_requests_total[1m])) or vector(0)",
+          "legendFormat": "[{{channel_id}}] {{channel_name}} ({{channel_type}})",
           "refId": "A"
         }
       ],
-      "title": "Relay QPS by Channel",
+      "title": "Relay QPS by Channel Instance",
       "type": "timeseries"
     },
     {
@@ -535,12 +535,12 @@
       },
       "targets": [
         {
-          "expr": "histogram_quantile(0.95, sum by (channel_type, le) (rate(newapi_relay_request_duration_seconds_bucket[5m]))) or vector(0)",
-          "legendFormat": "{{channel_type}}",
+          "expr": "histogram_quantile(0.95, sum by (channel_id, channel_name, channel_type, le) (rate(newapi_relay_request_duration_seconds_bucket[5m]))) or vector(0)",
+          "legendFormat": "[{{channel_id}}] {{channel_name}} ({{channel_type}})",
           "refId": "A"
         }
       ],
-      "title": "Relay P95 by Channel",
+      "title": "Relay P95 by Channel Instance",
       "type": "timeseries"
     },
     {
@@ -575,7 +575,7 @@
       },
       "targets": [
         {
-          "expr": "(sum by (channel_id, channel_name, channel_type) (rate(newapi_relay_requests_total{status_class=~\"4xx|5xx\"}[5m])) / clamp_min(sum by (channel_id, channel_name, channel_type) (rate(newapi_relay_requests_total[5m])), 0.001)) or vector(0)",
+          "expr": "((sum by (channel_id, channel_name, channel_type) (rate(newapi_relay_requests_total{status_class=~\"4xx|5xx\"}[5m])) or on (channel_id, channel_name, channel_type) (0 * sum by (channel_id, channel_name, channel_type) (rate(newapi_relay_requests_total[5m])))) / clamp_min(sum by (channel_id, channel_name, channel_type) (rate(newapi_relay_requests_total[5m])), 0.001))",
           "legendFormat": "[{{channel_id}}] {{channel_name}} ({{channel_type}})",
           "refId": "A"
         }
