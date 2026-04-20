@@ -20,6 +20,7 @@ import (
 	"github.com/QuantumNous/new-api/dto"
 	"github.com/QuantumNous/new-api/middleware"
 	"github.com/QuantumNous/new-api/model"
+	"github.com/QuantumNous/new-api/monitoring"
 	"github.com/QuantumNous/new-api/relay"
 	relaycommon "github.com/QuantumNous/new-api/relay/common"
 	relayconstant "github.com/QuantumNous/new-api/relay/constant"
@@ -755,19 +756,21 @@ func TestChannel(c *gin.Context) {
 	isStream, _ := strconv.ParseBool(c.Query("stream"))
 	tik := time.Now()
 	result := testChannel(channel, testModel, endpointType, isStream)
+	tok := time.Now()
+	milliseconds := tok.Sub(tik).Milliseconds()
+	consumedTime := float64(milliseconds) / 1000.0
 	if result.localErr != nil {
+		monitoring.ObserveChannelTest("manual", channel.Type, channel.Id, channel.Name, false, consumedTime)
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
 			"message": result.localErr.Error(),
-			"time":    0.0,
+			"time":    consumedTime,
 		})
 		return
 	}
-	tok := time.Now()
-	milliseconds := tok.Sub(tik).Milliseconds()
 	go channel.UpdateResponseTime(milliseconds)
-	consumedTime := float64(milliseconds) / 1000.0
 	if result.newAPIError != nil {
+		monitoring.ObserveChannelTest("manual", channel.Type, channel.Id, channel.Name, false, consumedTime)
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
 			"message": result.newAPIError.Error(),
@@ -775,6 +778,7 @@ func TestChannel(c *gin.Context) {
 		})
 		return
 	}
+	monitoring.ObserveChannelTest("manual", channel.Type, channel.Id, channel.Name, true, consumedTime)
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
 		"message": "",
@@ -819,6 +823,13 @@ func testAllChannels(notify bool) error {
 			result := testChannel(channel, "", "", false)
 			tok := time.Now()
 			milliseconds := tok.Sub(tik).Milliseconds()
+			consumedTime := float64(milliseconds) / 1000.0
+			trigger := "auto"
+			if notify {
+				trigger = "batch"
+			}
+			success := result.localErr == nil && result.newAPIError == nil
+			monitoring.ObserveChannelTest(trigger, channel.Type, channel.Id, channel.Name, success, consumedTime)
 
 			shouldBanChannel := false
 			newAPIError := result.newAPIError

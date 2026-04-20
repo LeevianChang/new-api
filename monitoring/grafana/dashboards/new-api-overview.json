@@ -662,6 +662,90 @@
       ],
       "title": "P95 Latency by Channel Instance",
       "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 38
+      },
+      "id": 16,
+      "options": {
+        "legend": {
+          "calcs": [
+            "last"
+          ],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "expr": "((sum by (channel_id, channel_name, channel_type) (rate(newapi_channel_test_total{result=\"success\"}[15m])) or on (channel_id, channel_name, channel_type) (0 * sum by (channel_id, channel_name, channel_type) (rate(newapi_channel_test_total[15m])))) / clamp_min(sum by (channel_id, channel_name, channel_type) (rate(newapi_channel_test_total[15m])), 0.001))",
+          "legendFormat": "[{{channel_id}}] {{channel_name}} ({{channel_type}})",
+          "refId": "A"
+        }
+      ],
+      "title": "Channel Test Success Rate (15m)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 38
+      },
+      "id": 17,
+      "options": {
+        "legend": {
+          "calcs": [
+            "last"
+          ],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum by (channel_id, channel_name, channel_type, le) (rate(newapi_channel_test_duration_seconds_bucket[15m]))) or vector(0)",
+          "legendFormat": "[{{channel_id}}] {{channel_name}} ({{channel_type}})",
+          "refId": "A"
+        }
+      ],
+      "title": "Channel Test P95 Latency (15m)",
+      "type": "timeseries"
     }
   ],
   "refresh": "15s",

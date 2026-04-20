@@ -126,6 +126,23 @@ var (
 		},
 		[]string{"event"},
 	)
+
+	channelTestTotal = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "newapi_channel_test_total",
+			Help: "Total number of channel test requests",
+		},
+		[]string{"trigger", "channel_type", "channel_id", "channel_name", "result"},
+	)
+
+	channelTestDuration = prometheus.NewHistogramVec(
+		prometheus.HistogramOpts{
+			Name:    "newapi_channel_test_duration_seconds",
+			Help:    "Channel test duration in seconds",
+			Buckets: prometheus.DefBuckets,
+		},
+		[]string{"trigger", "channel_type", "channel_id", "channel_name", "result"},
+	)
 )
 
 func Init() {
@@ -150,7 +167,23 @@ func registerMetrics() {
 		registerCollector(dbWaitDuration)
 		registerCollector(redisPoolConnections)
 		registerCollector(redisPoolEvents)
+		registerCollector(channelTestTotal)
+		registerCollector(channelTestDuration)
 	})
+}
+
+func ObserveChannelTest(trigger string, channelType int, channelID int, channelName string, success bool, durationSeconds float64) {
+	if trigger == "" {
+		trigger = "manual"
+	}
+	result := "failure"
+	if success {
+		result = "success"
+	}
+	channelTypeName := constant.GetChannelTypeName(channelType)
+	channelIDStr := strconv.Itoa(channelID)
+	channelTestTotal.WithLabelValues(trigger, channelTypeName, channelIDStr, channelName, result).Inc()
+	channelTestDuration.WithLabelValues(trigger, channelTypeName, channelIDStr, channelName, result).Observe(durationSeconds)
 }
 
 func registerCollector(collector prometheus.Collector) {
