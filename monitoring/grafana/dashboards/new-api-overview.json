@@ -697,7 +697,7 @@
       },
       "targets": [
         {
-          "expr": "((sum by (channel_id, channel_name, channel_type) (rate(newapi_channel_test_total{result=\"success\"}[15m])) or on (channel_id, channel_name, channel_type) (0 * sum by (channel_id, channel_name, channel_type) (rate(newapi_channel_test_total[15m])))) / clamp_min(sum by (channel_id, channel_name, channel_type) (rate(newapi_channel_test_total[15m])), 0.001))",
+          "expr": "((sum by (channel_id, channel_name, channel_type) (increase(newapi_channel_test_total{result=\"success\"}[15m])) or on (channel_id, channel_name, channel_type) (0 * sum by (channel_id, channel_name, channel_type) (increase(newapi_channel_test_total[15m])))) / clamp_min(sum by (channel_id, channel_name, channel_type) (increase(newapi_channel_test_total[15m])), 0.001))",
           "legendFormat": "[{{channel_id}}] {{channel_name}} ({{channel_type}})",
           "refId": "A"
         }
@@ -739,7 +739,7 @@
       },
       "targets": [
         {
-          "expr": "histogram_quantile(0.95, sum by (channel_id, channel_name, channel_type, le) (rate(newapi_channel_test_duration_seconds_bucket[15m]))) or vector(0)",
+          "expr": "histogram_quantile(0.95, sum by (channel_id, channel_name, channel_type, le) (increase(newapi_channel_test_duration_seconds_bucket[15m]))) or vector(0)",
           "legendFormat": "[{{channel_id}}] {{channel_name}} ({{channel_type}})",
           "refId": "A"
         }
