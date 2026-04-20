@@ -1,6 +1,6 @@
-# Prometheus + Grafana 监控
+# Prometheus + Grafana + Alertmanager 监控
 
-本项目已内置 Prometheus 指标与 Grafana 监控栈，覆盖：
+本项目已内置 Prometheus 指标、Grafana 看板与 Alertmanager 告警栈，覆盖：
 
 - API QPS、耗时、错误率
 - Relay 下游请求量、下游错误率、按 channel_type 的延迟
@@ -18,6 +18,7 @@ docker compose up -d
 
 - Grafana: `http://127.0.0.1:3001`
 - Prometheus: `http://127.0.0.1:9090`
+- Alertmanager: `http://127.0.0.1:9093`
 
 默认仪表盘：`New API / New API Overview`
 
@@ -27,11 +28,37 @@ docker compose up -d
 
 - Grafana: 直接代理到 `http://grafana:3000`
 - Prometheus: 直接代理到 `http://prometheus:9090`
+- Alertmanager: 直接代理到 `http://alertmanager:9093`
 - New API: 直接代理到 `http://new-api:3000`
 
 注意：监控服务默认只监听 `127.0.0.1`，需要通过 Docker 网络访问。
 
-## 3. 应用指标接口
+## 3.1 Alertmanager 告警通道配置
+
+示例配置文件：`monitoring/alertmanager/alertmanager.example.yml`
+
+首次使用先复制：
+
+```bash
+cp monitoring/alertmanager/alertmanager.example.yml monitoring/alertmanager/alertmanager.yml
+```
+
+- 默认 receiver 为 webhook：`http://host.docker.internal:5001/alertmanager/webhook`
+- 请按实际情况修改为企业微信、飞书、钉钉、Slack、邮件或你自己的 webhook 网关
+- 修改后执行 `docker compose restart alertmanager prometheus` 使配置生效
+
+## 3.2 默认内置告警规则
+
+规则文件：`monitoring/prometheus/rules/new-api.rules.yml`
+
+- `NewAPIInstanceDown`：应用实例不可抓取（2 分钟）
+- `DatabaseDependencyDown`：数据库依赖异常（2 分钟）
+- `RedisDependencyDown`：Redis 依赖异常（2 分钟）
+- `NewAPIHighHTTPErrorRate`：HTTP 错误率高于 10%（持续 10 分钟）
+- `NewAPIRelayHighErrorRate`：Relay 错误率高于 15%（持续 10 分钟）
+- `DownstreamProbeFailed`：下游 TCP 探测失败（3 分钟）
+
+## 4. 应用指标接口
 
 应用新增 `GET /metrics`（Prometheus 拉取）。
 
@@ -41,11 +68,11 @@ docker compose up -d
   - `X-Metrics-Token: <token>`
   - `?token=<token>`
 
-## 4. 指标与面板含义
+## 5. 指标与面板含义
 
 下面按仪表盘常见面板说明含义、来源和解读方式。
 
-### 4.1 基础可用性与 API
+### 5.1 基础可用性与 API
 
 - `DB Up`
   - 指标：`newapi_dependency_up{dependency="database"}`
@@ -67,7 +94,7 @@ docker compose up -d
   - 指标：`histogram_quantile(0.95, sum by (le) (rate(newapi_http_request_duration_seconds_bucket[5m])))`
   - 含义：应用整体 HTTP 延迟 95 分位（秒）。
 
-### 4.2 Relay（真实业务流量）按渠道维度
+### 5.2 Relay（真实业务流量）按渠道维度
 
 - `Relay QPS by Channel Instance`
   - 指标：`sum by (channel_id, channel_name, channel_type) (rate(newapi_relay_requests_total[1m]))`
@@ -87,7 +114,7 @@ docker compose up -d
 - `channel_id + channel_name` 是你在渠道管理里创建的具体渠道实例。
 - 若出现 `[0] (Unknown)`，表示该请求未拿到渠道上下文（通常是选渠前失败或异常流程）。
 
-### 4.3 渠道测试（独立于真实流量）
+### 5.3 渠道测试（独立于真实流量）
 
 为避免污染真实业务流量，后台 `/api/channel/test/:id` 使用独立指标：
 
@@ -104,7 +131,7 @@ docker compose up -d
 - `Channel Test Success Rate (Total)`：渠道测试累计成功率。
 - `Channel Test P95 Latency (15m)`：渠道测试最近 15 分钟 P95 延迟。
 
-### 4.4 机器、容器与下游连通性
+### 5.4 机器、容器与下游连通性
 
 - `Machine CPU Idle`
   - 含义：CPU 空闲率，不是使用率。
@@ -123,13 +150,13 @@ docker compose up -d
 - 容器资源
   - 来源：`cadvisor`，用于查看容器级 CPU/内存等资源占用。
 
-## 5. 下游探测目标
+## 6. 下游探测目标
 
 编辑 `monitoring/prometheus/downstream_targets.yml`，按 `host:port` 增加或删除目标。
 
 变更后 Prometheus 会自动刷新，无需重启。
 
-## 6. 常见现象说明
+## 7. 常见现象说明
 
 - 面板显示 `No data`
   - 优先检查 Prometheus `/targets` 是否 `up`。
