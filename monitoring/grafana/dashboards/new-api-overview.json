@@ -279,10 +279,16 @@
       },
       "id": 14,
       "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "auto",
-        "orientation": "auto",
+        "displayLabels": [
+          "name",
+          "percent"
+        ],
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "pieType": "pie",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -290,16 +296,25 @@
           "fields": "",
           "values": false
         },
-        "textMode": "auto"
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
       },
       "targets": [
         {
-          "expr": "(1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) or vector(0)",
+          "expr": "avg(1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) or vector(0)",
+          "legendFormat": "Used",
           "refId": "A"
+        },
+        {
+          "expr": "avg(node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) or vector(0)",
+          "legendFormat": "Available",
+          "refId": "B"
         }
       ],
-      "title": "Machine Memory Used",
-      "type": "stat"
+      "title": "Machine Memory Usage",
+      "type": "piechart"
     },
     {
       "datasource": {
@@ -402,11 +417,23 @@
       },
       "id": 7,
       "options": {
+        "displayLabels": [
+          "name",
+          "percent"
+        ],
         "legend": {
           "calcs": [],
           "displayMode": "list",
           "placement": "bottom",
           "showLegend": true
+        },
+        "pieType": "pie",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
         },
         "tooltip": {
           "mode": "single",
@@ -415,13 +442,18 @@
       },
       "targets": [
         {
-          "expr": "avg by (instance) (rate(node_cpu_seconds_total{mode=\"idle\"}[5m]))",
-          "legendFormat": "{{instance}}",
+          "expr": "avg(rate(node_cpu_seconds_total{mode=\"idle\"}[5m])) or vector(0)",
+          "legendFormat": "Idle",
           "refId": "A"
+        },
+        {
+          "expr": "(1 - avg(rate(node_cpu_seconds_total{mode=\"idle\"}[5m]))) or vector(0)",
+          "legendFormat": "Used",
+          "refId": "B"
         }
       ],
-      "title": "Machine CPU Idle",
-      "type": "timeseries"
+      "title": "Machine CPU Usage",
+      "type": "piechart"
     },
     {
       "datasource": {
