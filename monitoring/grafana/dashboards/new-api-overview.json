@@ -171,7 +171,7 @@
       },
       "targets": [
         {
-          "expr": "newapi:http_qps:rate1m",
+          "expr": "newapi:http_qps:rate1m or vector(0)",
           "refId": "A"
         }
       ],
@@ -212,7 +212,7 @@
       },
       "targets": [
         {
-          "expr": "newapi:http_error_rate:ratio5m",
+          "expr": "newapi:http_error_rate:ratio5m or vector(0)",
           "refId": "A"
         }
       ],
@@ -253,7 +253,7 @@
       },
       "targets": [
         {
-          "expr": "sum(rate(newapi_http_requests_total{method=\"POST\",route=~\"/v1/(responses|chat/completions)\",status_class=~\"4xx|5xx\"}[5m])) / clamp_min(sum(rate(newapi_http_requests_total{method=\"POST\",route=~\"/v1/(responses|chat/completions)\"}[5m])), 0.001)",
+          "expr": "(sum(rate(newapi_http_requests_total{method=\"POST\",route=~\"/v1/(responses|chat/completions)\",status_class=~\"4xx|5xx\"}[5m])) / clamp_min(sum(rate(newapi_http_requests_total{method=\"POST\",route=~\"/v1/(responses|chat/completions)\"}[5m])), 0.001)) or vector(0)",
           "refId": "A"
         }
       ],
@@ -413,7 +413,7 @@
       },
       "targets": [
         {
-          "expr": "sum by (route) (rate(newapi_http_requests_total{method=\"POST\",route=~\"/v1/(responses|chat/completions)\"}[1m]))",
+          "expr": "sum by (route) (rate(newapi_http_requests_total{method=\"POST\",route=~\"/v1/(responses|chat/completions)\"}[1m])) or vector(0)",
           "legendFormat": "{{route}}",
           "refId": "A"
         }
@@ -453,7 +453,7 @@
       },
       "targets": [
         {
-          "expr": "histogram_quantile(0.95, sum by (route, le) (rate(newapi_http_request_duration_seconds_bucket{method=\"POST\",route=~\"/v1/(responses|chat/completions)\"}[5m])))",
+          "expr": "histogram_quantile(0.95, sum by (route, le) (rate(newapi_http_request_duration_seconds_bucket{method=\"POST\",route=~\"/v1/(responses|chat/completions)\"}[5m]))) or vector(0)",
           "legendFormat": "{{route}}",
           "refId": "A"
         }
@@ -493,7 +493,7 @@
       },
       "targets": [
         {
-          "expr": "sum by (status_code, route) (rate(newapi_http_requests_total{method=\"POST\",route=~\"/v1/(responses|chat/completions)\",status_class=~\"4xx|5xx\"}[5m])) / clamp_min(sum by (route) (rate(newapi_http_requests_total{method=\"POST\",route=~\"/v1/(responses|chat/completions)\"}[5m])), 0.001)",
+          "expr": "(sum by (status_code, route) (rate(newapi_http_requests_total{method=\"POST\",route=~\"/v1/(responses|chat/completions)\",status_class=~\"4xx|5xx\"}[5m])) / clamp_min(sum by (route) (rate(newapi_http_requests_total{method=\"POST\",route=~\"/v1/(responses|chat/completions)\"}[5m])), 0.001)) or vector(0)",
           "legendFormat": "{{route}} {{status_code}}",
           "refId": "A"
         }
@@ -533,7 +533,7 @@
       },
       "targets": [
         {
-          "expr": "sum by (route, status_code) (rate(newapi_http_requests_total{method=\"POST\",route=~\"/v1/(responses|chat/completions)\"}[1m]))",
+          "expr": "sum by (route, status_code) (rate(newapi_http_requests_total{method=\"POST\",route=~\"/v1/(responses|chat/completions)\"}[1m])) or vector(0)",
           "legendFormat": "{{route}} {{status_code}}",
           "refId": "A"
         }
@@ -573,7 +573,7 @@
       },
       "targets": [
         {
-          "expr": "histogram_quantile(0.95, sum by (route, le) (rate(newapi_http_request_duration_seconds_bucket{method=\"POST\",route=~\"/v1/(responses|chat/completions)\"}[5m])))",
+          "expr": "histogram_quantile(0.95, sum by (route, le) (rate(newapi_http_request_duration_seconds_bucket{method=\"POST\",route=~\"/v1/(responses|chat/completions)\"}[5m]))) or vector(0)",
           "legendFormat": "{{route}}",
           "refId": "A"
         }
