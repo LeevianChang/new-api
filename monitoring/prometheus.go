@@ -188,14 +188,19 @@ func HTTPMetricsMiddleware() gin.HandlerFunc {
 			return
 		}
 
+		inFlightTag := c.GetString(routeTagKey)
+		if inFlightTag == "" {
+			inFlightTag = "web"
+		}
+
+		httpInFlight.WithLabelValues(inFlightTag).Inc()
+		start := time.Now()
+		c.Next()
+
 		tag := c.GetString(routeTagKey)
 		if tag == "" {
 			tag = "web"
 		}
-
-		httpInFlight.WithLabelValues(tag).Inc()
-		start := time.Now()
-		c.Next()
 
 		latency := time.Since(start).Seconds()
 		statusValue := c.Writer.Status()
@@ -206,7 +211,7 @@ func HTTPMetricsMiddleware() gin.HandlerFunc {
 			route = "unmatched"
 		}
 
-		httpInFlight.WithLabelValues(tag).Dec()
+		httpInFlight.WithLabelValues(inFlightTag).Dec()
 		httpRequestsTotal.WithLabelValues(tag, c.Request.Method, route, statusCode, statusClass).Inc()
 		httpRequestDuration.WithLabelValues(tag, c.Request.Method, route).Observe(latency)
 

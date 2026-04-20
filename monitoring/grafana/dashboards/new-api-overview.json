@@ -253,11 +253,93 @@
       },
       "targets": [
         {
-          "expr": "(sum(rate(newapi_http_requests_total{method=\"POST\",route=~\"/v1/(responses|chat/completions)\",status_class=~\"4xx|5xx\"}[5m])) / clamp_min(sum(rate(newapi_http_requests_total{method=\"POST\",route=~\"/v1/(responses|chat/completions)\"}[5m])), 0.001)) or vector(0)",
+          "expr": "newapi:relay_error_rate:ratio5m or vector(0)",
           "refId": "A"
         }
       ],
-      "title": "Relay Error Rate (HTTP)",
+      "title": "Relay Error Rate",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 4,
+        "x": 0,
+        "y": 38
+      },
+      "id": 14,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "expr": "(1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) or vector(0)",
+          "refId": "A"
+        }
+      ],
+      "title": "Machine Memory Used",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "decgbytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 6,
+        "y": 38
+      },
+      "id": 15,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "expr": "(node_memory_MemAvailable_bytes / 1024 / 1024 / 1024) or vector(0)",
+          "refId": "A"
+        }
+      ],
+      "title": "Machine Memory Available",
       "type": "stat"
     },
     {
@@ -413,12 +495,12 @@
       },
       "targets": [
         {
-          "expr": "sum by (route) (rate(newapi_http_requests_total{method=\"POST\",route=~\"/v1/(responses|chat/completions)\"}[1m])) or vector(0)",
-          "legendFormat": "{{route}}",
+          "expr": "sum by (channel_type) (rate(newapi_relay_requests_total[1m])) or vector(0)",
+          "legendFormat": "{{channel_type}}",
           "refId": "A"
         }
       ],
-      "title": "Relay QPS by Route",
+      "title": "Relay QPS by Channel",
       "type": "timeseries"
     },
     {
@@ -453,12 +535,12 @@
       },
       "targets": [
         {
-          "expr": "histogram_quantile(0.95, sum by (route, le) (rate(newapi_http_request_duration_seconds_bucket{method=\"POST\",route=~\"/v1/(responses|chat/completions)\"}[5m]))) or vector(0)",
-          "legendFormat": "{{route}}",
+          "expr": "histogram_quantile(0.95, sum by (channel_type, le) (rate(newapi_relay_request_duration_seconds_bucket[5m]))) or vector(0)",
+          "legendFormat": "{{channel_type}}",
           "refId": "A"
         }
       ],
-      "title": "Relay P95 by Route",
+      "title": "Relay P95 by Channel",
       "type": "timeseries"
     },
     {
@@ -493,12 +575,12 @@
       },
       "targets": [
         {
-          "expr": "(sum by (status_code, route) (rate(newapi_http_requests_total{method=\"POST\",route=~\"/v1/(responses|chat/completions)\",status_class=~\"4xx|5xx\"}[5m])) / clamp_min(sum by (route) (rate(newapi_http_requests_total{method=\"POST\",route=~\"/v1/(responses|chat/completions)\"}[5m])), 0.001)) or vector(0)",
-          "legendFormat": "{{route}} {{status_code}}",
+          "expr": "(sum by (channel_id, channel_name, channel_type) (rate(newapi_relay_requests_total{status_class=~\"4xx|5xx\"}[5m])) / clamp_min(sum by (channel_id, channel_name, channel_type) (rate(newapi_relay_requests_total[5m])), 0.001)) or vector(0)",
+          "legendFormat": "[{{channel_id}}] {{channel_name}} ({{channel_type}})",
           "refId": "A"
         }
       ],
-      "title": "Error Rate by Route/Status",
+      "title": "Error Rate by Channel Instance",
       "type": "timeseries"
     },
     {
@@ -533,12 +615,12 @@
       },
       "targets": [
         {
-          "expr": "sum by (route, status_code) (rate(newapi_http_requests_total{method=\"POST\",route=~\"/v1/(responses|chat/completions)\"}[1m])) or vector(0)",
-          "legendFormat": "{{route}} {{status_code}}",
+          "expr": "sum by (channel_id, channel_name, channel_type) (rate(newapi_relay_requests_total[1m])) or vector(0)",
+          "legendFormat": "[{{channel_id}}] {{channel_name}} ({{channel_type}})",
           "refId": "A"
         }
       ],
-      "title": "QPS by Route/Status",
+      "title": "QPS by Channel Instance",
       "type": "timeseries"
     },
     {
@@ -573,12 +655,12 @@
       },
       "targets": [
         {
-          "expr": "histogram_quantile(0.95, sum by (route, le) (rate(newapi_http_request_duration_seconds_bucket{method=\"POST\",route=~\"/v1/(responses|chat/completions)\"}[5m]))) or vector(0)",
-          "legendFormat": "{{route}}",
+          "expr": "histogram_quantile(0.95, sum by (channel_id, channel_name, channel_type, le) (rate(newapi_relay_request_duration_seconds_bucket[5m]))) or vector(0)",
+          "legendFormat": "[{{channel_id}}] {{channel_name}} ({{channel_type}})",
           "refId": "A"
         }
       ],
-      "title": "P95 Latency by Route",
+      "title": "P95 Latency by Channel Instance",
       "type": "timeseries"
     }
   ],
