@@ -253,11 +253,11 @@
       },
       "targets": [
         {
-          "expr": "newapi:relay_error_rate:ratio5m",
+          "expr": "sum(rate(newapi_http_requests_total{method=\"POST\",route=~\"/v1/(responses|chat/completions)\",status_class=~\"4xx|5xx\"}[5m])) / clamp_min(sum(rate(newapi_http_requests_total{method=\"POST\",route=~\"/v1/(responses|chat/completions)\"}[5m])), 0.001)",
           "refId": "A"
         }
       ],
-      "title": "Relay Error Rate",
+      "title": "Relay Error Rate (HTTP)",
       "type": "stat"
     },
     {
@@ -413,12 +413,12 @@
       },
       "targets": [
         {
-          "expr": "sum by (channel_type) (rate(newapi_relay_requests_total[1m]))",
-          "legendFormat": "{{channel_type}}",
+          "expr": "sum by (route) (rate(newapi_http_requests_total{method=\"POST\",route=~\"/v1/(responses|chat/completions)\"}[1m]))",
+          "legendFormat": "{{route}}",
           "refId": "A"
         }
       ],
-      "title": "Relay QPS by Channel",
+      "title": "Relay QPS by Route",
       "type": "timeseries"
     },
     {
@@ -453,12 +453,12 @@
       },
       "targets": [
         {
-          "expr": "histogram_quantile(0.95, sum by (channel_type, le) (rate(newapi_relay_request_duration_seconds_bucket[5m])))",
-          "legendFormat": "{{channel_type}}",
+          "expr": "histogram_quantile(0.95, sum by (route, le) (rate(newapi_http_request_duration_seconds_bucket{method=\"POST\",route=~\"/v1/(responses|chat/completions)\"}[5m])))",
+          "legendFormat": "{{route}}",
           "refId": "A"
         }
       ],
-      "title": "Relay P95 by Channel",
+      "title": "Relay P95 by Route",
       "type": "timeseries"
     },
     {
@@ -493,12 +493,12 @@
       },
       "targets": [
         {
-          "expr": "sum by (channel_id, channel_name, channel_type) (rate(newapi_relay_requests_total{status_class=~\"4xx|5xx\"}[5m])) / clamp_min(sum by (channel_id, channel_name, channel_type) (rate(newapi_relay_requests_total[5m])), 0.001)",
-          "legendFormat": "[{{channel_id}}] {{channel_name}} ({{channel_type}})",
+          "expr": "sum by (status_code, route) (rate(newapi_http_requests_total{method=\"POST\",route=~\"/v1/(responses|chat/completions)\",status_class=~\"4xx|5xx\"}[5m])) / clamp_min(sum by (route) (rate(newapi_http_requests_total{method=\"POST\",route=~\"/v1/(responses|chat/completions)\"}[5m])), 0.001)",
+          "legendFormat": "{{route}} {{status_code}}",
           "refId": "A"
         }
       ],
-      "title": "Error Rate by Channel Instance",
+      "title": "Error Rate by Route/Status",
       "type": "timeseries"
     },
     {
@@ -533,12 +533,12 @@
       },
       "targets": [
         {
-          "expr": "sum by (channel_id, channel_name, channel_type) (rate(newapi_relay_requests_total[1m]))",
-          "legendFormat": "[{{channel_id}}] {{channel_name}} ({{channel_type}})",
+          "expr": "sum by (route, status_code) (rate(newapi_http_requests_total{method=\"POST\",route=~\"/v1/(responses|chat/completions)\"}[1m]))",
+          "legendFormat": "{{route}} {{status_code}}",
           "refId": "A"
         }
       ],
-      "title": "QPS by Channel Instance",
+      "title": "QPS by Route/Status",
       "type": "timeseries"
     },
     {
@@ -573,12 +573,12 @@
       },
       "targets": [
         {
-          "expr": "histogram_quantile(0.95, sum by (channel_id, channel_name, channel_type, le) (rate(newapi_relay_request_duration_seconds_bucket[5m])))",
-          "legendFormat": "[{{channel_id}}] {{channel_name}} ({{channel_type}})",
+          "expr": "histogram_quantile(0.95, sum by (route, le) (rate(newapi_http_request_duration_seconds_bucket{method=\"POST\",route=~\"/v1/(responses|chat/completions)\"}[5m])))",
+          "legendFormat": "{{route}}",
           "refId": "A"
         }
       ],
-      "title": "P95 Latency by Channel Instance",
+      "title": "P95 Latency by Route",
       "type": "timeseries"
     }
   ],
