@@ -87,6 +87,22 @@ services:
     volumes:
       - ./monitoring/alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
       - alertmanager_data:/alertmanager
+    depends_on:
+      - feishu-bridge
+    networks:
+      - new-api-network
+
+  feishu-bridge:
+    image: python:3.12-alpine
+    container_name: feishu-bridge
+    restart: always
+    command: ["python", "/app/feishu_bridge.py"]
+    env_file:
+      - ./monitoring/feishu-bridge/.env
+    ports:
+      - "127.0.0.1:5001:5001"
+    volumes:
+      - ./monitoring/feishu-bridge/feishu_bridge.py:/app/feishu_bridge.py:ro
     networks:
       - new-api-network
 

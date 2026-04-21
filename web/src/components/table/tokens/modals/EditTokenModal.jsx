@@ -26,8 +26,13 @@ import {
   renderGroupOption,
   renderQuotaWithPrompt,
   getModelCategories,
+  getCurrencyConfig,
   selectFilter,
 } from '../../../../helpers';
+import {
+  quotaToDisplayAmount,
+  displayAmountToQuota,
+} from '../../../../helpers/quota';
 import { useIsMobile } from '../../../../hooks/common/useIsMobile';
 import {
   Button,
@@ -41,6 +46,7 @@ import {
   Form,
   Col,
   Row,
+  InputNumber,
 } from '@douyinfe/semi-ui';
 import {
   IconCreditCard,
@@ -488,6 +494,38 @@ const EditTokenModal = (props) => {
                   </div>
                 </div>
                 <Row gutter={12}>
+                  {getCurrencyConfig().type !== 'TOKENS' && (
+                    <Col span={24}>
+                      <Form.Slot label={t('金额')}>
+                        <InputNumber
+                          prefix={getCurrencyConfig().symbol}
+                          placeholder={t('输入金额')}
+                          precision={2}
+                          disabled={values.unlimited_quota}
+                          value={Number(
+                            quotaToDisplayAmount(values.remain_quota || 0).toFixed(
+                              2,
+                            ),
+                          )}
+                          onChange={(val) => {
+                            const amount = Number(val || 0);
+                            const quota =
+                              amount > 0 ? displayAmountToQuota(amount) : 0;
+                            formApiRef.current?.setValue('remain_quota', quota);
+                          }}
+                          style={{ width: '100%' }}
+                          showClear
+                        />
+                        <Text
+                          type='tertiary'
+                          size='small'
+                          style={{ marginTop: 4, display: 'block' }}
+                        >
+                          {t('仅用于换算，实际保存的是额度')}
+                        </Text>
+                      </Form.Slot>
+                    </Col>
+                  )}
                   <Col span={24}>
                     <Form.AutoComplete
                       field='remain_quota'

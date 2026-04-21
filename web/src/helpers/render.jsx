@@ -741,7 +741,29 @@ export function renderModelTag(modelName, options = {}) {
     shape = 'circle',
     onClick,
     suffixIcon,
+    variant = 'card',
   } = options;
+
+  const sizeStyles = {
+    small: {
+      containerClass: 'gap-1.5 max-w-[220px]',
+      iconWrapperClass:
+        'w-7 h-7 rounded-lg bg-gradient-to-br from-[#8ff5ff]/20 to-[#aa8aff]/20 flex items-center justify-center border border-[#8ff5ff]/30 flex-shrink-0',
+      iconFontSize: 14,
+      labelFontSize: 13,
+      labelFontWeight: 600,
+    },
+    large: {
+      containerClass: 'gap-2 max-w-md',
+      iconWrapperClass:
+        'w-10 h-10 rounded-xl bg-gradient-to-br from-[#8ff5ff]/20 to-[#aa8aff]/20 flex items-center justify-center border border-[#8ff5ff]/30 flex-shrink-0',
+      iconFontSize: 24,
+      labelFontSize: 16,
+      labelFontWeight: 700,
+    },
+  };
+
+  const styleConfig = sizeStyles[size] || sizeStyles.large;
 
   const categories = getModelCategories(i18next.t);
   let icon = null;
@@ -753,17 +775,66 @@ export function renderModelTag(modelName, options = {}) {
     }
   }
 
+  if (variant === 'inline') {
+    return (
+      <Tag
+        color='grey'
+        shape='circle'
+        onClick={onClick}
+        style={{
+          maxWidth: size === 'small' ? 190 : 240,
+          cursor: onClick ? 'pointer' : 'default',
+        }}
+      >
+        <span
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: size === 'small' ? 6 : 8,
+            maxWidth: '100%',
+            verticalAlign: 'middle',
+          }}
+        >
+          {icon ? (
+            <span
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                fontSize: size === 'small' ? 13 : 15,
+                lineHeight: 1,
+              }}
+            >
+              {icon}
+            </span>
+          ) : null}
+          <span
+            style={{
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+              fontSize: size === 'small' ? 12 : 13,
+            }}
+            title={modelName}
+          >
+            {modelName}
+          </span>
+          {suffixIcon && <span style={{ lineHeight: 1 }}>{suffixIcon}</span>}
+        </span>
+      </Tag>
+    );
+  }
+
   return (
     <div 
-      className='flex items-center gap-2 cursor-pointer max-w-md'
+      className={`flex items-center cursor-pointer ${styleConfig.containerClass}`}
       onClick={onClick}
     >
       {/* Icon with background */}
-      <div className='w-10 h-10 rounded-xl bg-gradient-to-br from-[#8ff5ff]/20 to-[#aa8aff]/20 flex items-center justify-center border border-[#8ff5ff]/30 flex-shrink-0'>
+      <div className={styleConfig.iconWrapperClass}>
         {icon ? (
-          <span style={{ fontSize: '24px' }}>{icon}</span>
+          <span style={{ fontSize: styleConfig.iconFontSize }}>{icon}</span>
         ) : (
-          <span className='material-symbols-outlined text-[#8ff5ff]' style={{ fontSize: '24px' }}>psychology</span>
+          <span className='material-symbols-outlined text-[#8ff5ff]' style={{ fontSize: styleConfig.iconFontSize }}>psychology</span>
         )}
       </div>
       
@@ -771,8 +842,8 @@ export function renderModelTag(modelName, options = {}) {
       <span 
         className='font-headline font-bold tracking-tight text-[#f7f5fd] truncate'
         style={{
-          fontSize: '16px',
-          fontWeight: 700,
+          fontSize: styleConfig.labelFontSize,
+          fontWeight: styleConfig.labelFontWeight,
           letterSpacing: '-0.025em',
           fontFamily: 'Space Grotesk',
         }}

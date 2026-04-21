@@ -30,3 +30,4 @@ data/
 .gocache-temp
 .gopath
 monitoring/alertmanager/alertmanager.yml
+monitoring/feishu-bridge/.env

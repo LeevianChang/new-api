@@ -25,6 +25,12 @@ groups:
           /
           clamp_min(sum by (channel_id, channel_name, channel_type) (rate(newapi_relay_requests_total[5m])), 0.001)
 
+      - record: newapi:channel_test_failure_rate_by_channel:ratio5m
+        expr: |
+          sum by (trigger, channel_id, channel_name, channel_type) (increase(newapi_channel_test_total{result="failure"}[5m]))
+          /
+          clamp_min(sum by (trigger, channel_id, channel_name, channel_type) (increase(newapi_channel_test_total[5m])), 1)
+
   - name: new-api-alerts
     rules:
       - alert: NewAPIInstanceDown
@@ -77,6 +83,42 @@ groups:
         annotations:
           summary: "Relay 错误率过高"
           description: "最近 5 分钟 relay 错误占比超过 15%，并持续 10 分钟。"
+
+      - alert: NewAPIChannelHighErrorCount
+        expr: |
+          sum by (channel_id, channel_name, channel_type) (
+            increase(newapi_relay_requests_total{status_class="5xx"}[5m])
+          ) > 20
+        for: 3m
+        labels:
+          severity: critical
+        annotations:
+          summary: "渠道 5xx 错误激增"
+          description: "渠道 {{ $labels.channel_name }} (id={{ $labels.channel_id }}, type={{ $labels.channel_type }}) 在最近 5 分钟内 5xx 错误超过 20 次。"
+
+      - alert: NewAPIChannelTestFailureBurst
+        expr: |
+          sum by (trigger, channel_id, channel_name, channel_type) (
+            increase(newapi_channel_test_total{result="failure"}[5m])
+          ) > 10
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "渠道测试失败激增"
+          description: "{{ $labels.trigger }} 触发下，渠道 {{ $labels.channel_name }} (id={{ $labels.channel_id }}, type={{ $labels.channel_type }}) 最近 5 分钟测试失败超过 10 次。"
+
+      - alert: NewAPIChannelTestFailureRateHigh
+        expr: |
+          newapi:channel_test_failure_rate_by_channel:ratio5m > 0.8
+          and
+          sum by (trigger, channel_id, channel_name, channel_type) (increase(newapi_channel_test_total[5m])) > 5
+        for: 3m
+        labels:
+          severity: critical
+        annotations:
+          summary: "渠道测试失败率过高"
+          description: "{{ $labels.trigger }} 触发下，渠道 {{ $labels.channel_name }} (id={{ $labels.channel_id }}, type={{ $labels.channel_type }}) 最近 5 分钟测试失败率超过 80%。"
 
       - alert: DownstreamProbeFailed
         expr: probe_success{job="downstream-tcp"} == 0

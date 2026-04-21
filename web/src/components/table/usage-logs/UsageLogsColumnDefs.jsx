@@ -270,12 +270,17 @@ function renderBillingTag(record, t) {
 
 function renderModelName(record, copyText, t) {
   let other = getLogOther(record.other);
+  const compactModelTagOptions = {
+    size: 'small',
+    variant: 'inline',
+  };
   let modelMapped =
     other?.is_model_mapped &&
     other?.upstream_model_name &&
     other?.upstream_model_name !== '';
   if (!modelMapped) {
     return renderModelTag(record.model_name, {
+      ...compactModelTagOptions,
       onClick: (event) => {
         copyText(event, record.model_name).then((r) => {});
       },
@@ -293,6 +298,7 @@ function renderModelName(record, copyText, t) {
                       {t('请求并计费模型')}:
                     </Typography.Text>
                     {renderModelTag(record.model_name, {
+                      ...compactModelTagOptions,
                       onClick: (event) => {
                         copyText(event, record.model_name).then((r) => {});
                       },
@@ -303,6 +309,7 @@ function renderModelName(record, copyText, t) {
                       {t('实际模型')}:
                     </Typography.Text>
                     {renderModelTag(other.upstream_model_name, {
+                      ...compactModelTagOptions,
                       onClick: (event) => {
                         copyText(event, other.upstream_model_name).then(
                           (r) => {},
@@ -315,6 +322,7 @@ function renderModelName(record, copyText, t) {
             }
           >
             {renderModelTag(record.model_name, {
+              ...compactModelTagOptions,
               onClick: (event) => {
                 copyText(event, record.model_name).then((r) => {});
               },
@@ -929,7 +937,7 @@ export const getLogsColumns = ({
       title: t('详情'),
       dataIndex: 'content',
       fixed: 'right',
-      width: 200,
+      width: 170,
       render: (text, record, index) => {
         const detailSummary = getUsageLogDetailSummary(
           record,
@@ -945,10 +953,10 @@ export const getLogsColumns = ({
                 rows: 2,
                 showTooltip: {
                   type: 'popover',
-                  opts: { style: { width: 240 } },
+                  opts: { style: { width: 220 } },
                 },
               }}
-              style={{ maxWidth: 200, marginBottom: 0 }}
+              style={{ maxWidth: 170, marginBottom: 0 }}
             >
               {text}
             </Typography.Paragraph>

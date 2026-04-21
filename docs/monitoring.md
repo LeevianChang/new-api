@@ -43,9 +43,18 @@ docker compose up -d
 cp monitoring/alertmanager/alertmanager.example.yml monitoring/alertmanager/alertmanager.yml
 ```
 
-- 默认 receiver 为 webhook：`http://host.docker.internal:5001/alertmanager/webhook`
-- 请按实际情况修改为企业微信、飞书、钉钉、Slack、邮件或你自己的 webhook 网关
-- 修改后执行 `docker compose restart alertmanager prometheus` 使配置生效
+飞书桥接配置（将 Alertmanager 通用 JSON 转为飞书机器人消息）：
+
+```bash
+cp monitoring/feishu-bridge/.env.example monitoring/feishu-bridge/.env
+```
+
+- 默认 receiver 为 webhook：`http://feishu-bridge:5001/alertmanager/webhook`
+- 在 `monitoring/feishu-bridge/.env` 填写 `FEISHU_WEBHOOK_URL`（飞书机器人地址）
+- 若机器人开启关键词校验，可设置 `FEISHU_KEYWORD` 并与飞书关键词保持一致
+- 可通过 `FEISHU_MESSAGE_TEMPLATE` 选择消息模板：`card`（默认，飞书消息模板）或 `text`
+- 运维面板风格卡片支持配置：`ALERT_ENV`、`ALERT_TZ`、`PROMETHEUS_URL`、`ALERTMANAGER_URL`、`GRAFANA_URL`、`GRAFANA_DASHBOARD_URL`
+- 修改后执行 `docker compose restart feishu-bridge alertmanager prometheus` 使配置生效
 
 ## 3.2 默认内置告警规则
 
@@ -56,6 +65,9 @@ cp monitoring/alertmanager/alertmanager.example.yml monitoring/alertmanager/aler
 - `RedisDependencyDown`：Redis 依赖异常（2 分钟）
 - `NewAPIHighHTTPErrorRate`：HTTP 错误率高于 10%（持续 10 分钟）
 - `NewAPIRelayHighErrorRate`：Relay 错误率高于 15%（持续 10 分钟）
+- `NewAPIChannelHighErrorCount`：单渠道 5 分钟内 5xx 错误超过 20 次（持续 3 分钟）
+- `NewAPIChannelTestFailureBurst`：测试界面单渠道 5 分钟失败超过 10 次（持续 2 分钟）
+- `NewAPIChannelTestFailureRateHigh`：测试界面单渠道 5 分钟失败率超过 80% 且测试量超过 5 次（持续 3 分钟）
 - `DownstreamProbeFailed`：下游 TCP 探测失败（3 分钟）
 
 ## 4. 应用指标接口
