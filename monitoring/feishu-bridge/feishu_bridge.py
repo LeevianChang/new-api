@@ -116,9 +116,13 @@ def target_label(labels):
 def parse_time(ts):
     if not ts:
         return "-"
+    if str(ts).startswith("0001-01-01"):
+        return "-"
     normalized = ts.replace("Z", "+00:00")
     try:
         dt = datetime.fromisoformat(normalized)
+        if dt.year <= 1:
+            return "-"
         if ZoneInfo and ALERT_TZ:
             dt = dt.astimezone(ZoneInfo(ALERT_TZ))
             return dt.strftime("%Y-%m-%d %H:%M:%S %Z")
