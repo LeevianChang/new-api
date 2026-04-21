@@ -1,4 +1,4 @@
 - targets:
-    - api.openai.com:443
+    []
   labels:
     group: ai-upstream
