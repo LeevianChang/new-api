@@ -71,6 +71,8 @@ cp monitoring/feishu-bridge/.env.example monitoring/feishu-bridge/.env
 - `NewAPIChannelTestFailureBurst`：测试界面单渠道 1 分钟失败达到 3 次（立即触发）
 - `NewAPIChannelTestFailureRateHigh`：测试界面单渠道 5 分钟失败率超过 60% 且测试量超过 3 次（持续 90 秒）
 - `NewAPIChannelTestFailureRateFull`：测试界面单渠道 5 分钟失败率 100% 且测试量至少 2 次（持续 30 秒）
+
+说明：渠道类告警仅针对已识别渠道（`channel_id != 0` 且 `channel_type != Unknown`），未获取到渠道上下文时不触发渠道告警。
 - `DownstreamProbeFailed`：下游 TCP 探测失败（3 分钟）
 
 ## 4. 应用指标接口

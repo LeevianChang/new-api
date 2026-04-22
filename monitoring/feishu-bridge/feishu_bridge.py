@@ -127,21 +127,32 @@ def build_context_md(alert):
     status_class = labels.get("status_class", "-")
     model = labels.get("model", "-")
 
-    context_lines = [
-        f"- trigger: `{trigger}`",
-        f"- job: `{job}`",
-        f"- channel: `{channel_name}` (id={channel_id}, type={channel_type})",
-        f"- instance: `{instance}`",
-        f"- method: `{method}`",
-        f"- route: `{route}`",
-        f"- status: `{status_code}` ({status_class})",
-        f"- model: `{model}`",
-    ]
+    context_lines = []
+    if trigger != "-":
+        context_lines.append(f"- trigger: `{trigger}`")
+    if job != "-":
+        context_lines.append(f"- job: `{job}`")
+
+    if channel_name != "-" or channel_id != "-" or channel_type != "-":
+        context_lines.append(f"- channel: `{channel_name}` (id={channel_id}, type={channel_type})")
+    if instance != "-":
+        context_lines.append(f"- instance: `{instance}`")
+    if method != "-":
+        context_lines.append(f"- method: `{method}`")
+    if route != "-":
+        context_lines.append(f"- route: `{route}`")
+    if status_code != "-" or status_class != "-":
+        context_lines.append(f"- status: `{status_code}` ({status_class})")
+    if model != "-":
+        context_lines.append(f"- model: `{model}`")
 
     if str(channel_id) == "0" or str(channel_type).lower() == "unknown":
         context_lines.append("- hint: 选渠前失败（未命中具体渠道），常见于模型未匹配/分组无可用渠道/渠道被禁用")
     if model == "-":
-        context_lines.append("- hint: 当前告警未携带模型标签（需指标侧上报 model 维度才可显示具体模型）")
+        context_lines.append("- hint: 当前告警未携带模型标签（需指标侧上报 model 维度后可显示）")
+
+    if not context_lines:
+        context_lines.append("- hint: 当前告警标签较少，建议关注 NewAPIRelayHTTPErrorBurst 以获取 method/route/status 维度")
 
     if alert.get("generatorURL"):
         context_lines.append(f"- source: [PromQL Graph]({alert.get('generatorURL')})")

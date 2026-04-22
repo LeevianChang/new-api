@@ -87,7 +87,7 @@ groups:
       - alert: NewAPIChannelHighErrorCount
         expr: |
           sum by (channel_id, channel_name, channel_type) (
-            increase(newapi_relay_requests_total{status_class="5xx"}[5m])
+            increase(newapi_relay_requests_total{status_class="5xx",channel_id!="0",channel_type!="Unknown"}[5m])
           ) > 12
         for: 2m
         labels:
@@ -99,7 +99,7 @@ groups:
       - alert: NewAPIChannelHighErrorCountAny
         expr: |
           sum by (channel_id, channel_name, channel_type) (
-            increase(newapi_relay_requests_total{status_class=~"4xx|5xx"}[1m])
+            increase(newapi_relay_requests_total{status_class=~"4xx|5xx",channel_id!="0",channel_type!="Unknown"}[1m])
           ) >= 3
         for: 0m
         labels:
@@ -123,7 +123,7 @@ groups:
       - alert: NewAPIChannelTestFailureBurst
         expr: |
           sum by (trigger, channel_id, channel_name, channel_type) (
-            increase(newapi_channel_test_total{result="failure"}[1m])
+            increase(newapi_channel_test_total{result="failure",channel_id!="0",channel_type!="Unknown"}[1m])
           ) >= 3
         for: 0m
         labels:
@@ -136,7 +136,7 @@ groups:
         expr: |
           newapi:channel_test_failure_rate_by_channel:ratio5m > 0.6
           and
-          sum by (trigger, channel_id, channel_name, channel_type) (increase(newapi_channel_test_total[5m])) > 3
+          sum by (trigger, channel_id, channel_name, channel_type) (increase(newapi_channel_test_total{channel_id!="0",channel_type!="Unknown"}[5m])) > 3
         for: 90s
         labels:
           severity: critical
@@ -148,7 +148,7 @@ groups:
         expr: |
           newapi:channel_test_failure_rate_by_channel:ratio5m >= 1
           and
-          sum by (trigger, channel_id, channel_name, channel_type) (increase(newapi_channel_test_total[5m])) >= 2
+          sum by (trigger, channel_id, channel_name, channel_type) (increase(newapi_channel_test_total{channel_id!="0",channel_type!="Unknown"}[5m])) >= 2
         for: 30s
         labels:
           severity: critical
