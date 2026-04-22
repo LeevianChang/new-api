@@ -113,6 +113,42 @@ def target_label(labels):
     return "unknown"
 
 
+def build_context_md(alert):
+    labels = alert.get("labels", {})
+    trigger = labels.get("trigger", "-")
+    job = labels.get("job", "-")
+    channel_id = labels.get("channel_id", "-")
+    channel_name = labels.get("channel_name", "-")
+    channel_type = labels.get("channel_type", "-")
+    instance = labels.get("instance", "-")
+    method = labels.get("method", "-")
+    route = labels.get("route", "-")
+    status_code = labels.get("status_code", "-")
+    status_class = labels.get("status_class", "-")
+    model = labels.get("model", "-")
+
+    context_lines = [
+        f"- trigger: `{trigger}`",
+        f"- job: `{job}`",
+        f"- channel: `{channel_name}` (id={channel_id}, type={channel_type})",
+        f"- instance: `{instance}`",
+        f"- method: `{method}`",
+        f"- route: `{route}`",
+        f"- status: `{status_code}` ({status_class})",
+        f"- model: `{model}`",
+    ]
+
+    if str(channel_id) == "0" or str(channel_type).lower() == "unknown":
+        context_lines.append("- hint: 选渠前失败（未命中具体渠道），常见于模型未匹配/分组无可用渠道/渠道被禁用")
+    if model == "-":
+        context_lines.append("- hint: 当前告警未携带模型标签（需指标侧上报 model 维度才可显示具体模型）")
+
+    if alert.get("generatorURL"):
+        context_lines.append(f"- source: [PromQL Graph]({alert.get('generatorURL')})")
+
+    return "\n".join(context_lines)
+
+
 def parse_time(ts):
     if not ts:
         return "-"
@@ -177,6 +213,7 @@ def build_card(payload):
     description = first.get("annotations", {}).get("description", "")
     summary_md = summary if summary else "-"
     description_md = description if description else "-"
+    context_md = build_context_md(first)
 
     action_buttons = [
         {
@@ -265,6 +302,10 @@ def build_card(payload):
                 {
                     "tag": "div",
                     "text": {"tag": "lark_md", "content": f"**描述**\n{description_md}"},
+                },
+                {
+                    "tag": "div",
+                    "text": {"tag": "lark_md", "content": f"**上下文**\n{context_md}"},
                 },
                 {"tag": "action", "actions": action_buttons},
                 {

@@ -66,8 +66,9 @@ cp monitoring/feishu-bridge/.env.example monitoring/feishu-bridge/.env
 - `NewAPIHighHTTPErrorRate`：HTTP 错误率高于 10%（持续 10 分钟）
 - `NewAPIRelayHighErrorRate`：Relay 错误率高于 15%（持续 10 分钟）
 - `NewAPIChannelHighErrorCount`：单渠道 5 分钟内 5xx 错误超过 12 次（持续 2 分钟）
-- `NewAPIChannelHighErrorCountAny`：单渠道 5 分钟内 4xx/5xx 错误超过 20 次（持续 2 分钟）
-- `NewAPIChannelTestFailureBurst`：测试界面单渠道 5 分钟失败超过 6 次（持续 1 分钟）
+- `NewAPIChannelHighErrorCountAny`：单渠道 1 分钟内 4xx/5xx 错误达到 3 次（立即触发）
+- `NewAPIRelayHTTPErrorBurst`：Relay 路由维度 1 分钟内某状态码错误达到 3 次（立即触发）
+- `NewAPIChannelTestFailureBurst`：测试界面单渠道 1 分钟失败达到 3 次（立即触发）
 - `NewAPIChannelTestFailureRateHigh`：测试界面单渠道 5 分钟失败率超过 60% 且测试量超过 3 次（持续 90 秒）
 - `NewAPIChannelTestFailureRateFull`：测试界面单渠道 5 分钟失败率 100% 且测试量至少 2 次（持续 30 秒）
 - `DownstreamProbeFailed`：下游 TCP 探测失败（3 分钟）

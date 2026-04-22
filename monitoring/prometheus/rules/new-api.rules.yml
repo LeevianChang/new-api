@@ -99,26 +99,38 @@ groups:
       - alert: NewAPIChannelHighErrorCountAny
         expr: |
           sum by (channel_id, channel_name, channel_type) (
-            increase(newapi_relay_requests_total{status_class=~"4xx|5xx"}[5m])
-          ) > 20
-        for: 2m
+            increase(newapi_relay_requests_total{status_class=~"4xx|5xx"}[1m])
+          ) >= 3
+        for: 0m
         labels:
           severity: warning
         annotations:
           summary: "渠道错误激增(4xx/5xx)"
-          description: "渠道 {{ $labels.channel_name }} (id={{ $labels.channel_id }}, type={{ $labels.channel_type }}) 在最近 5 分钟内 4xx/5xx 错误超过 20 次。"
+          description: "渠道 {{ $labels.channel_name }} (id={{ $labels.channel_id }}, type={{ $labels.channel_type }}) 最近 1 分钟内 4xx/5xx 错误达到 3 次。"
+
+      - alert: NewAPIRelayHTTPErrorBurst
+        expr: |
+          sum by (method, route, status_code, status_class) (
+            increase(newapi_http_requests_total{tag="relay",status_class=~"4xx|5xx"}[1m])
+          ) >= 3
+        for: 0m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Relay 路由错误激增"
+          description: "{{ $labels.method }} {{ $labels.route }} 在最近 1 分钟内状态码 {{ $labels.status_code }} ({{ $labels.status_class }}) 错误达到 3 次。"
 
       - alert: NewAPIChannelTestFailureBurst
         expr: |
           sum by (trigger, channel_id, channel_name, channel_type) (
-            increase(newapi_channel_test_total{result="failure"}[5m])
-          ) > 6
-        for: 1m
+            increase(newapi_channel_test_total{result="failure"}[1m])
+          ) >= 3
+        for: 0m
         labels:
           severity: warning
         annotations:
           summary: "渠道测试失败激增"
-          description: "{{ $labels.trigger }} 触发下，渠道 {{ $labels.channel_name }} (id={{ $labels.channel_id }}, type={{ $labels.channel_type }}) 最近 5 分钟测试失败超过 10 次。"
+          description: "{{ $labels.trigger }} 触发下，渠道 {{ $labels.channel_name }} (id={{ $labels.channel_id }}, type={{ $labels.channel_type }}) 最近 1 分钟测试失败达到 3 次。"
 
       - alert: NewAPIChannelTestFailureRateHigh
         expr: |
