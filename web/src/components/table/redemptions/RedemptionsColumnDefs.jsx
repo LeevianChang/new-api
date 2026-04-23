@@ -73,6 +73,21 @@ const renderStatus = (status, record, t) => {
   );
 };
 
+const renderTargetType = (targetType, t) => {
+  if (targetType === 'token') {
+    return (
+      <Tag color='blue' shape='circle'>
+        {t('API Key 充值')}
+      </Tag>
+    );
+  }
+  return (
+    <Tag color='green' shape='circle'>
+      {t('用户余额充值')}
+    </Tag>
+  );
+};
+
 /**
  * Get redemption code table column definitions
  */
@@ -102,6 +117,13 @@ export const getRedemptionsColumns = ({
       key: 'status',
       render: (text, record) => {
         return <div>{renderStatus(text, record, t)}</div>;
+      },
+    },
+    {
+      title: t('兑换码类型'),
+      dataIndex: 'target_type',
+      render: (text) => {
+        return <div>{renderTargetType(text, t)}</div>;
       },
     },
     {

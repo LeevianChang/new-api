@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -161,6 +162,61 @@ func GetTokenUsage(c *gin.Context) {
 			"model_limits_enabled": token.ModelLimitsEnabled,
 			"expires_at":           expiredAt,
 		},
+	})
+}
+
+type redeemCouponRequest struct {
+	CouponCode string `json:"coupon_code"`
+	Key        string `json:"key"`
+}
+
+func RedeemCouponForToken(c *gin.Context) {
+	var req redeemCouponRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		common.ApiErrorI18n(c, i18n.MsgInvalidParams)
+		return
+	}
+	code := strings.TrimSpace(req.CouponCode)
+	if code == "" {
+		code = strings.TrimSpace(req.Key)
+	}
+	if code == "" {
+		common.ApiErrorI18n(c, i18n.MsgInvalidParams)
+		return
+	}
+	quota, err := model.RedeemForToken(code, c.GetInt("id"), c.GetInt("token_id"), c.GetString("token_key"), c.ClientIP(), c.Request.UserAgent())
+	if err != nil {
+		if errors.Is(err, model.ErrRedemptionInvalid) {
+			common.ApiErrorI18n(c, i18n.MsgRedemptionInvalid)
+			return
+		}
+		if errors.Is(err, model.ErrRedemptionUsed) {
+			common.ApiErrorI18n(c, i18n.MsgRedemptionUsed)
+			return
+		}
+		if errors.Is(err, model.ErrRedemptionExpired) {
+			common.ApiErrorI18n(c, i18n.MsgRedemptionExpired)
+			return
+		}
+		if errors.Is(err, model.ErrRedeemTokenNotFound) {
+			common.ApiErrorMsg(c, "令牌不存在，无法兑换")
+			return
+		}
+		if errors.Is(err, model.ErrRedeemTokenDisabled) {
+			common.ApiErrorMsg(c, "令牌已被禁用，无法兑换")
+			return
+		}
+		if errors.Is(err, model.ErrRedeemFailed) {
+			common.ApiErrorI18n(c, i18n.MsgRedeemFailed)
+			return
+		}
+		common.ApiError(c, err)
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "",
+		"data":    quota,
 	})
 }
 

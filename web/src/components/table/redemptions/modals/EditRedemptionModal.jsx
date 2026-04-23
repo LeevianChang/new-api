@@ -60,6 +60,7 @@ const EditRedemptionModal = (props) => {
 
   const getInitValues = () => ({
     name: '',
+    target_type: 'user',
     quota: 100000,
     count: 1,
     expired_time: null,
@@ -79,6 +80,7 @@ const EditRedemptionModal = (props) => {
       } else {
         data.expired_time = new Date(data.expired_time * 1000);
       }
+      data.target_type = data.target_type || 'user';
       formApiRef.current?.setValues({ ...getInitValues(), ...data });
     } else {
       showError(message);
@@ -106,6 +108,8 @@ const EditRedemptionModal = (props) => {
     localInputs.count = parseInt(localInputs.count) || 0;
     localInputs.quota = parseInt(localInputs.quota) || 0;
     localInputs.name = name;
+    localInputs.target_type =
+      localInputs.target_type === 'token' ? 'token' : 'user';
     if (!localInputs.expired_time) {
       localInputs.expired_time = 0;
     } else {
@@ -249,6 +253,27 @@ const EditRedemptionModal = (props) => {
                             : [{ required: true, message: t('请输入名称') }]
                         }
                         showClear
+                      />
+                    </Col>
+                    <Col span={24}>
+                      <Form.Select
+                        field='target_type'
+                        label={t('兑换码类型')}
+                        placeholder={t('请选择兑换码类型')}
+                        optionList={[
+                          {
+                            label: t('用户余额充值'),
+                            value: 'user',
+                          },
+                          {
+                            label: t('API Key 充值'),
+                            value: 'token',
+                          },
+                        ]}
+                        extraText={t(
+                          '用户余额充值：通过用户中心兑换；API Key 充值：通过 /api/token/redeem-coupon 兑换',
+                        )}
+                        style={{ width: '100%' }}
                       />
                     </Col>
                     <Col span={24}>

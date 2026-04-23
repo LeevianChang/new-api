@@ -110,6 +110,15 @@ def target_label(labels):
     if job:
         return f"job:{job}"
 
+    method = labels.get("method", "").strip()
+    route = labels.get("route", "").strip()
+    status_code = labels.get("status_code", "").strip()
+    if method or route:
+        base = f"{method or '-'} {route or '-'}".strip()
+        if status_code:
+            return f"{base} [{status_code}]"
+        return base
+
     return "unknown"
 
 

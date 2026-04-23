@@ -88,6 +88,7 @@ func AddRedemption(c *gin.Context) {
 			UserId:      c.GetInt("id"),
 			Name:        redemption.Name,
 			Key:         key,
+			TargetType:  model.NormalizeRedemptionTargetType(redemption.TargetType),
 			CreatedTime: common.GetTimestamp(),
 			Quota:       redemption.Quota,
 			ExpiredTime: redemption.ExpiredTime,
@@ -146,6 +147,7 @@ func UpdateRedemption(c *gin.Context) {
 		}
 		// If you add more fields, please also update redemption.Update()
 		cleanRedemption.Name = redemption.Name
+		cleanRedemption.TargetType = model.NormalizeRedemptionTargetType(redemption.TargetType)
 		cleanRedemption.Quota = redemption.Quota
 		cleanRedemption.ExpiredTime = redemption.ExpiredTime
 	}

@@ -1027,6 +1027,18 @@ func TopUp(c *gin.Context) {
 	}
 	quota, err := model.Redeem(req.Key, id)
 	if err != nil {
+		if errors.Is(err, model.ErrRedemptionInvalid) {
+			common.ApiErrorI18n(c, i18n.MsgRedemptionInvalid)
+			return
+		}
+		if errors.Is(err, model.ErrRedemptionUsed) {
+			common.ApiErrorI18n(c, i18n.MsgRedemptionUsed)
+			return
+		}
+		if errors.Is(err, model.ErrRedemptionExpired) {
+			common.ApiErrorI18n(c, i18n.MsgRedemptionExpired)
+			return
+		}
 		if errors.Is(err, model.ErrRedeemFailed) {
 			common.ApiErrorI18n(c, i18n.MsgRedeemFailed)
 			return

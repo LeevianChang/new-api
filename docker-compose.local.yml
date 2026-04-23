@@ -1,0 +1,56 @@
+services:
+  new-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: new-api:local
+    pull_policy: never
+    container_name: new-api-local
+    restart: always
+    command: --log-dir /app/logs
+    ports:
+      - "127.0.0.1:3000:3000"
+    volumes:
+      - ./data:/data
+      - ./logs:/app/logs
+    environment:
+      - SQL_DSN=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      - REDIS_CONN_STRING=redis://default:${REDIS_PASSWORD}@redis:6379
+      - SESSION_SECRET=${SESSION_SECRET}
+      - TZ=Asia/Shanghai
+      - ERROR_LOG_ENABLED=true
+      - BATCH_UPDATE_ENABLED=true
+    depends_on:
+      - redis
+      - postgres
+    networks:
+      - new-api-local-network
+
+  redis:
+    image: redis:alpine
+    container_name: redis-api-local
+    restart: always
+    command: redis-server --requirepass ${REDIS_PASSWORD}
+    networks:
+      - new-api-local-network
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: postgres-api-local
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - pg_data_local:/var/lib/postgresql/data
+    networks:
+      - new-api-local-network
+
+volumes:
+  pg_data_local:
+
+networks:
+  new-api-local-network:
+    name: new-api-local-network
+    driver: bridge

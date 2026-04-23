@@ -245,6 +245,69 @@ func TokenAuthReadOnly() func(c *gin.Context) {
 	}
 }
 
+// TokenAuthCoupon 用于优惠券兑换接口。
+// 允许过期/耗尽 token 发起充值，但禁止已禁用 token。
+func TokenAuthCoupon() func(c *gin.Context) {
+	return func(c *gin.Context) {
+		key := c.Request.Header.Get("Authorization")
+		if key == "" {
+			c.JSON(http.StatusUnauthorized, gin.H{
+				"success": false,
+				"message": "未提供 Authorization 请求头",
+			})
+			c.Abort()
+			return
+		}
+		if strings.HasPrefix(key, "Bearer ") || strings.HasPrefix(key, "bearer ") {
+			key = strings.TrimSpace(key[7:])
+		}
+		key = strings.TrimPrefix(key, "sk-")
+		parts := strings.Split(key, "-")
+		key = parts[0]
+
+		token, err := model.GetTokenByKey(key, false)
+		if err != nil {
+			c.JSON(http.StatusUnauthorized, gin.H{
+				"success": false,
+				"message": "令牌不存在，无法兑换",
+			})
+			c.Abort()
+			return
+		}
+		if token.Status == common.TokenStatusDisabled {
+			c.JSON(http.StatusForbidden, gin.H{
+				"success": false,
+				"message": "令牌已被禁用，无法兑换",
+			})
+			c.Abort()
+			return
+		}
+
+		userCache, err := model.GetUserCache(token.UserId)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"success": false,
+				"message": err.Error(),
+			})
+			c.Abort()
+			return
+		}
+		if userCache.Status != common.UserStatusEnabled {
+			c.JSON(http.StatusForbidden, gin.H{
+				"success": false,
+				"message": "用户已被封禁",
+			})
+			c.Abort()
+			return
+		}
+
+		c.Set("id", token.UserId)
+		c.Set("token_id", token.Id)
+		c.Set("token_key", token.Key)
+		c.Next()
+	}
+}
+
 func TokenAuth() func(c *gin.Context) {
 	return func(c *gin.Context) {
 		// 先检测是否为ws
@@ -309,6 +372,7 @@ func TokenAuth() func(c *gin.Context) {
 			}
 		}
 		if err != nil {
+			common.SetContextKey(c, constant.ContextKeyRelayErrorReason, classifyRelayTokenErrorReason(err.Error()))
 			abortWithOpenAiMessage(c, http.StatusUnauthorized, err.Error())
 			return
 		}
@@ -366,6 +430,23 @@ func TokenAuth() func(c *gin.Context) {
 			return
 		}
 		c.Next()
+	}
+}
+
+func classifyRelayTokenErrorReason(message string) string {
+	switch {
+	case strings.Contains(message, "未提供令牌"):
+		return "token_missing"
+	case strings.Contains(message, "无效的令牌"):
+		return "token_invalid"
+	case strings.Contains(message, "已过期"):
+		return "token_expired"
+	case strings.Contains(message, "额度已用尽"):
+		return "token_exhausted"
+	case strings.Contains(message, "状态不可用"):
+		return "token_disabled"
+	default:
+		return "token_auth_failed"
 	}
 }
 

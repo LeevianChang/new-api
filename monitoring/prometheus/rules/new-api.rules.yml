@@ -110,7 +110,7 @@ groups:
 
       - alert: NewAPIRelayHTTPErrorBurst
         expr: |
-          sum by (method, route, status_code, status_class) (
+          sum by (method, route, status_code, status_class, error_reason) (
             increase(newapi_http_requests_total{tag="relay",status_class=~"4xx|5xx"}[1m])
           ) >= 3
         for: 0m
@@ -118,7 +118,7 @@ groups:
           severity: warning
         annotations:
           summary: "Relay 路由错误激增"
-          description: "{{ $labels.method }} {{ $labels.route }} 在最近 1 分钟内状态码 {{ $labels.status_code }} ({{ $labels.status_class }}) 错误达到 3 次。"
+          description: "{{ $labels.method }} {{ $labels.route }} 在最近 1 分钟内状态码 {{ $labels.status_code }} ({{ $labels.status_class }}) 错误达到 3 次，错误原因: {{ $labels.error_reason }}。"
 
       - alert: NewAPIChannelTestFailureBurst
         expr: |

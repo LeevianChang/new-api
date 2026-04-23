@@ -1,9 +1,11 @@
 package model
 
 import (
+	"encoding/hex"
 	"errors"
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/QuantumNous/new-api/common"
 	"github.com/QuantumNous/new-api/logger"
@@ -13,20 +15,44 @@ import (
 
 // ErrRedeemFailed is returned when redemption fails due to database error
 var ErrRedeemFailed = errors.New("redeem.failed")
+var ErrRedeemTokenNotFound = errors.New("redeem.token_not_found")
+var ErrRedeemTokenDisabled = errors.New("redeem.token_disabled")
+var ErrRedemptionInvalid = errors.New("redemption.invalid")
+var ErrRedemptionUsed = errors.New("redemption.used")
+var ErrRedemptionExpired = errors.New("redemption.expired")
+
+const (
+	RedemptionTargetTypeUser  = "user"
+	RedemptionTargetTypeToken = "token"
+)
+
+func NormalizeRedemptionTargetType(targetType string) string {
+	switch strings.ToLower(strings.TrimSpace(targetType)) {
+	case RedemptionTargetTypeToken:
+		return RedemptionTargetTypeToken
+	default:
+		return RedemptionTargetTypeUser
+	}
+}
 
 type Redemption struct {
-	Id           int            `json:"id"`
-	UserId       int            `json:"user_id"`
-	Key          string         `json:"key" gorm:"type:char(32);uniqueIndex"`
-	Status       int            `json:"status" gorm:"default:1"`
-	Name         string         `json:"name" gorm:"index"`
-	Quota        int            `json:"quota" gorm:"default:100"`
-	CreatedTime  int64          `json:"created_time" gorm:"bigint"`
-	RedeemedTime int64          `json:"redeemed_time" gorm:"bigint"`
-	Count        int            `json:"count" gorm:"-:all"` // only for api request
-	UsedUserId   int            `json:"used_user_id"`
-	DeletedAt    gorm.DeletedAt `gorm:"index"`
-	ExpiredTime  int64          `json:"expired_time" gorm:"bigint"` // 过期时间，0 表示不过期
+	Id                   int            `json:"id"`
+	UserId               int            `json:"user_id"`
+	Key                  string         `json:"key" gorm:"type:char(32);uniqueIndex"`
+	Status               int            `json:"status" gorm:"default:1"`
+	Name                 string         `json:"name" gorm:"index"`
+	TargetType           string         `json:"target_type" gorm:"type:varchar(16);default:user;index"`
+	Quota                int            `json:"quota" gorm:"default:100"`
+	CreatedTime          int64          `json:"created_time" gorm:"bigint"`
+	RedeemedTime         int64          `json:"redeemed_time" gorm:"bigint"`
+	Count                int            `json:"count" gorm:"-:all"` // only for api request
+	UsedUserId           int            `json:"used_user_id"`
+	RedeemedTokenId      int            `json:"redeemed_token_id"`
+	RedeemedTokenKeyHash string         `json:"redeemed_token_key_hash" gorm:"type:varchar(64)"`
+	RedeemedIP           string         `json:"redeemed_ip" gorm:"type:varchar(64)"`
+	RedeemedUA           string         `json:"redeemed_ua" gorm:"type:text"`
+	DeletedAt            gorm.DeletedAt `gorm:"index"`
+	ExpiredTime          int64          `json:"expired_time" gorm:"bigint"` // 过期时间，0 表示不过期
 }
 
 func GetAllRedemptions(startIdx int, num int) (redemptions []*Redemption, total int64, err error) {
@@ -132,13 +158,16 @@ func Redeem(key string, userId int) (quota int, err error) {
 	err = DB.Transaction(func(tx *gorm.DB) error {
 		err := tx.Set("gorm:query_option", "FOR UPDATE").Where(keyCol+" = ?", key).First(redemption).Error
 		if err != nil {
-			return errors.New("无效的兑换码")
+			return ErrRedemptionInvalid
+		}
+		if NormalizeRedemptionTargetType(redemption.TargetType) != RedemptionTargetTypeUser {
+			return ErrRedemptionInvalid
 		}
 		if redemption.Status != common.RedemptionCodeStatusEnabled {
-			return errors.New("该兑换码已被使用")
+			return ErrRedemptionUsed
 		}
 		if redemption.ExpiredTime != 0 && redemption.ExpiredTime < common.GetTimestamp() {
-			return errors.New("该兑换码已过期")
+			return ErrRedemptionExpired
 		}
 		err = tx.Model(&User{}).Where("id = ?", userId).Update("quota", gorm.Expr("quota + ?", redemption.Quota)).Error
 		if err != nil {
@@ -147,14 +176,110 @@ func Redeem(key string, userId int) (quota int, err error) {
 		redemption.RedeemedTime = common.GetTimestamp()
 		redemption.Status = common.RedemptionCodeStatusUsed
 		redemption.UsedUserId = userId
+		redemption.RedeemedTokenId = 0
+		redemption.RedeemedTokenKeyHash = ""
+		redemption.RedeemedIP = ""
+		redemption.RedeemedUA = ""
 		err = tx.Save(redemption).Error
 		return err
 	})
 	if err != nil {
+		if errors.Is(err, ErrRedemptionInvalid) || errors.Is(err, ErrRedemptionUsed) || errors.Is(err, ErrRedemptionExpired) {
+			return 0, err
+		}
 		common.SysError("redemption failed: " + err.Error())
 		return 0, ErrRedeemFailed
 	}
 	RecordLog(userId, LogTypeTopup, fmt.Sprintf("通过兑换码充值 %s，兑换码ID %d", logger.LogQuota(redemption.Quota), redemption.Id))
+	return redemption.Quota, nil
+}
+
+func RedeemForToken(code string, userId int, tokenId int, tokenKey string, clientIP string, userAgent string) (quota int, err error) {
+	if code == "" {
+		return 0, errors.New("未提供兑换码")
+	}
+	if userId == 0 || tokenId == 0 {
+		return 0, errors.New("无效的 token")
+	}
+	redemption := &Redemption{}
+
+	keyCol := "`key`"
+	if common.UsingPostgreSQL {
+		keyCol = `"key"`
+	}
+	hashedTokenKey := hex.EncodeToString(common.Sha256Raw([]byte(tokenKey)))
+	now := common.GetTimestamp()
+	common.RandomSleep()
+	err = DB.Transaction(func(tx *gorm.DB) error {
+		err := tx.Set("gorm:query_option", "FOR UPDATE").Where(keyCol+" = ?", code).First(redemption).Error
+		if err != nil {
+			return ErrRedemptionInvalid
+		}
+		if NormalizeRedemptionTargetType(redemption.TargetType) != RedemptionTargetTypeToken {
+			return ErrRedemptionInvalid
+		}
+		if redemption.Status != common.RedemptionCodeStatusEnabled {
+			return ErrRedemptionUsed
+		}
+		if redemption.ExpiredTime != 0 && redemption.ExpiredTime < now {
+			return ErrRedemptionExpired
+		}
+
+		updateResult := tx.Model(&Token{}).
+			Where("id = ? and user_id = ? and status <> ?", tokenId, userId, common.TokenStatusDisabled).
+			Updates(map[string]interface{}{
+				"remain_quota":  gorm.Expr("remain_quota + ?", redemption.Quota),
+				"accessed_time": now,
+			})
+		err = updateResult.Error
+		if err != nil {
+			return err
+		}
+		if updateResult.RowsAffected == 0 {
+			token := &Token{}
+			tokenErr := tx.Where("id = ? and user_id = ?", tokenId, userId).First(token).Error
+			if errors.Is(tokenErr, gorm.ErrRecordNotFound) {
+				return ErrRedeemTokenNotFound
+			}
+			if tokenErr != nil {
+				return tokenErr
+			}
+			if token.Status == common.TokenStatusDisabled {
+				return ErrRedeemTokenDisabled
+			}
+			return ErrRedeemFailed
+		}
+		err = tx.Model(&Token{}).
+			Where("id = ? and user_id = ? and status = ?", tokenId, userId, common.TokenStatusExhausted).
+			Update("status", common.TokenStatusEnabled).Error
+		if err != nil {
+			return err
+		}
+
+		redemption.RedeemedTime = now
+		redemption.Status = common.RedemptionCodeStatusUsed
+		redemption.UsedUserId = userId
+		redemption.RedeemedTokenId = tokenId
+		redemption.RedeemedTokenKeyHash = hashedTokenKey
+		redemption.RedeemedIP = clientIP
+		redemption.RedeemedUA = userAgent
+		err = tx.Save(redemption).Error
+		return err
+	})
+	if err != nil {
+		if errors.Is(err, ErrRedemptionInvalid) || errors.Is(err, ErrRedemptionUsed) || errors.Is(err, ErrRedemptionExpired) {
+			return 0, err
+		}
+		if errors.Is(err, ErrRedeemTokenNotFound) || errors.Is(err, ErrRedeemTokenDisabled) {
+			return 0, err
+		}
+		common.SysError("token coupon redemption failed: " + err.Error())
+		return 0, ErrRedeemFailed
+	}
+	if _, getTokenErr := GetTokenById(tokenId); getTokenErr != nil {
+		common.SysError("failed to refresh token cache after coupon redemption: " + getTokenErr.Error())
+	}
+	RecordLog(userId, LogTypeTopup, fmt.Sprintf("API Key 通过优惠券充值 %s，令牌ID %d，兑换码ID %d", logger.LogQuota(redemption.Quota), tokenId, redemption.Id))
 	return redemption.Quota, nil
 }
 
@@ -172,7 +297,7 @@ func (redemption *Redemption) SelectUpdate() error {
 // Update Make sure your token's fields is completed, because this will update non-zero values
 func (redemption *Redemption) Update() error {
 	var err error
-	err = DB.Model(redemption).Select("name", "status", "quota", "redeemed_time", "expired_time").Updates(redemption).Error
+	err = DB.Model(redemption).Select("name", "status", "target_type", "quota", "redeemed_time", "expired_time").Updates(redemption).Error
 	return err
 }
 

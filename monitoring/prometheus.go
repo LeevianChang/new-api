@@ -19,6 +19,16 @@ import (
 
 const routeTagKey = "route_tag"
 
+var relayErrorReasonWhitelist = map[string]struct{}{
+	"none":              {},
+	"token_missing":     {},
+	"token_invalid":     {},
+	"token_expired":     {},
+	"token_exhausted":   {},
+	"token_disabled":    {},
+	"token_auth_failed": {},
+}
+
 var (
 	registerOnce sync.Once
 	probeOnce    sync.Once
@@ -28,7 +38,7 @@ var (
 			Name: "newapi_http_requests_total",
 			Help: "Total number of HTTP requests",
 		},
-		[]string{"tag", "method", "route", "status_code", "status_class"},
+		[]string{"tag", "method", "route", "status_code", "status_class", "error_reason"},
 	)
 
 	httpRequestDuration = prometheus.NewHistogramVec(
@@ -239,13 +249,14 @@ func HTTPMetricsMiddleware() gin.HandlerFunc {
 		statusValue := c.Writer.Status()
 		statusCode := strconv.Itoa(statusValue)
 		statusClass := statusClass(statusValue)
+		errorReason := normalizeRelayErrorReason(common.GetContextKeyString(c, constant.ContextKeyRelayErrorReason))
 		route := c.FullPath()
 		if route == "" {
 			route = "unmatched"
 		}
 
 		httpInFlight.WithLabelValues(inFlightTag).Dec()
-		httpRequestsTotal.WithLabelValues(tag, c.Request.Method, route, statusCode, statusClass).Inc()
+		httpRequestsTotal.WithLabelValues(tag, c.Request.Method, route, statusCode, statusClass, errorReason).Inc()
 		httpRequestDuration.WithLabelValues(tag, c.Request.Method, route).Observe(latency)
 
 		if tag == "relay" {
@@ -260,6 +271,17 @@ func HTTPMetricsMiddleware() gin.HandlerFunc {
 			}
 		}
 	}
+}
+
+func normalizeRelayErrorReason(reason string) string {
+	reason = strings.TrimSpace(reason)
+	if reason == "" {
+		return "none"
+	}
+	if _, ok := relayErrorReasonWhitelist[reason]; ok {
+		return reason
+	}
+	return "token_auth_failed"
 }
 
 func statusClass(statusCode int) string {

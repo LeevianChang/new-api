@@ -260,6 +260,12 @@ func SetApiRouter(router *gin.Engine) {
 			tokenRoute.POST("/batch/keys", middleware.CriticalRateLimit(), middleware.DisableCache(), controller.GetTokenKeysBatch)
 		}
 
+		tokenCouponRoute := apiRouter.Group("/token")
+		tokenCouponRoute.Use(middleware.CriticalRateLimit(), middleware.TokenAuthCoupon())
+		{
+			tokenCouponRoute.POST("/redeem-coupon", controller.RedeemCouponForToken)
+		}
+
 		usageRoute := apiRouter.Group("/usage")
 		usageRoute.Use(middleware.CORS(), middleware.CriticalRateLimit())
 		{
