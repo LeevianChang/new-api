@@ -187,15 +187,15 @@ func RedeemCouponForToken(c *gin.Context) {
 	quota, err := model.RedeemForToken(code, c.GetInt("id"), c.GetInt("token_id"), c.GetString("token_key"), c.ClientIP(), c.Request.UserAgent())
 	if err != nil {
 		if errors.Is(err, model.ErrRedemptionInvalid) {
-			common.ApiErrorI18n(c, i18n.MsgRedemptionInvalid)
+			common.ApiErrorMsg(c, "兑换码无效")
 			return
 		}
 		if errors.Is(err, model.ErrRedemptionUsed) {
-			common.ApiErrorI18n(c, i18n.MsgRedemptionUsed)
+			common.ApiErrorMsg(c, "兑换码已被使用或已禁用")
 			return
 		}
 		if errors.Is(err, model.ErrRedemptionExpired) {
-			common.ApiErrorI18n(c, i18n.MsgRedemptionExpired)
+			common.ApiErrorMsg(c, "兑换码已过期")
 			return
 		}
 		if errors.Is(err, model.ErrRedemptionGroupNotMatch) {
@@ -211,7 +211,7 @@ func RedeemCouponForToken(c *gin.Context) {
 			return
 		}
 		if errors.Is(err, model.ErrRedeemFailed) {
-			common.ApiErrorI18n(c, i18n.MsgRedeemFailed)
+			common.ApiErrorMsg(c, "兑换失败，请稍后再试")
 			return
 		}
 		common.ApiError(c, err)

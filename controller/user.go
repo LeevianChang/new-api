@@ -1028,15 +1028,15 @@ func TopUp(c *gin.Context) {
 	quota, err := model.Redeem(req.Key, id)
 	if err != nil {
 		if errors.Is(err, model.ErrRedemptionInvalid) {
-			common.ApiErrorI18n(c, i18n.MsgRedemptionInvalid)
+			common.ApiErrorMsg(c, "兑换码无效")
 			return
 		}
 		if errors.Is(err, model.ErrRedemptionUsed) {
-			common.ApiErrorI18n(c, i18n.MsgRedemptionUsed)
+			common.ApiErrorMsg(c, "兑换码已被使用或已禁用")
 			return
 		}
 		if errors.Is(err, model.ErrRedemptionExpired) {
-			common.ApiErrorI18n(c, i18n.MsgRedemptionExpired)
+			common.ApiErrorMsg(c, "兑换码已过期")
 			return
 		}
 		if errors.Is(err, model.ErrRedemptionGroupNotMatch) {
@@ -1044,7 +1044,7 @@ func TopUp(c *gin.Context) {
 			return
 		}
 		if errors.Is(err, model.ErrRedeemFailed) {
-			common.ApiErrorI18n(c, i18n.MsgRedeemFailed)
+			common.ApiErrorMsg(c, "兑换失败，请稍后再试")
 			return
 		}
 		common.ApiError(c, err)

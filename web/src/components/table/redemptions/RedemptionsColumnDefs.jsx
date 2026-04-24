@@ -168,6 +168,13 @@ export const getRedemptionsColumns = ({
       },
     },
     {
+      title: t('兑换令牌ID'),
+      dataIndex: 'redeemed_token_id',
+      render: (text) => {
+        return <div>{text === 0 ? t('无') : text}</div>;
+      },
+    },
+    {
       title: '',
       dataIndex: 'operate',
       fixed: 'right',
