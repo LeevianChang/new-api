@@ -39,6 +39,7 @@ export const useRedemptionsData = () => {
   const [pageSize, setPageSize] = useState(ITEMS_PER_PAGE);
   const [tokenCount, setTokenCount] = useState(0);
   const [selectedKeys, setSelectedKeys] = useState([]);
+  const [groupOptions, setGroupOptions] = useState([]);
 
   // Edit state
   const [editingRedemption, setEditingRedemption] = useState({
@@ -55,6 +56,7 @@ export const useRedemptionsData = () => {
   // Form state
   const formInitValues = {
     searchKeyword: '',
+    searchGroup: '',
   };
 
   // Get form values
@@ -62,6 +64,7 @@ export const useRedemptionsData = () => {
     const formValues = formApi ? formApi.getValues() : {};
     return {
       searchKeyword: formValues.searchKeyword || '',
+      searchGroup: formValues.searchGroup || '',
     };
   };
 
@@ -93,17 +96,17 @@ export const useRedemptionsData = () => {
   };
 
   // Search redemption codes
-  const searchRedemptions = async () => {
-    const { searchKeyword } = getFormValues();
-    if (searchKeyword === '') {
-      await loadRedemptions(1, pageSize);
+  const searchRedemptions = async (page = 1, size = pageSize) => {
+    const { searchKeyword, searchGroup } = getFormValues();
+    if (searchKeyword === '' && searchGroup === '') {
+      await loadRedemptions(page, size);
       return;
     }
 
     setSearching(true);
     try {
       const res = await API.get(
-        `/api/redemption/search?keyword=${searchKeyword}&p=1&page_size=${pageSize}`,
+        `/api/redemption/search?keyword=${encodeURIComponent(searchKeyword)}&group=${encodeURIComponent(searchGroup)}&p=${page}&page_size=${size}`,
       );
       const { success, message, data } = res.data;
       if (success) {
@@ -163,22 +166,22 @@ export const useRedemptionsData = () => {
 
   // Refresh data
   const refresh = async (page = activePage) => {
-    const { searchKeyword } = getFormValues();
-    if (searchKeyword === '') {
+    const { searchKeyword, searchGroup } = getFormValues();
+    if (searchKeyword === '' && searchGroup === '') {
       await loadRedemptions(page, pageSize);
     } else {
-      await searchRedemptions();
+      await searchRedemptions(page, pageSize);
     }
   };
 
   // Handle page change
   const handlePageChange = (page) => {
     setActivePage(page);
-    const { searchKeyword } = getFormValues();
-    if (searchKeyword === '') {
+    const { searchKeyword, searchGroup } = getFormValues();
+    if (searchKeyword === '' && searchGroup === '') {
       loadRedemptions(page, pageSize);
     } else {
-      searchRedemptions();
+      searchRedemptions(page, pageSize);
     }
   };
 
@@ -186,11 +189,28 @@ export const useRedemptionsData = () => {
   const handlePageSizeChange = (size) => {
     setPageSize(size);
     setActivePage(1);
-    const { searchKeyword } = getFormValues();
-    if (searchKeyword === '') {
+    const { searchKeyword, searchGroup } = getFormValues();
+    if (searchKeyword === '' && searchGroup === '') {
       loadRedemptions(1, size);
     } else {
-      searchRedemptions();
+      searchRedemptions(1, size);
+    }
+  };
+
+  const fetchGroups = async () => {
+    try {
+      let res = await API.get('/api/group/');
+      if (res === undefined) {
+        return;
+      }
+      setGroupOptions(
+        (res.data.data || []).map((group) => ({
+          label: group,
+          value: group,
+        })),
+      );
+    } catch (error) {
+      showError(error.message);
     }
   };
 
@@ -301,6 +321,7 @@ export const useRedemptionsData = () => {
       .catch((reason) => {
         showError(reason);
       });
+    fetchGroups().then();
   }, [pageSize]);
 
   return {
@@ -312,6 +333,7 @@ export const useRedemptionsData = () => {
     pageSize,
     tokenCount,
     selectedKeys,
+    groupOptions,
 
     // Edit state
     editingRedemption,

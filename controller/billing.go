@@ -2,6 +2,7 @@ package controller
 
 import (
 	"github.com/QuantumNous/new-api/common"
+	"github.com/QuantumNous/new-api/constant"
 	"github.com/QuantumNous/new-api/model"
 	"github.com/QuantumNous/new-api/setting/operation_setting"
 	"github.com/QuantumNous/new-api/types"
@@ -56,6 +57,13 @@ func GetSubscription(c *gin.Context) {
 	if token != nil && token.UnlimitedQuota {
 		amount = 100000000
 	}
+	group := common.GetContextKeyString(c, constant.ContextKeyTokenGroup)
+	if group == "" {
+		group = common.GetContextKeyString(c, constant.ContextKeyUsingGroup)
+	}
+	if group == "" && token != nil {
+		group = token.Group
+	}
 	subscription := OpenAISubscriptionResponse{
 		Object:             "billing_subscription",
 		HasPaymentMethod:   true,
@@ -63,6 +71,7 @@ func GetSubscription(c *gin.Context) {
 		HardLimitUSD:       amount,
 		SystemHardLimitUSD: amount,
 		AccessUntil:        expiredTime,
+		Group:              group,
 	}
 	c.JSON(200, subscription)
 	return

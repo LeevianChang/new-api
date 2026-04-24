@@ -1039,6 +1039,10 @@ func TopUp(c *gin.Context) {
 			common.ApiErrorI18n(c, i18n.MsgRedemptionExpired)
 			return
 		}
+		if errors.Is(err, model.ErrRedemptionGroupNotMatch) {
+			common.ApiErrorMsg(c, "当前用户分组不符合兑换码要求")
+			return
+		}
 		if errors.Is(err, model.ErrRedeemFailed) {
 			common.ApiErrorI18n(c, i18n.MsgRedeemFailed)
 			return

@@ -95,6 +95,7 @@ const RedemptionsPage = () => {
                 formInitValues={formInitValues}
                 setFormApi={setFormApi}
                 searchRedemptions={searchRedemptions}
+                groupOptions={redemptionsData.groupOptions}
                 loading={loading}
                 searching={searching}
                 t={t}

@@ -3,11 +3,13 @@ package controller
 import (
 	"net/http"
 	"strconv"
+	"strings"
 	"unicode/utf8"
 
 	"github.com/QuantumNous/new-api/common"
 	"github.com/QuantumNous/new-api/i18n"
 	"github.com/QuantumNous/new-api/model"
+	"github.com/QuantumNous/new-api/setting/ratio_setting"
 
 	"github.com/gin-gonic/gin"
 )
@@ -27,8 +29,9 @@ func GetAllRedemptions(c *gin.Context) {
 
 func SearchRedemptions(c *gin.Context) {
 	keyword := c.Query("keyword")
+	group := c.Query("group")
 	pageInfo := common.GetPageQuery(c)
-	redemptions, total, err := model.SearchRedemptions(keyword, pageInfo.GetStartIdx(), pageInfo.GetPageSize())
+	redemptions, total, err := model.SearchRedemptions(keyword, group, pageInfo.GetStartIdx(), pageInfo.GetPageSize())
 	if err != nil {
 		common.ApiError(c, err)
 		return
@@ -81,6 +84,11 @@ func AddRedemption(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"success": false, "message": msg})
 		return
 	}
+	usableGroup := strings.TrimSpace(redemption.UsableGroup)
+	if valid, msg := validateUsableGroup(usableGroup); !valid {
+		common.ApiErrorMsg(c, msg)
+		return
+	}
 	var keys []string
 	for i := 0; i < redemption.Count; i++ {
 		key := common.GetUUID()
@@ -89,6 +97,7 @@ func AddRedemption(c *gin.Context) {
 			Name:        redemption.Name,
 			Key:         key,
 			TargetType:  model.NormalizeRedemptionTargetType(redemption.TargetType),
+			UsableGroup: usableGroup,
 			CreatedTime: common.GetTimestamp(),
 			Quota:       redemption.Quota,
 			ExpiredTime: redemption.ExpiredTime,
@@ -145,9 +154,15 @@ func UpdateRedemption(c *gin.Context) {
 			c.JSON(http.StatusOK, gin.H{"success": false, "message": msg})
 			return
 		}
+		usableGroup := strings.TrimSpace(redemption.UsableGroup)
+		if valid, msg := validateUsableGroup(usableGroup); !valid {
+			common.ApiErrorMsg(c, msg)
+			return
+		}
 		// If you add more fields, please also update redemption.Update()
 		cleanRedemption.Name = redemption.Name
 		cleanRedemption.TargetType = model.NormalizeRedemptionTargetType(redemption.TargetType)
+		cleanRedemption.UsableGroup = usableGroup
 		cleanRedemption.Quota = redemption.Quota
 		cleanRedemption.ExpiredTime = redemption.ExpiredTime
 	}
@@ -184,6 +199,16 @@ func DeleteInvalidRedemption(c *gin.Context) {
 func validateExpiredTime(c *gin.Context, expired int64) (bool, string) {
 	if expired != 0 && expired < common.GetTimestamp() {
 		return false, i18n.T(c, i18n.MsgRedemptionExpireTimeInvalid)
+	}
+	return true, ""
+}
+
+func validateUsableGroup(group string) (bool, string) {
+	if group == "" {
+		return true, ""
+	}
+	if _, ok := ratio_setting.GetGroupRatioCopy()[group]; !ok {
+		return false, "可使用分组不存在"
 	}
 	return true, ""
 }

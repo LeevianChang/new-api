@@ -127,6 +127,13 @@ export const getRedemptionsColumns = ({
       },
     },
     {
+      title: t('可使用分组'),
+      dataIndex: 'usable_group',
+      render: (text) => {
+        return <div>{text ? <Tag shape='circle'>{text}</Tag> : t('不限')}</div>;
+      },
+    },
+    {
       title: t('额度'),
       dataIndex: 'quota',
       render: (text) => {

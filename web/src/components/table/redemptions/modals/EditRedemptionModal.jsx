@@ -55,6 +55,7 @@ const EditRedemptionModal = (props) => {
   const { t } = useTranslation();
   const isEdit = props.editingRedemption.id !== undefined;
   const [loading, setLoading] = useState(isEdit);
+  const [groups, setGroups] = useState([]);
   const isMobile = useIsMobile();
   const formApiRef = useRef(null);
 
@@ -64,6 +65,7 @@ const EditRedemptionModal = (props) => {
     quota: 100000,
     count: 1,
     expired_time: null,
+    usable_group: '',
   });
 
   const handleCancel = () => {
@@ -81,12 +83,33 @@ const EditRedemptionModal = (props) => {
         data.expired_time = new Date(data.expired_time * 1000);
       }
       data.target_type = data.target_type || 'user';
+      data.usable_group = data.usable_group || '';
       formApiRef.current?.setValues({ ...getInitValues(), ...data });
     } else {
       showError(message);
     }
     setLoading(false);
   };
+
+  const loadGroups = async () => {
+    const res = await API.get('/api/group/');
+    const { success, message, data } = res.data;
+    if (success) {
+      const groupOptions = (data || []).map((group) => ({
+        label: group,
+        value: group,
+      }));
+      setGroups(groupOptions);
+      return;
+    }
+    showError(message);
+  };
+
+  useEffect(() => {
+    loadGroups().catch((error) => {
+      showError(error.message);
+    });
+  }, []);
 
   useEffect(() => {
     if (formApiRef.current) {
@@ -110,6 +133,7 @@ const EditRedemptionModal = (props) => {
     localInputs.name = name;
     localInputs.target_type =
       localInputs.target_type === 'token' ? 'token' : 'user';
+    localInputs.usable_group = (localInputs.usable_group || '').trim();
     if (!localInputs.expired_time) {
       localInputs.expired_time = 0;
     } else {
@@ -274,6 +298,19 @@ const EditRedemptionModal = (props) => {
                           '用户余额充值：通过用户中心兑换；API Key 充值：通过 /api/token/redeem-coupon 兑换',
                         )}
                         style={{ width: '100%' }}
+                      />
+                    </Col>
+                    <Col span={24}>
+                      <Form.Select
+                        field='usable_group'
+                        label={t('可使用分组')}
+                        placeholder={t('请选择可使用分组（可选）')}
+                        optionList={groups}
+                        style={{ width: '100%' }}
+                        showClear
+                        extraText={t(
+                          '留空表示任意分组都可兑换；设置后仅对应分组的用户或 API Key 可兑换',
+                        )}
                       />
                     </Col>
                     <Col span={24}>

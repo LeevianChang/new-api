@@ -25,6 +25,7 @@ const RedemptionsFilters = ({
   formInitValues,
   setFormApi,
   searchRedemptions,
+  groupOptions,
   loading,
   searching,
   t,
@@ -61,6 +62,22 @@ const RedemptionsFilters = ({
             field='searchKeyword'
             prefix={<IconSearch />}
             placeholder={t('关键字(id或者名称)')}
+            showClear
+            pure
+            size='small'
+          />
+        </div>
+        <div className='w-full md:w-48'>
+          <Form.Select
+            field='searchGroup'
+            placeholder={t('选择可使用分组')}
+            optionList={groupOptions}
+            onChange={() => {
+              setTimeout(() => {
+                searchRedemptions();
+              }, 100);
+            }}
+            className='w-full'
             showClear
             pure
             size='small'

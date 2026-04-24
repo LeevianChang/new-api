@@ -198,6 +198,10 @@ func RedeemCouponForToken(c *gin.Context) {
 			common.ApiErrorI18n(c, i18n.MsgRedemptionExpired)
 			return
 		}
+		if errors.Is(err, model.ErrRedemptionGroupNotMatch) {
+			common.ApiErrorMsg(c, "当前令牌分组不符合兑换码要求")
+			return
+		}
 		if errors.Is(err, model.ErrRedeemTokenNotFound) {
 			common.ApiErrorMsg(c, "令牌不存在，无法兑换")
 			return

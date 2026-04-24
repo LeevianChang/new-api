@@ -17,6 +17,7 @@ import (
 var ErrRedeemFailed = errors.New("redeem.failed")
 var ErrRedeemTokenNotFound = errors.New("redeem.token_not_found")
 var ErrRedeemTokenDisabled = errors.New("redeem.token_disabled")
+var ErrRedemptionGroupNotMatch = errors.New("redemption.group_not_match")
 var ErrRedemptionInvalid = errors.New("redemption.invalid")
 var ErrRedemptionUsed = errors.New("redemption.used")
 var ErrRedemptionExpired = errors.New("redemption.expired")
@@ -42,6 +43,7 @@ type Redemption struct {
 	Status               int            `json:"status" gorm:"default:1"`
 	Name                 string         `json:"name" gorm:"index"`
 	TargetType           string         `json:"target_type" gorm:"type:varchar(16);default:user;index"`
+	UsableGroup          string         `json:"usable_group" gorm:"type:varchar(64);default:'';index"`
 	Quota                int            `json:"quota" gorm:"default:100"`
 	CreatedTime          int64          `json:"created_time" gorm:"bigint"`
 	RedeemedTime         int64          `json:"redeemed_time" gorm:"bigint"`
@@ -89,7 +91,7 @@ func GetAllRedemptions(startIdx int, num int) (redemptions []*Redemption, total 
 	return redemptions, total, nil
 }
 
-func SearchRedemptions(keyword string, startIdx int, num int) (redemptions []*Redemption, total int64, err error) {
+func SearchRedemptions(keyword string, group string, startIdx int, num int) (redemptions []*Redemption, total int64, err error) {
 	tx := DB.Begin()
 	if tx.Error != nil {
 		return nil, 0, tx.Error
@@ -108,6 +110,9 @@ func SearchRedemptions(keyword string, startIdx int, num int) (redemptions []*Re
 		query = query.Where("id = ? OR name LIKE ?", id, keyword+"%")
 	} else {
 		query = query.Where("name LIKE ?", keyword+"%")
+	}
+	if strings.TrimSpace(group) != "" {
+		query = query.Where("usable_group = ?", strings.TrimSpace(group))
 	}
 
 	// Get total count
@@ -169,6 +174,16 @@ func Redeem(key string, userId int) (quota int, err error) {
 		if redemption.ExpiredTime != 0 && redemption.ExpiredTime < common.GetTimestamp() {
 			return ErrRedemptionExpired
 		}
+		usableGroup := strings.TrimSpace(redemption.UsableGroup)
+		if usableGroup != "" {
+			userGroup, getGroupErr := getUserGroupByIdTx(tx, userId)
+			if getGroupErr != nil {
+				return getGroupErr
+			}
+			if strings.TrimSpace(userGroup) != usableGroup {
+				return ErrRedemptionGroupNotMatch
+			}
+		}
 		err = tx.Model(&User{}).Where("id = ?", userId).Update("quota", gorm.Expr("quota + ?", redemption.Quota)).Error
 		if err != nil {
 			return err
@@ -225,8 +240,35 @@ func RedeemForToken(code string, userId int, tokenId int, tokenKey string, clien
 			return ErrRedemptionExpired
 		}
 
+		token := &Token{}
+		tokenErr := tx.Set("gorm:query_option", "FOR UPDATE").Where("id = ? and user_id = ?", tokenId, userId).First(token).Error
+		if errors.Is(tokenErr, gorm.ErrRecordNotFound) {
+			return ErrRedeemTokenNotFound
+		}
+		if tokenErr != nil {
+			return tokenErr
+		}
+		if token.Status == common.TokenStatusDisabled {
+			return ErrRedeemTokenDisabled
+		}
+
+		usableGroup := strings.TrimSpace(redemption.UsableGroup)
+		if usableGroup != "" {
+			tokenGroup := strings.TrimSpace(token.Group)
+			if tokenGroup == "" {
+				userGroup, getGroupErr := getUserGroupByIdTx(tx, userId)
+				if getGroupErr != nil {
+					return getGroupErr
+				}
+				tokenGroup = strings.TrimSpace(userGroup)
+			}
+			if tokenGroup != usableGroup {
+				return ErrRedemptionGroupNotMatch
+			}
+		}
+
 		updateResult := tx.Model(&Token{}).
-			Where("id = ? and user_id = ? and status <> ?", tokenId, userId, common.TokenStatusDisabled).
+			Where("id = ? and user_id = ?", tokenId, userId).
 			Updates(map[string]interface{}{
 				"remain_quota":  gorm.Expr("remain_quota + ?", redemption.Quota),
 				"accessed_time": now,
@@ -236,21 +278,10 @@ func RedeemForToken(code string, userId int, tokenId int, tokenKey string, clien
 			return err
 		}
 		if updateResult.RowsAffected == 0 {
-			token := &Token{}
-			tokenErr := tx.Where("id = ? and user_id = ?", tokenId, userId).First(token).Error
-			if errors.Is(tokenErr, gorm.ErrRecordNotFound) {
-				return ErrRedeemTokenNotFound
-			}
-			if tokenErr != nil {
-				return tokenErr
-			}
-			if token.Status == common.TokenStatusDisabled {
-				return ErrRedeemTokenDisabled
-			}
 			return ErrRedeemFailed
 		}
-		err = tx.Model(&Token{}).
-			Where("id = ? and user_id = ? and status = ?", tokenId, userId, common.TokenStatusExhausted).
+		err = tx.Model(token).
+			Where("status = ?", common.TokenStatusExhausted).
 			Update("status", common.TokenStatusEnabled).Error
 		if err != nil {
 			return err
@@ -297,7 +328,7 @@ func (redemption *Redemption) SelectUpdate() error {
 // Update Make sure your token's fields is completed, because this will update non-zero values
 func (redemption *Redemption) Update() error {
 	var err error
-	err = DB.Model(redemption).Select("name", "status", "target_type", "quota", "redeemed_time", "expired_time").Updates(redemption).Error
+	err = DB.Model(redemption).Select("name", "status", "target_type", "usable_group", "quota", "redeemed_time", "expired_time").Updates(redemption).Error
 	return err
 }
 
