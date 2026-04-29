@@ -351,11 +351,13 @@ func TokenAuth() func(c *gin.Context) {
 		if strings.HasPrefix(key, "Bearer ") || strings.HasPrefix(key, "bearer ") {
 			key = strings.TrimSpace(key[7:])
 		}
+		submittedKey := key
 		if key == "" || key == "midjourney-proxy" {
 			key = c.Request.Header.Get("mj-api-secret")
 			if strings.HasPrefix(key, "Bearer ") || strings.HasPrefix(key, "bearer ") {
 				key = strings.TrimSpace(key[7:])
 			}
+			submittedKey = key
 			key = strings.TrimPrefix(key, "sk-")
 			parts = strings.Split(key, "-")
 			key = parts[0]
@@ -372,8 +374,14 @@ func TokenAuth() func(c *gin.Context) {
 			}
 		}
 		if err != nil {
-			common.SetContextKey(c, constant.ContextKeyRelayErrorReason, classifyRelayTokenErrorReason(err.Error()))
-			abortWithOpenAiMessage(c, http.StatusUnauthorized, err.Error())
+			reason := classifyRelayTokenErrorReason(err.Error())
+			common.SetContextKey(c, constant.ContextKeyRelayErrorReason, reason)
+			maskedSubmittedKey := model.MaskTokenKey(strings.TrimPrefix(submittedKey, "sk-"))
+			if strings.HasPrefix(submittedKey, "sk-") {
+				maskedSubmittedKey = "sk-" + maskedSubmittedKey
+			}
+			common.SetContextKey(c, constant.ContextKeySubmittedTokenKey, maskedSubmittedKey)
+			abortWithOpenAiMessage(c, http.StatusUnauthorized, err.Error(), types.ErrorCode(reason))
 			return
 		}
 

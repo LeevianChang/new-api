@@ -89,6 +89,7 @@ const (
 
 type NewAPIError struct {
 	Err            error
+	originalErr    error
 	RelayError     any
 	skipRetry      bool
 	recordErrorLog *bool
@@ -173,8 +174,51 @@ func (e *NewAPIError) MaskSensitiveErrorWithStatusCode() string {
 	return fmt.Sprintf("status_code=%d, %s", e.StatusCode, msg)
 }
 
+func (e *NewAPIError) MaskSensitiveOriginalError() string {
+	if e == nil {
+		return ""
+	}
+	err := e.originalErr
+	if err == nil {
+		err = e.Err
+	}
+	if err == nil {
+		return string(e.errorCode)
+	}
+	errStr := err.Error()
+	if e.errorCode == ErrorCodeCountTokenFailed {
+		return errStr
+	}
+	return common.MaskSensitiveInfo(errStr)
+}
+
+func (e *NewAPIError) MaskSensitiveOriginalErrorWithStatusCode() string {
+	if e == nil {
+		return ""
+	}
+	msg := e.MaskSensitiveOriginalError()
+	if e.StatusCode == 0 {
+		return msg
+	}
+	if msg == "" {
+		return fmt.Sprintf("status_code=%d", e.StatusCode)
+	}
+	return fmt.Sprintf("status_code=%d, %s", e.StatusCode, msg)
+}
+
 func (e *NewAPIError) SetMessage(message string) {
+	if e.originalErr == nil {
+		e.originalErr = e.Err
+	}
 	e.Err = errors.New(message)
+	switch relayError := e.RelayError.(type) {
+	case OpenAIError:
+		relayError.Message = message
+		e.RelayError = relayError
+	case ClaudeError:
+		relayError.Message = message
+		e.RelayError = relayError
+	}
 }
 
 func (e *NewAPIError) ToOpenAIError() OpenAIError {

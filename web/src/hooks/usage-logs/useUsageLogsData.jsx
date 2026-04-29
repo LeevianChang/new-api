@@ -605,6 +605,26 @@ export const useLogsData = () => {
           value: other.request_path,
         });
       }
+      if (isAdminUser && logs[i].type === 5 && other?.user_error_message) {
+        expandDataLocal.push({
+          key: t('返回给用户的内容'),
+          value: (
+            <div style={{ maxWidth: 600, whiteSpace: 'pre-wrap', wordBreak: 'break-word', lineHeight: 1.6 }}>
+              {other.user_error_message}
+            </div>
+          ),
+        });
+      }
+      if (isAdminUser && logs[i].type === 5 && other?.original_error_message) {
+        expandDataLocal.push({
+          key: t('原始错误内容'),
+          value: (
+            <div style={{ maxWidth: 600, whiteSpace: 'pre-wrap', wordBreak: 'break-word', lineHeight: 1.6 }}>
+              {other.original_error_message}
+            </div>
+          ),
+        });
+      }
       if (isAdminUser && other?.stream_status) {
         const ss = other.stream_status;
         const isOk = ss.status === 'ok';

@@ -16,6 +16,14 @@ type ConfigManager struct {
 	mutex   sync.RWMutex
 }
 
+type MapConfigUpdater interface {
+	UpdateFromMap(map[string]string) error
+}
+
+type MapConfigExporter interface {
+	ExportMap() (map[string]string, error)
+}
+
 var GlobalConfig = NewConfigManager()
 
 func NewConfigManager() *ConfigManager {
@@ -91,6 +99,10 @@ func (cm *ConfigManager) SaveToDB(updateFunc func(key, value string) error) erro
 
 // 辅助函数：将配置对象转换为map
 func configToMap(config interface{}) (map[string]string, error) {
+	if exporter, ok := config.(MapConfigExporter); ok {
+		return exporter.ExportMap()
+	}
+
 	result := make(map[string]string)
 
 	val := reflect.ValueOf(config)
@@ -163,6 +175,10 @@ func configToMap(config interface{}) (map[string]string, error) {
 
 // 辅助函数：从map更新配置对象
 func updateConfigFromMap(config interface{}, configMap map[string]string) error {
+	if updater, ok := config.(MapConfigUpdater); ok {
+		return updater.UpdateFromMap(configMap)
+	}
+
 	val := reflect.ValueOf(config)
 	if val.Kind() != reflect.Ptr {
 		return nil
@@ -252,7 +268,22 @@ func updateConfigFromMap(config interface{}, configMap map[string]string) error 
 					continue
 				}
 			}
-		case reflect.Map, reflect.Slice, reflect.Struct:
+		case reflect.Map:
+			if strings.TrimSpace(strValue) == "" {
+				field.Set(reflect.Zero(field.Type()))
+				continue
+			}
+			newMap := reflect.New(field.Type()).Interface()
+			err := json.Unmarshal([]byte(strValue), newMap)
+			if err != nil {
+				continue
+			}
+			field.Set(reflect.ValueOf(newMap).Elem())
+		case reflect.Slice, reflect.Struct:
+			if strings.TrimSpace(strValue) == "" {
+				field.Set(reflect.Zero(field.Type()))
+				continue
+			}
 			// 复杂类型使用JSON反序列化
 			err := json.Unmarshal([]byte(strValue), field.Addr().Interface())
 			if err != nil {

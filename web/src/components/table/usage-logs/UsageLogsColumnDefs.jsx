@@ -431,6 +431,72 @@ function renderCompactDetailSummary(summarySegments) {
   );
 }
 
+function renderDetailSummaryPopover(summarySegments) {
+  const segments = Array.isArray(summarySegments)
+    ? summarySegments.filter((segment) => segment?.text)
+    : [];
+  if (!segments.length) {
+    return null;
+  }
+
+  return (
+    <Popover
+      trigger='hover'
+      position='left'
+      content={
+        <div
+          style={{
+            maxWidth: 520,
+            lineHeight: 1.6,
+            whiteSpace: 'pre-wrap',
+            wordBreak: 'break-word',
+          }}
+        >
+          {segments.map((segment, index) => (
+            <div key={`${segment.text}-${index}`}>{segment.text}</div>
+          ))}
+        </div>
+      }
+    >
+      <div style={{ cursor: 'help' }}>
+        {renderCompactDetailSummary(segments)}
+      </div>
+    </Popover>
+  );
+}
+
+function renderTextDetailPopover(text) {
+  if (!text) {
+    return null;
+  }
+
+  return (
+    <Popover
+      trigger='hover'
+      position='left'
+      content={
+        <div
+          style={{
+            maxWidth: 520,
+            lineHeight: 1.6,
+            whiteSpace: 'pre-wrap',
+            wordBreak: 'break-word',
+          }}
+        >
+          {text}
+        </div>
+      }
+    >
+      <Typography.Paragraph
+        ellipsis={{ rows: 2 }}
+        style={{ maxWidth: 170, marginBottom: 0, cursor: 'help' }}
+      >
+        {text}
+      </Typography.Paragraph>
+    </Popover>
+  );
+}
+
 function getUsageLogDetailSummary(record, text, billingDisplayMode, t) {
   const other = getLogOther(record.other);
 
@@ -947,23 +1013,10 @@ export const getLogsColumns = ({
         );
 
         if (!detailSummary) {
-          return (
-            <Typography.Paragraph
-              ellipsis={{
-                rows: 2,
-                showTooltip: {
-                  type: 'popover',
-                  opts: { style: { width: 220 } },
-                },
-              }}
-              style={{ maxWidth: 170, marginBottom: 0 }}
-            >
-              {text}
-            </Typography.Paragraph>
-          );
+          return renderTextDetailPopover(text);
         }
 
-        return renderCompactDetailSummary(detailSummary.segments);
+        return renderDetailSummaryPopover(detailSummary.segments);
       },
     },
   ];

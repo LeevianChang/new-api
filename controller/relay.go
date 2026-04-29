@@ -87,7 +87,11 @@ func Relay(c *gin.Context, relayFormat types.RelayFormat) {
 
 	defer func() {
 		if newAPIError != nil {
-			logger.LogError(c, fmt.Sprintf("relay error: %s", newAPIError.Error()))
+			logger.LogError(c, fmt.Sprintf("relay error: code=%s | %s", newAPIError.GetErrorCode(), newAPIError.Error()))
+			service.ApplySystemErrorMessage(newAPIError, c.GetString("error_message_mapping"))
+			if newAPIError.GetErrorCode() == types.ErrorCodeGetChannelFailed {
+				newAPIError.SetMessage(service.AppendGetChannelFailedModelMessage(newAPIError.Error(), common.GetContextKeyString(c, constant.ContextKeyOriginalModel)))
+			}
 			newAPIError.SetMessage(common.MessageWithRequestId(newAPIError.Error(), requestId))
 			switch relayFormat {
 			case types.RelayFormatOpenAIRealtime:
@@ -372,6 +376,8 @@ func processChannelError(c *gin.Context, channelError types.ChannelError, err *t
 		other["error_type"] = err.GetErrorType()
 		other["error_code"] = err.GetErrorCode()
 		other["status_code"] = err.StatusCode
+		other["original_error_message"] = err.MaskSensitiveOriginalErrorWithStatusCode()
+		other["user_error_message"] = err.MaskSensitiveErrorWithStatusCode()
 		other["channel_id"] = channelId
 		other["channel_name"] = c.GetString("channel_name")
 		other["channel_type"] = c.GetInt("channel_type")
@@ -389,7 +395,7 @@ func processChannelError(c *gin.Context, channelError types.ChannelError, err *t
 			startTime = time.Now()
 		}
 		useTimeSeconds := int(time.Since(startTime).Seconds())
-		model.RecordErrorLog(c, userId, channelId, modelName, tokenName, err.MaskSensitiveErrorWithStatusCode(), tokenId, useTimeSeconds, false, userGroup, other)
+		model.RecordErrorLog(c, userId, channelId, modelName, tokenName, err.MaskSensitiveOriginalErrorWithStatusCode(), tokenId, useTimeSeconds, false, userGroup, other)
 	}
 
 }
