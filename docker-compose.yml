@@ -28,6 +28,26 @@ services:
       timeout: 10s
       retries: 3
 
+  token-exporter:
+    image: ${NEW_API_IMAGE:-ghcr.io/leevianchang/new-api:latest}
+    pull_policy: always
+    container_name: token-exporter
+    profiles:
+      - tools
+    entrypoint: ["/token-exporter"]
+    volumes:
+      - ./data:/data
+    env_file:
+      - path: ./new-api-token-export.env
+        required: false
+    environment:
+      - SQL_DSN=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      - TZ=Asia/Shanghai
+    depends_on:
+      - postgres
+    networks:
+      - new-api-network
+
   redis:
     image: redis:alpine
     container_name: redis-api

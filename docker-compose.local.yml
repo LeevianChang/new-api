@@ -26,6 +26,29 @@ services:
     networks:
       - new-api-local-network
 
+  token-exporter:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: new-api:local
+    pull_policy: never
+    container_name: token-exporter-local
+    profiles:
+      - tools
+    entrypoint: ["/token-exporter"]
+    volumes:
+      - ./data:/data
+    env_file:
+      - path: ./new-api-token-export.env
+        required: false
+    environment:
+      - SQL_DSN=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      - TZ=Asia/Shanghai
+    depends_on:
+      - postgres
+    networks:
+      - new-api-local-network
+
   redis:
     image: redis:alpine
     container_name: redis-api-local
