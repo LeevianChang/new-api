@@ -150,6 +150,39 @@ func userRateLimitFactory(maxRequestNum int, duration int64, mark string) func(c
 	}
 }
 
+// tokenRateLimitFactory creates a rate limiter keyed by authenticated token ID.
+// Must be used AFTER token authentication middleware.
+func tokenRateLimitFactory(maxRequestNum int, duration int64, mark string) func(c *gin.Context) {
+	if common.RedisEnabled {
+		return func(c *gin.Context) {
+			tokenId := c.GetInt("token_id")
+			if tokenId == 0 {
+				c.Status(http.StatusUnauthorized)
+				c.Abort()
+				return
+			}
+			key := fmt.Sprintf("rateLimit:%s:token:%d", mark, tokenId)
+			userRedisRateLimiter(c, maxRequestNum, duration, key)
+		}
+	}
+	// It's safe to call multi times.
+	inMemoryRateLimiter.Init(common.RateLimitKeyExpirationDuration)
+	return func(c *gin.Context) {
+		tokenId := c.GetInt("token_id")
+		if tokenId == 0 {
+			c.Status(http.StatusUnauthorized)
+			c.Abort()
+			return
+		}
+		key := fmt.Sprintf("%s:token:%d", mark, tokenId)
+		if !inMemoryRateLimiter.Request(key, maxRequestNum, duration) {
+			c.Status(http.StatusTooManyRequests)
+			c.Abort()
+			return
+		}
+	}
+}
+
 // userRedisRateLimiter is like redisRateLimiter but accepts a pre-built key
 // (to support user-ID-based keys).
 func userRedisRateLimiter(c *gin.Context, maxRequestNum int, duration int64, key string) {
@@ -202,4 +235,12 @@ func SearchRateLimit() func(c *gin.Context) {
 		return defNext
 	}
 	return userRateLimitFactory(common.SearchRateLimitNum, common.SearchRateLimitDuration, "SR")
+}
+
+// TokenSearchRateLimit returns a per-token rate limiter for SK-authenticated search endpoints.
+func TokenSearchRateLimit() func(c *gin.Context) {
+	if !common.SearchRateLimitEnable {
+		return defNext
+	}
+	return tokenRateLimitFactory(common.SearchRateLimitNum, common.SearchRateLimitDuration, "TSR")
 }
