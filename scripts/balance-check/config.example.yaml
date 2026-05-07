@@ -1,0 +1,26 @@
+# 飞书机器人 webhook（默认；每个上游可单独覆盖）
+feishu_webhook: "https://open.feishu.cn/open-apis/bot/v2/hook/xxxxxxxx"
+
+upstreams:
+  - name: "上游A (USD 站)"
+    base_url: "https://upstream-a.example.com"
+    # 上游「个人设置 → 系统访问令牌」生成的 access token
+    access_token: "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+    # 上游你的用户 ID（个人设置页可见）
+    user_id: 123
+    # quota 兑换比，对应上游 .env 的 QUOTA_PER_UNIT，默认 500000
+    quota_per_unit: 500000
+    # 显示单位（仅用于消息展示）
+    unit: "$"
+    # 阈值，单位与 unit 一致；display = quota / quota_per_unit * exchange_rate
+    threshold: 5.0
+
+  - name: "上游B (CNY 站)"
+    base_url: "https://upstream-b.example.com"
+    access_token: "yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy"
+    user_id: 456
+    quota_per_unit: 500000
+    # 上游若用 CNY 显示，对应 USD_EXCHANGE_RATE（默认约 7.3）
+    exchange_rate: 7.3
+    unit: "¥"
+    threshold: 30.0

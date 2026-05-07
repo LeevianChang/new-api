@@ -32,3 +32,4 @@ data/
 .gopath
 monitoring/alertmanager/alertmanager.yml
 monitoring/feishu-bridge/.env
+scripts/balance-check/config.yaml
