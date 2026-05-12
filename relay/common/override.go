@@ -195,6 +195,24 @@ func ApplyParamOverrideWithRelayInfo(jsonData []byte, info *RelayInfo) ([]byte, 
 	return result, nil
 }
 
+func ShouldApplyParamOverride(info *RelayInfo) bool {
+	return len(getParamOverrideMap(info)) > 0
+}
+
+func ShouldPassUserInfo(info *RelayInfo) bool {
+	return buildPassUserInfoOperation(info) != nil
+}
+
+func ApplyPassUserInfoOverride(jsonData []byte, info *RelayInfo) ([]byte, error) {
+	operation := buildPassUserInfoOperation(info)
+	if operation == nil {
+		return jsonData, nil
+	}
+	return ApplyParamOverride(jsonData, map[string]interface{}{
+		"operations": []interface{}{operation},
+	}, BuildParamOverrideContext(info))
+}
+
 func shouldEnableParamOverrideAudit(paramOverride map[string]interface{}) bool {
 	if common.DebugEnabled {
 		return true
@@ -373,7 +391,63 @@ func getParamOverrideMap(info *RelayInfo) map[string]interface{} {
 	if info == nil || info.ChannelMeta == nil {
 		return nil
 	}
-	return info.ChannelMeta.ParamOverride
+	return mergeChannelParamOverrideWithUserInfo(info, info.ChannelMeta.ParamOverride)
+}
+
+func mergeChannelParamOverrideWithUserInfo(info *RelayInfo, paramOverride map[string]interface{}) map[string]interface{} {
+	operation := buildPassUserInfoOperation(info)
+	if operation == nil {
+		return paramOverride
+	}
+
+	merged := make(map[string]interface{}, len(paramOverride)+1)
+	for key, value := range paramOverride {
+		merged[key] = value
+	}
+	operations := make([]interface{}, 0, 1)
+	if rawOperations, ok := merged["operations"]; ok {
+		switch typed := rawOperations.(type) {
+		case []interface{}:
+			operations = append(operations, typed...)
+		case []map[string]interface{}:
+			for _, item := range typed {
+				operations = append(operations, item)
+			}
+		default:
+			operations = append(operations, rawOperations)
+		}
+	}
+	operations = append([]interface{}{operation}, operations...)
+	merged["operations"] = operations
+	return merged
+}
+
+func buildPassUserInfoOperation(info *RelayInfo) map[string]interface{} {
+	if info == nil || info.UserId == 0 || info.ChannelMeta == nil || !info.ChannelMeta.ChannelSetting.PassUserInfoEnabled {
+		return nil
+	}
+
+	path := ""
+	switch info.GetFinalRequestRelayFormat() {
+	case types.RelayFormatOpenAI, types.RelayFormatOpenAIResponses:
+		path = "user"
+	case types.RelayFormatClaude:
+		path = "metadata.user_id"
+	}
+	if path == "" {
+		return nil
+	}
+
+	return map[string]interface{}{
+		"mode":        "set",
+		"path":        path,
+		"value":       buildDownstreamUserInfo(info),
+		"keep_origin": true,
+	}
+}
+
+func buildDownstreamUserInfo(info *RelayInfo) string {
+	return fmt.Sprintf("newapi-user-%d-token-%d", info.UserId, info.TokenId)
 }
 
 func getHeaderOverrideMap(info *RelayInfo) map[string]interface{} {
@@ -2019,6 +2093,16 @@ func BuildParamOverrideContext(info *RelayInfo) map[string]interface{} {
 		if requestPath != "" {
 			ctx["request_path"] = requestPath
 		}
+	}
+
+	if info.UserId != 0 {
+		ctx["user_id"] = info.UserId
+	}
+	if info.TokenId != 0 {
+		ctx["token_id"] = info.TokenId
+	}
+	if info.UserId != 0 || info.TokenId != 0 {
+		ctx["downstream_user"] = buildDownstreamUserInfo(info)
 	}
 
 	ctx[paramOverrideContextRequestHeaders] = buildRequestHeadersContext(info.RequestHeaders)

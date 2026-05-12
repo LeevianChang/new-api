@@ -7,9 +7,9 @@ import (
 	"testing"
 
 	common2 "github.com/QuantumNous/new-api/common"
+	"github.com/QuantumNous/new-api/dto"
 	"github.com/QuantumNous/new-api/types"
 
-	"github.com/QuantumNous/new-api/dto"
 	"github.com/QuantumNous/new-api/setting/model_setting"
 	"github.com/samber/lo"
 )
@@ -1899,6 +1899,57 @@ func TestApplyParamOverrideWithRelayInfoMixedLegacyAndOperations(t *testing.T) {
 	if info.RuntimeHeadersOverride["originator"] != "Codex CLI" {
 		t.Fatalf("expected originator header to be passed, got: %v", info.RuntimeHeadersOverride["originator"])
 	}
+}
+
+func TestApplyParamOverrideWithRelayInfoPassUserInfoOpenAI(t *testing.T) {
+	info := &RelayInfo{
+		UserId:      12,
+		TokenId:     34,
+		RelayFormat: types.RelayFormatOpenAI,
+		ChannelMeta: &ChannelMeta{
+			ChannelSetting: dto.ChannelSettings{PassUserInfoEnabled: true},
+		},
+	}
+
+	out, err := ApplyParamOverrideWithRelayInfo([]byte(`{"model":"gpt-5"}`), info)
+	if err != nil {
+		t.Fatalf("ApplyParamOverrideWithRelayInfo returned error: %v", err)
+	}
+	assertJSONEqual(t, `{"model":"gpt-5","user":"newapi-user-12-token-34"}`, string(out))
+}
+
+func TestApplyParamOverrideWithRelayInfoPassUserInfoKeepsOriginUser(t *testing.T) {
+	info := &RelayInfo{
+		UserId:      12,
+		TokenId:     34,
+		RelayFormat: types.RelayFormatOpenAI,
+		ChannelMeta: &ChannelMeta{
+			ChannelSetting: dto.ChannelSettings{PassUserInfoEnabled: true},
+		},
+	}
+
+	out, err := ApplyParamOverrideWithRelayInfo([]byte(`{"model":"gpt-5","user":"client-user"}`), info)
+	if err != nil {
+		t.Fatalf("ApplyParamOverrideWithRelayInfo returned error: %v", err)
+	}
+	assertJSONEqual(t, `{"model":"gpt-5","user":"client-user"}`, string(out))
+}
+
+func TestApplyParamOverrideWithRelayInfoPassUserInfoClaude(t *testing.T) {
+	info := &RelayInfo{
+		UserId:      12,
+		TokenId:     34,
+		RelayFormat: types.RelayFormatClaude,
+		ChannelMeta: &ChannelMeta{
+			ChannelSetting: dto.ChannelSettings{PassUserInfoEnabled: true},
+		},
+	}
+
+	out, err := ApplyParamOverrideWithRelayInfo([]byte(`{"model":"claude-sonnet-4"}`), info)
+	if err != nil {
+		t.Fatalf("ApplyParamOverrideWithRelayInfo returned error: %v", err)
+	}
+	assertJSONEqual(t, `{"model":"claude-sonnet-4","metadata":{"user_id":"newapi-user-12-token-34"}}`, string(out))
 }
 
 func TestApplyParamOverrideWithRelayInfoMoveAndCopyHeaders(t *testing.T) {

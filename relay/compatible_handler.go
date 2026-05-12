@@ -100,12 +100,27 @@ func TextHelper(c *gin.Context, info *relaycommon.RelayInfo) (newAPIError *types
 		if err != nil {
 			return types.NewErrorWithStatusCode(err, types.ErrorCodeReadRequestBodyFailed, http.StatusBadRequest, types.ErrOptionWithSkipRetry())
 		}
-		if common.DebugEnabled {
-			if debugBytes, bErr := storage.Bytes(); bErr == nil {
-				println("requestBody: ", string(debugBytes))
+		if relaycommon.ShouldPassUserInfo(info) {
+			jsonData, err := storage.Bytes()
+			if err != nil {
+				return types.NewErrorWithStatusCode(err, types.ErrorCodeReadRequestBodyFailed, http.StatusBadRequest, types.ErrOptionWithSkipRetry())
 			}
+			jsonData, err = relaycommon.ApplyPassUserInfoOverride(jsonData, info)
+			if err != nil {
+				return newAPIErrorFromParamOverride(err)
+			}
+			if common.DebugEnabled {
+				println("requestBody: ", string(jsonData))
+			}
+			requestBody = bytes.NewBuffer(jsonData)
+		} else {
+			if common.DebugEnabled {
+				if debugBytes, bErr := storage.Bytes(); bErr == nil {
+					println("requestBody: ", string(debugBytes))
+				}
+			}
+			requestBody = common.ReaderOnly(storage)
 		}
-		requestBody = common.ReaderOnly(storage)
 	} else {
 		convertedRequest, err := adaptor.ConvertOpenAIRequest(c, info, request)
 		if err != nil {
@@ -167,7 +182,7 @@ func TextHelper(c *gin.Context, info *relaycommon.RelayInfo) (newAPIError *types
 		}
 
 		// apply param override
-		if len(info.ParamOverride) > 0 {
+		if relaycommon.ShouldApplyParamOverride(info) {
 			jsonData, err = relaycommon.ApplyParamOverrideWithRelayInfo(jsonData, info)
 			if err != nil {
 				return newAPIErrorFromParamOverride(err)

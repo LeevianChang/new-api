@@ -11,6 +11,7 @@ logs
 web/dist
 .env
 new-api-token-export.env
+new-api-postgres-backup.env
 one-api
 new-api
 /__debug_bin*
