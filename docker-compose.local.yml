@@ -49,6 +49,32 @@ services:
     networks:
       - new-api-local-network
 
+  postgres-backup:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: new-api:local
+    pull_policy: never
+    container_name: postgres-backup-local
+    profiles:
+      - tools
+    entrypoint: ["/postgres-backup"]
+    volumes:
+      - ./data:/data
+    env_file:
+      - path: ./new-api-token-export.env
+        required: false
+      - path: ./new-api-postgres-backup.env
+        required: false
+    environment:
+      - POSTGRES_DSN=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      - POSTGRES_BACKUP_OUTPUT_DIR=/data/postgres-backups
+      - TZ=Asia/Shanghai
+    depends_on:
+      - postgres
+    networks:
+      - new-api-local-network
+
   redis:
     image: redis:alpine
     container_name: redis-api-local

@@ -25,16 +25,18 @@ COPY . .
 COPY --from=builder /build/dist ./web/dist
 RUN go build -ldflags "-s -w -X 'github.com/QuantumNous/new-api/common.Version=$(cat VERSION)'" -o new-api
 RUN go build -ldflags "-s -w" -o token-exporter ./cmd/token-exporter
+RUN go build -ldflags "-s -w" -o postgres-backup ./cmd/postgres-backup
 
 FROM debian:bookworm-slim@sha256:f06537653ac770703bc45b4b113475bd402f451e85223f0f2837acbf89ab020a
 
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends ca-certificates tzdata libasan8 wget \
+    && apt-get install -y --no-install-recommends ca-certificates tzdata libasan8 wget postgresql-client \
     && rm -rf /var/lib/apt/lists/* \
     && update-ca-certificates
 
 COPY --from=builder2 /build/new-api /
 COPY --from=builder2 /build/token-exporter /
+COPY --from=builder2 /build/postgres-backup /
 EXPOSE 3000
 WORKDIR /data
 ENTRYPOINT ["/new-api"]

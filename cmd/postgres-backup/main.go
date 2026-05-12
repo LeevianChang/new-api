@@ -190,7 +190,16 @@ func pgDumpCommand(ctx context.Context, cfg config) *exec.Cmd {
 }
 
 func uploadToR2(ctx context.Context, cfg config, filePath string) (string, error) {
-	body, err := os.ReadFile(filePath)
+	payloadHash, err := fileSHA256Hex(filePath)
+	if err != nil {
+		return "", err
+	}
+	body, err := os.Open(filePath)
+	if err != nil {
+		return "", err
+	}
+	defer body.Close()
+	stat, err := body.Stat()
 	if err != nil {
 		return "", err
 	}
@@ -201,13 +210,14 @@ func uploadToR2(ctx context.Context, cfg config, filePath string) (string, error
 	escapedKey := escapeObjectKey(objectKey)
 	endpoint := fmt.Sprintf("https://%s.r2.cloudflarestorage.com/%s/%s", cfg.R2AccountID, cfg.R2Bucket, escapedKey)
 
-	req, err := http.NewRequestWithContext(ctx, http.MethodPut, endpoint, bytes.NewReader(body))
+	req, err := http.NewRequestWithContext(ctx, http.MethodPut, endpoint, body)
 	if err != nil {
 		return "", err
 	}
+	req.ContentLength = stat.Size()
 	req.Header.Set("Content-Type", "application/octet-stream")
-	req.Header.Set("X-Amz-Content-Sha256", sha256Hex(body))
-	signR2Request(req, cfg, body)
+	req.Header.Set("X-Amz-Content-Sha256", payloadHash)
+	signR2Request(req, cfg, payloadHash)
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
@@ -225,7 +235,7 @@ func uploadToR2(ctx context.Context, cfg config, filePath string) (string, error
 	return endpoint, nil
 }
 
-func signR2Request(req *http.Request, cfg config, body []byte) {
+func signR2Request(req *http.Request, cfg config, payloadHash string) {
 	now := time.Now().UTC()
 	amzDate := now.Format("20060102T150405Z")
 	dateStamp := now.Format("20060102")
@@ -237,7 +247,7 @@ func signR2Request(req *http.Request, cfg config, body []byte) {
 	signedHeaders := "content-type;host;x-amz-content-sha256;x-amz-date"
 	canonicalHeaders := "content-type:" + req.Header.Get("Content-Type") + "\n" +
 		"host:" + req.URL.Host + "\n" +
-		"x-amz-content-sha256:" + sha256Hex(body) + "\n" +
+		"x-amz-content-sha256:" + payloadHash + "\n" +
 		"x-amz-date:" + amzDate + "\n"
 	canonicalRequest := strings.Join([]string{
 		req.Method,
@@ -245,7 +255,7 @@ func signR2Request(req *http.Request, cfg config, body []byte) {
 		"",
 		canonicalHeaders,
 		signedHeaders,
-		sha256Hex(body),
+		payloadHash,
 	}, "\n")
 
 	stringToSign := strings.Join([]string{
@@ -308,6 +318,19 @@ func escapeObjectKey(key string) string {
 func sha256Hex(data []byte) string {
 	sum := sha256.Sum256(data)
 	return hex.EncodeToString(sum[:])
+}
+
+func fileSHA256Hex(filePath string) (string, error) {
+	file, err := os.Open(filePath)
+	if err != nil {
+		return "", err
+	}
+	defer file.Close()
+	hash := sha256.New()
+	if _, err := io.Copy(hash, file); err != nil {
+		return "", err
+	}
+	return hex.EncodeToString(hash.Sum(nil)), nil
 }
 
 func hmacSHA256(key []byte, data []byte) []byte {
