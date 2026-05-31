@@ -15,16 +15,21 @@ func GetSubscription(c *gin.Context) {
 	var err error
 	var token *model.Token
 	var expiredTime int64
+	tokenType := common.GetContextKeyString(c, constant.ContextKeyTokenType)
 	if common.DisplayTokenStatEnabled {
 		tokenId := c.GetInt("token_id")
 		token, err = model.GetTokenById(tokenId)
 		expiredTime = token.ExpiredTime
 		remainQuota = token.RemainQuota
 		usedQuota = token.UsedQuota
+		tokenType = model.NormalizeTokenType(token.Type)
 	} else {
 		userId := c.GetInt("id")
 		remainQuota, err = model.GetUserQuota(userId, false)
 		usedQuota, err = model.GetUserUsedQuota(userId)
+	}
+	if tokenType == "" {
+		tokenType = model.TokenTypeBalance
 	}
 	if expiredTime <= 0 {
 		expiredTime = 0
@@ -72,6 +77,7 @@ func GetSubscription(c *gin.Context) {
 		SystemHardLimitUSD: amount,
 		AccessUntil:        expiredTime,
 		Group:              group,
+		Type:               tokenType,
 	}
 	c.JSON(200, subscription)
 	return

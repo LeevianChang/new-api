@@ -72,6 +72,7 @@ const EditTokenModal = (props) => {
 
   const getInitValues = () => ({
     name: '',
+    type: 'balance',
     remain_quota: 0,
     expired_time: -1,
     unlimited_quota: true,
@@ -365,6 +366,21 @@ const EditTokenModal = (props) => {
                     />
                   </Col>
                   <Col span={24}>
+                    <Form.Select
+                      field='type'
+                      label={t('令牌类型')}
+                      placeholder={t('请选择令牌类型')}
+                      optionList={[
+                        { label: t('余额'), value: 'balance' },
+                        { label: t('订阅'), value: 'subscription' },
+                      ]}
+                      extraText={t(
+                        '余额令牌仅使用账户余额；订阅令牌仅使用订阅额度',
+                      )}
+                      style={{ width: '100%' }}
+                    />
+                  </Col>
+                  <Col span={24}>
                     {groups.length > 0 ? (
                       <Form.Select
                         field='group'
@@ -445,6 +461,13 @@ const EditTokenModal = (props) => {
                           onClick={() => setExpiredTime(1, 0, 0, 0)}
                         >
                           {t('一个月')}
+                        </Button>
+                        <Button
+                          theme='light'
+                          type='tertiary'
+                          onClick={() => setExpiredTime(0, 37, 0, 0)}
+                        >
+                          {t('37天')}
                         </Button>
                         <Button
                           theme='light'

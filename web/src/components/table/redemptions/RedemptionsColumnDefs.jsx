@@ -81,10 +81,41 @@ const renderTargetType = (targetType, t) => {
       </Tag>
     );
   }
+  if (targetType === 'token_subscription') {
+    return (
+      <Tag color='purple' shape='circle'>
+        {t('API Key 订阅专用')}
+      </Tag>
+    );
+  }
   return (
     <Tag color='green' shape='circle'>
       {t('用户余额充值')}
     </Tag>
+  );
+};
+
+const renderSubscriptionType = (record, t) => {
+  if (record.target_type === 'token') {
+    return (
+      <Tag color='grey' shape='circle'>
+        {t('{{days}}天', { days: record.renewal_days || 0 })}
+      </Tag>
+    );
+  }
+  if (record.target_type !== 'token_subscription') {
+    return t('无');
+  }
+  const isRenew = record.subscription_type === 'renew';
+  return (
+    <Space>
+      <Tag color={isRenew ? 'blue' : 'violet'} shape='circle'>
+        {isRenew ? t('续费') : t('补充包')}
+      </Tag>
+      <Tag color='grey' shape='circle'>
+        {t('{{days}}天', { days: record.renewal_days || 0 })}
+      </Tag>
+    </Space>
   );
 };
 
@@ -124,6 +155,13 @@ export const getRedemptionsColumns = ({
       dataIndex: 'target_type',
       render: (text) => {
         return <div>{renderTargetType(text, t)}</div>;
+      },
+    },
+    {
+      title: t('订阅类型'),
+      dataIndex: 'subscription_type',
+      render: (text, record) => {
+        return <div>{renderSubscriptionType(record, t)}</div>;
       },
     },
     {

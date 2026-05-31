@@ -148,6 +148,21 @@ const renderGroupColumn = (text, record, t) => {
   return renderGroup(text);
 };
 
+const renderTokenType = (type, t) => {
+  if (type === 'subscription') {
+    return (
+      <Tag color='blue' shape='circle'>
+        {t('订阅')}
+      </Tag>
+    );
+  }
+  return (
+    <Tag color='green' shape='circle'>
+      {t('余额')}
+    </Tag>
+  );
+};
+
 // Render token key column with show/hide and copy functionality
 const renderTokenKey = (
   text,
@@ -571,6 +586,12 @@ export const getTokensColumns = ({
       dataIndex: 'status',
       key: 'status',
       render: (text, record) => renderStatus(text, record, t),
+    },
+    {
+      title: t('类型'),
+      dataIndex: 'type',
+      key: 'type',
+      render: (text) => renderTokenType(text, t),
     },
     {
       title: t('剩余额度/总额度'),

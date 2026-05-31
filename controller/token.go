@@ -202,6 +202,18 @@ func RedeemCouponForToken(c *gin.Context) {
 			common.ApiErrorMsg(c, "当前令牌分组不符合兑换码要求")
 			return
 		}
+		if errors.Is(err, model.ErrRedemptionTokenTypeNotMatch) {
+			common.ApiErrorMsg(c, "兑换码类型与当前令牌类型不匹配")
+			return
+		}
+		if errors.Is(err, model.ErrRedemptionSubscriptionRenewRequiresExpired) {
+			common.ApiErrorMsg(c, "续费兑换码仅可用于已过期的订阅令牌")
+			return
+		}
+		if errors.Is(err, model.ErrRedemptionSubscriptionPackRequiresActive) {
+			common.ApiErrorMsg(c, "补充包兑换码仅可用于未过期的订阅令牌")
+			return
+		}
 		if errors.Is(err, model.ErrRedeemTokenNotFound) {
 			common.ApiErrorMsg(c, "令牌不存在，无法兑换")
 			return
@@ -270,6 +282,7 @@ func AddToken(c *gin.Context) {
 	cleanToken := model.Token{
 		UserId:             c.GetInt("id"),
 		Name:               token.Name,
+		Type:               model.NormalizeTokenType(token.Type),
 		Key:                key,
 		CreatedTime:        common.GetTimestamp(),
 		AccessedTime:       common.GetTimestamp(),
@@ -351,6 +364,7 @@ func UpdateToken(c *gin.Context) {
 	} else {
 		// If you add more fields, please also update token.Update()
 		cleanToken.Name = token.Name
+		cleanToken.Type = model.NormalizeTokenType(token.Type)
 		cleanToken.ExpiredTime = token.ExpiredTime
 		cleanToken.RemainQuota = token.RemainQuota
 		cleanToken.UnlimitedQuota = token.UnlimitedQuota

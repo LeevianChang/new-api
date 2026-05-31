@@ -65,6 +65,8 @@ const EditRedemptionModal = (props) => {
     quota: 100000,
     count: 1,
     expired_time: null,
+    subscription_type: 'pack',
+    renewal_days: 0,
     usable_group: '',
   });
 
@@ -83,6 +85,8 @@ const EditRedemptionModal = (props) => {
         data.expired_time = new Date(data.expired_time * 1000);
       }
       data.target_type = data.target_type || 'user';
+      data.subscription_type = data.subscription_type || 'pack';
+      data.renewal_days = data.renewal_days || 0;
       data.usable_group = data.usable_group || '';
       formApiRef.current?.setValues({ ...getInitValues(), ...data });
     } else {
@@ -131,9 +135,18 @@ const EditRedemptionModal = (props) => {
     localInputs.count = parseInt(localInputs.count) || 0;
     localInputs.quota = parseInt(localInputs.quota) || 0;
     localInputs.name = name;
-    localInputs.target_type =
-      localInputs.target_type === 'token' ? 'token' : 'user';
+    localInputs.target_type = ['token', 'token_subscription'].includes(
+      localInputs.target_type,
+    )
+      ? localInputs.target_type
+      : 'user';
     localInputs.usable_group = (localInputs.usable_group || '').trim();
+    localInputs.subscription_type = ['renew', 'pack'].includes(
+      localInputs.subscription_type,
+    )
+      ? localInputs.subscription_type
+      : 'pack';
+    localInputs.renewal_days = parseInt(localInputs.renewal_days) || 0;
     if (!localInputs.expired_time) {
       localInputs.expired_time = 0;
     } else {
@@ -293,13 +306,68 @@ const EditRedemptionModal = (props) => {
                             label: t('API Key 充值'),
                             value: 'token',
                           },
+                          {
+                            label: t('API Key 订阅专用'),
+                            value: 'token_subscription',
+                          },
                         ]}
                         extraText={t(
-                          '用户余额充值：通过用户中心兑换；API Key 充值：通过 /api/token/redeem-coupon 兑换',
+                          '用户余额充值：通过用户中心兑换；API Key 充值：仅余额令牌可兑换；API Key 订阅专用：仅订阅令牌可兑换',
                         )}
                         style={{ width: '100%' }}
                       />
                     </Col>
+                    {values.target_type === 'token_subscription' && (
+                      <>
+                        <Col span={12}>
+                          <Form.Select
+                            field='subscription_type'
+                            label={t('订阅兑换码类型')}
+                            placeholder={t('请选择订阅兑换码类型')}
+                            optionList={[
+                              {
+                                label: t('续费'),
+                                value: 'renew',
+                              },
+                              {
+                                label: t('补充包'),
+                                value: 'pack',
+                              },
+                            ]}
+                            extraText={t(
+                              '续费码仅已过期订阅可兑换；补充包仅未过期订阅可兑换',
+                            )}
+                            style={{ width: '100%' }}
+                          />
+                        </Col>
+                      </>
+                    )}
+                    {['token', 'token_subscription'].includes(
+                      values.target_type,
+                    ) && (
+                      <Col
+                        span={
+                          values.target_type === 'token_subscription' ? 12 : 24
+                        }
+                      >
+                        <Form.AutoComplete
+                          field='renewal_days'
+                          label={t('续费天数')}
+                          placeholder={t('请输入续费天数')}
+                          type='number'
+                          style={{ width: '100%' }}
+                          data={[
+                            { value: 0, label: t('0天') },
+                            { value: 1, label: t('1天') },
+                            { value: 7, label: t('7天') },
+                            { value: 30, label: t('30天') },
+                            { value: 365, label: t('365天') },
+                            { value: 730, label: t('730天') },
+                          ]}
+                          showClear
+                        />
+                      </Col>
+                    )}
                     <Col span={24}>
                       <Form.Select
                         field='usable_group'

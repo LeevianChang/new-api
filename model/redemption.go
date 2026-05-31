@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/QuantumNous/new-api/common"
 	"github.com/QuantumNous/new-api/logger"
@@ -21,18 +22,36 @@ var ErrRedemptionGroupNotMatch = errors.New("redemption.group_not_match")
 var ErrRedemptionInvalid = errors.New("redemption.invalid")
 var ErrRedemptionUsed = errors.New("redemption.used")
 var ErrRedemptionExpired = errors.New("redemption.expired")
+var ErrRedemptionTokenTypeNotMatch = errors.New("redemption.token_type_not_match")
+var ErrRedemptionSubscriptionRenewRequiresExpired = errors.New("redemption.subscription_renew_requires_expired")
+var ErrRedemptionSubscriptionPackRequiresActive = errors.New("redemption.subscription_pack_requires_active")
 
 const (
-	RedemptionTargetTypeUser  = "user"
-	RedemptionTargetTypeToken = "token"
+	RedemptionTargetTypeUser              = "user"
+	RedemptionTargetTypeToken             = "token"
+	RedemptionTargetTypeTokenSubscription = "token_subscription"
+
+	RedemptionSubscriptionTypeRenew = "renew"
+	RedemptionSubscriptionTypePack  = "pack"
 )
 
 func NormalizeRedemptionTargetType(targetType string) string {
 	switch strings.ToLower(strings.TrimSpace(targetType)) {
+	case RedemptionTargetTypeTokenSubscription:
+		return RedemptionTargetTypeTokenSubscription
 	case RedemptionTargetTypeToken:
 		return RedemptionTargetTypeToken
 	default:
 		return RedemptionTargetTypeUser
+	}
+}
+
+func NormalizeRedemptionSubscriptionType(subscriptionType string) string {
+	switch strings.ToLower(strings.TrimSpace(subscriptionType)) {
+	case RedemptionSubscriptionTypeRenew:
+		return RedemptionSubscriptionTypeRenew
+	default:
+		return RedemptionSubscriptionTypePack
 	}
 }
 
@@ -42,7 +61,9 @@ type Redemption struct {
 	Key                  string         `json:"key" gorm:"type:char(32);uniqueIndex"`
 	Status               int            `json:"status" gorm:"default:1"`
 	Name                 string         `json:"name" gorm:"index"`
-	TargetType           string         `json:"target_type" gorm:"type:varchar(16);default:user;index"`
+	TargetType           string         `json:"target_type" gorm:"type:varchar(32);default:user;index"`
+	SubscriptionType     string         `json:"subscription_type" gorm:"type:varchar(16);default:pack;index"`
+	RenewalDays          int            `json:"renewal_days" gorm:"default:0"`
 	UsableGroup          string         `json:"usable_group" gorm:"type:varchar(64);default:'';index"`
 	Quota                int            `json:"quota" gorm:"default:100"`
 	CreatedTime          int64          `json:"created_time" gorm:"bigint"`
@@ -230,7 +251,8 @@ func RedeemForToken(code string, userId int, tokenId int, tokenKey string, clien
 		if err != nil {
 			return ErrRedemptionInvalid
 		}
-		if NormalizeRedemptionTargetType(redemption.TargetType) != RedemptionTargetTypeToken {
+		targetType := NormalizeRedemptionTargetType(redemption.TargetType)
+		if targetType != RedemptionTargetTypeToken && targetType != RedemptionTargetTypeTokenSubscription {
 			return ErrRedemptionInvalid
 		}
 		if redemption.Status != common.RedemptionCodeStatusEnabled {
@@ -251,6 +273,23 @@ func RedeemForToken(code string, userId int, tokenId int, tokenKey string, clien
 		if token.Status == common.TokenStatusDisabled {
 			return ErrRedeemTokenDisabled
 		}
+		tokenType := NormalizeTokenType(token.Type)
+		if targetType == RedemptionTargetTypeToken && tokenType != TokenTypeBalance {
+			return ErrRedemptionTokenTypeNotMatch
+		}
+		if targetType == RedemptionTargetTypeTokenSubscription && tokenType != TokenTypeSubscription {
+			return ErrRedemptionTokenTypeNotMatch
+		}
+		if targetType == RedemptionTargetTypeTokenSubscription {
+			subscriptionType := NormalizeRedemptionSubscriptionType(redemption.SubscriptionType)
+			tokenExpired := token.Status == common.TokenStatusExpired || (token.ExpiredTime != -1 && token.ExpiredTime <= now)
+			if subscriptionType == RedemptionSubscriptionTypeRenew && !tokenExpired {
+				return ErrRedemptionSubscriptionRenewRequiresExpired
+			}
+			if subscriptionType == RedemptionSubscriptionTypePack && tokenExpired {
+				return ErrRedemptionSubscriptionPackRequiresActive
+			}
+		}
 
 		usableGroup := strings.TrimSpace(redemption.UsableGroup)
 		if usableGroup != "" {
@@ -267,12 +306,25 @@ func RedeemForToken(code string, userId int, tokenId int, tokenKey string, clien
 			}
 		}
 
+		updates := map[string]interface{}{
+			"remain_quota":  gorm.Expr("remain_quota + ?", redemption.Quota),
+			"accessed_time": now,
+		}
+		if targetType == RedemptionTargetTypeToken && token.ExpiredTime != -1 {
+			newExpiredTime := now + int64(redemption.RenewalDays)*int64((24*time.Hour)/time.Second)
+			if newExpiredTime > token.ExpiredTime {
+				updates["expired_time"] = newExpiredTime
+			}
+		}
+		if targetType == RedemptionTargetTypeTokenSubscription && token.ExpiredTime != -1 {
+			newExpiredTime := now + int64(redemption.RenewalDays)*int64((24*time.Hour)/time.Second)
+			if newExpiredTime > token.ExpiredTime {
+				updates["expired_time"] = newExpiredTime
+			}
+		}
 		updateResult := tx.Model(&Token{}).
 			Where("id = ? and user_id = ?", tokenId, userId).
-			Updates(map[string]interface{}{
-				"remain_quota":  gorm.Expr("remain_quota + ?", redemption.Quota),
-				"accessed_time": now,
-			})
+			Updates(updates)
 		err = updateResult.Error
 		if err != nil {
 			return err
@@ -281,7 +333,7 @@ func RedeemForToken(code string, userId int, tokenId int, tokenKey string, clien
 			return ErrRedeemFailed
 		}
 		err = tx.Model(token).
-			Where("status = ?", common.TokenStatusExhausted).
+			Where("status IN ?", []int{common.TokenStatusExhausted, common.TokenStatusExpired}).
 			Update("status", common.TokenStatusEnabled).Error
 		if err != nil {
 			return err
@@ -298,7 +350,7 @@ func RedeemForToken(code string, userId int, tokenId int, tokenKey string, clien
 		return err
 	})
 	if err != nil {
-		if errors.Is(err, ErrRedemptionInvalid) || errors.Is(err, ErrRedemptionUsed) || errors.Is(err, ErrRedemptionExpired) {
+		if errors.Is(err, ErrRedemptionInvalid) || errors.Is(err, ErrRedemptionUsed) || errors.Is(err, ErrRedemptionExpired) || errors.Is(err, ErrRedemptionGroupNotMatch) || errors.Is(err, ErrRedemptionTokenTypeNotMatch) || errors.Is(err, ErrRedemptionSubscriptionRenewRequiresExpired) || errors.Is(err, ErrRedemptionSubscriptionPackRequiresActive) {
 			return 0, err
 		}
 		if errors.Is(err, ErrRedeemTokenNotFound) || errors.Is(err, ErrRedeemTokenDisabled) {
@@ -328,7 +380,7 @@ func (redemption *Redemption) SelectUpdate() error {
 // Update Make sure your token's fields is completed, because this will update non-zero values
 func (redemption *Redemption) Update() error {
 	var err error
-	err = DB.Model(redemption).Select("name", "status", "target_type", "usable_group", "quota", "redeemed_time", "expired_time").Updates(redemption).Error
+	err = DB.Model(redemption).Select("name", "status", "target_type", "subscription_type", "renewal_days", "usable_group", "quota", "redeemed_time", "expired_time").Updates(redemption).Error
 	return err
 }
 

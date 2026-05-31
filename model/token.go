@@ -15,6 +15,7 @@ type Token struct {
 	Id                 int            `json:"id"`
 	UserId             int            `json:"user_id" gorm:"index"`
 	Key                string         `json:"key" gorm:"type:char(48);uniqueIndex"`
+	Type               string         `json:"type" gorm:"type:varchar(16);default:balance;index"`
 	Status             int            `json:"status" gorm:"default:1"`
 	Name               string         `json:"name" gorm:"index" `
 	CreatedTime        int64          `json:"created_time" gorm:"bigint"`
@@ -29,6 +30,20 @@ type Token struct {
 	Group              string         `json:"group" gorm:"default:''"`
 	CrossGroupRetry    bool           `json:"cross_group_retry"` // 跨分组重试，仅auto分组有效
 	DeletedAt          gorm.DeletedAt `gorm:"index"`
+}
+
+const (
+	TokenTypeBalance      = "balance"
+	TokenTypeSubscription = "subscription"
+)
+
+func NormalizeTokenType(tokenType string) string {
+	switch strings.ToLower(strings.TrimSpace(tokenType)) {
+	case TokenTypeSubscription:
+		return TokenTypeSubscription
+	default:
+		return TokenTypeBalance
+	}
 }
 
 func (token *Token) Clean() {
@@ -303,7 +318,7 @@ func (token *Token) Update() (err error) {
 			})
 		}
 	}()
-	err = DB.Model(token).Select("name", "status", "expired_time", "remain_quota", "unlimited_quota",
+	err = DB.Model(token).Select("name", "type", "status", "expired_time", "remain_quota", "unlimited_quota",
 		"model_limits_enabled", "model_limits", "allow_ips", "group", "cross_group_retry").Updates(token).Error
 	return err
 }
