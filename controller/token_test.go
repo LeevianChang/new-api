@@ -240,6 +240,47 @@ func TestUpdateTokenMasksKeyInResponse(t *testing.T) {
 	}
 }
 
+func TestAddTokenReturnsCreatedFullKey(t *testing.T) {
+	db := setupTokenControllerTestDB(t)
+
+	body := map[string]any{
+		"name":                 "created-token",
+		"type":                 "balance",
+		"expired_time":         -1,
+		"remain_quota":         100,
+		"unlimited_quota":      true,
+		"model_limits_enabled": false,
+		"model_limits":         "",
+		"group":                "default",
+		"cross_group_retry":    false,
+	}
+
+	ctx, recorder := newAuthenticatedContext(t, http.MethodPost, "/api/token/", body, 1)
+	AddToken(ctx)
+
+	response := decodeAPIResponse(t, recorder)
+	if !response.Success {
+		t.Fatalf("expected success response, got message: %s", response.Message)
+	}
+
+	var keyData tokenKeyResponse
+	if err := common.Unmarshal(response.Data, &keyData); err != nil {
+		t.Fatalf("failed to decode token create response: %v", err)
+	}
+	if keyData.Key == "" {
+		t.Fatalf("expected created token key in response")
+	}
+
+	var createdToken model.Token
+	err := db.Where("`key` = ?", keyData.Key).First(&createdToken).Error
+	if err != nil {
+		t.Fatalf("failed to look up created token by returned key: %v", err)
+	}
+	if createdToken.UserId != 1 {
+		t.Fatalf("expected created token to belong to user 1, got %d", createdToken.UserId)
+	}
+}
+
 func TestGetTokenKeyRequiresOwnershipAndReturnsFullKey(t *testing.T) {
 	db := setupTokenControllerTestDB(t)
 	token := seedToken(t, db, 1, "owned-token", "owner1234token5678")
