@@ -257,12 +257,8 @@ func NewBillingSession(c *gin.Context, relayInfo *relaycommon.RelayInfo, preCons
 		return nil, types.NewError(fmt.Errorf("relayInfo is nil"), types.ErrorCodeInvalidRequest, types.ErrOptionWithSkipRetry())
 	}
 
-	pref := common.NormalizeBillingPreference(relayInfo.UserSetting.BillingPreference)
-	if model.NormalizeTokenType(relayInfo.TokenType) == model.TokenTypeSubscription {
-		pref = "subscription_only"
-	} else {
-		pref = "wallet_only"
-	}
+	// Token type only controls token shape here; relay billing still uses wallet quota.
+	pref := "wallet_only"
 
 	// 钱包路径需要先检查用户额度
 	tryWallet := func() (*BillingSession, *types.NewAPIError) {
