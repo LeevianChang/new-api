@@ -3,11 +3,13 @@ package controller
 import (
 	"encoding/json"
 	"fmt"
+	"html"
 	"net/http"
 	"strings"
 
 	"github.com/QuantumNous/new-api/common"
 	"github.com/QuantumNous/new-api/constant"
+	"github.com/QuantumNous/new-api/i18n"
 	"github.com/QuantumNous/new-api/logger"
 	"github.com/QuantumNous/new-api/middleware"
 	"github.com/QuantumNous/new-api/model"
@@ -283,10 +285,30 @@ func SendEmailVerification(c *gin.Context) {
 	}
 	code := common.GenerateVerificationCode(6)
 	common.RegisterVerificationCodeWithKey(email, code, common.EmailVerificationPurpose)
-	subject := fmt.Sprintf("%s邮箱验证邮件", common.SystemName)
-	content := fmt.Sprintf("<p>您好，你正在进行%s邮箱验证。</p>"+
-		"<p>您的验证码为: <strong>%s</strong></p>"+
-		"<p>验证码 %d 分钟内有效，如果不是本人操作，请忽略。</p>", common.SystemName, code, common.VerificationValidMinutes)
+	projectName := strings.TrimSpace(c.Query("project"))
+	projectName = strings.NewReplacer("\r", " ", "\n", " ").Replace(projectName)
+	if len([]rune(projectName)) > 50 {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": "project 参数过长",
+		})
+		return
+	}
+	if projectName == "" {
+		projectName = common.SystemName
+	}
+	emailArgs := map[string]any{
+		"ProjectName": projectName,
+		"Code":        code,
+		"Minutes":     common.VerificationValidMinutes,
+	}
+	contentArgs := map[string]any{
+		"ProjectName": html.EscapeString(projectName),
+		"Code":        code,
+		"Minutes":     common.VerificationValidMinutes,
+	}
+	subject := i18n.T(c, i18n.MsgUserEmailVerificationSubject, emailArgs)
+	content := i18n.T(c, i18n.MsgUserEmailVerificationContent, contentArgs)
 	err := common.SendEmail(subject, email, content)
 	if err != nil {
 		common.ApiError(c, err)

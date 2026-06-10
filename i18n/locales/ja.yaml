@@ -1,0 +1,2 @@
+user.email_verification_subject: "{{.ProjectName}} メール認証"
+user.email_verification_content: "<p>こんにちは。{{.ProjectName}} のメールアドレス認証を行っています。</p><p>認証コードは次のとおりです: <strong>{{.Code}}</strong></p><p>このコードは {{.Minutes}} 分間有効です。心当たりがない場合は、このメールを無視してください。</p>"

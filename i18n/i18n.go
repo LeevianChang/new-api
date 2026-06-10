@@ -19,6 +19,13 @@ const (
 	LangZhCN    = "zh-CN"
 	LangZhTW    = "zh-TW"
 	LangEn      = "en"
+	LangFr      = "fr"
+	LangIt      = "it"
+	LangDe      = "de"
+	LangEs      = "es"
+	LangJa      = "ja"
+	LangKo      = "ko"
+	LangRu      = "ru"
 	DefaultLang = LangEn // Fallback to English if language not supported
 )
 
@@ -40,7 +47,18 @@ func Init() error {
 		bundle.RegisterUnmarshalFunc("yaml", yaml.Unmarshal)
 
 		// Load embedded translation files
-		files := []string{"locales/zh-CN.yaml", "locales/zh-TW.yaml", "locales/en.yaml"}
+		files := []string{
+			"locales/zh-CN.yaml",
+			"locales/zh-TW.yaml",
+			"locales/en.yaml",
+			"locales/fr.yaml",
+			"locales/it.yaml",
+			"locales/de.yaml",
+			"locales/es.yaml",
+			"locales/ja.yaml",
+			"locales/ko.yaml",
+			"locales/ru.yaml",
+		}
 		for _, file := range files {
 			_, err := bundle.LoadMessageFileFS(localeFS, file)
 			if err != nil {
@@ -53,6 +71,13 @@ func Init() error {
 		localizers[LangZhCN] = i18n.NewLocalizer(bundle, LangZhCN)
 		localizers[LangZhTW] = i18n.NewLocalizer(bundle, LangZhTW)
 		localizers[LangEn] = i18n.NewLocalizer(bundle, LangEn)
+		localizers[LangFr] = i18n.NewLocalizer(bundle, LangFr, DefaultLang)
+		localizers[LangIt] = i18n.NewLocalizer(bundle, LangIt, DefaultLang)
+		localizers[LangDe] = i18n.NewLocalizer(bundle, LangDe, DefaultLang)
+		localizers[LangEs] = i18n.NewLocalizer(bundle, LangEs, DefaultLang)
+		localizers[LangJa] = i18n.NewLocalizer(bundle, LangJa, DefaultLang)
+		localizers[LangKo] = i18n.NewLocalizer(bundle, LangKo, DefaultLang)
+		localizers[LangRu] = i18n.NewLocalizer(bundle, LangRu, DefaultLang)
 
 		// Set the TranslateMessage function in common package
 		common.TranslateMessage = T
@@ -209,6 +234,20 @@ func normalizeLang(lang string) string {
 		return LangZhCN
 	case strings.HasPrefix(lang, "en"):
 		return LangEn
+	case strings.HasPrefix(lang, "fr"):
+		return LangFr
+	case strings.HasPrefix(lang, "it"):
+		return LangIt
+	case strings.HasPrefix(lang, "de"):
+		return LangDe
+	case strings.HasPrefix(lang, "es"):
+		return LangEs
+	case strings.HasPrefix(lang, "ja"):
+		return LangJa
+	case strings.HasPrefix(lang, "ko"):
+		return LangKo
+	case strings.HasPrefix(lang, "ru"):
+		return LangRu
 	default:
 		return DefaultLang
 	}
@@ -216,7 +255,7 @@ func normalizeLang(lang string) string {
 
 // SupportedLanguages returns a list of supported language codes
 func SupportedLanguages() []string {
-	return []string{LangZhCN, LangZhTW, LangEn}
+	return []string{LangZhCN, LangZhTW, LangEn, LangFr, LangIt, LangDe, LangEs, LangJa, LangKo, LangRu}
 }
 
 // IsSupported checks if a language code is supported

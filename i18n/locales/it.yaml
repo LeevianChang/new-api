@@ -1,0 +1,2 @@
+user.email_verification_subject: "Verifica email {{.ProjectName}}"
+user.email_verification_content: "<p>Ciao, stai verificando il tuo indirizzo email per {{.ProjectName}}.</p><p>Il tuo codice di verifica è: <strong>{{.Code}}</strong></p><p>Questo codice è valido per {{.Minutes}} minuti. Se non hai richiesto questa operazione, ignora questa email.</p>"
